@@ -1,5 +1,4 @@
-require 'moped'
-require 'bson'
+require 'rmodel'
 
 class User
   attr_accessor :id, :name, :email
@@ -27,45 +26,15 @@ class UserFactory
   end
 end
 
-class MongoRepository
-  def find(id)
-    result = @collection.find(_id: id).first
-    if result
-      @factory.buildInstance(result)
-    else
-      nil
-    end
-  end
-
-  def insert(object)
-    if object.id.nil?
-      object.id = BSON::ObjectId.new
-    end
-    result = @collection.insert(@factory.buildHash(object, true))
-    result['err'].nil?
-  end
-
-  def update(object)
-    result = @collection.find(_id: object.id).update(@factory.buildHash(object, false))
-    result['err'].nil?
-  end
-
-  def remove(object)
-    result = @collection.find(_id: object.id).remove
-    result['err'].nil?
-  end
-end
-
-class UserRepository < MongoRepository
-  def initialize(session, collection)
-    @collection = session[collection]
-    @factory = UserFactory.new
+class UserRepository < Rmodel::Mongodb::Repository
+  def initialize(session)
+    super(session, :users, UserFactory.new)
   end
 end
 
 session = Moped::Session.new([ "127.0.0.1:27017" ])
 session.use 'rmodel_development'
-userRepo = UserRepository.new(session, :users)
+userRepo = UserRepository.new(session)
 
 user = User.new
 user.name = 'John Doe'
