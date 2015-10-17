@@ -1,5 +1,5 @@
 require 'rmodel/version'
-require 'rmodel/simple_factory'
+require 'rmodel/mongodb/simple_factory'
 require 'rmodel/mongodb/repository'
 
 module Rmodel
