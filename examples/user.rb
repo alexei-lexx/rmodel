@@ -5,24 +5,9 @@ class User
   alias_method :_id, :id
 end
 
-class UserFactory
-  def buildInstance(hash)
-    user = User.new
-    user.id = hash['_id']
-    user.name = hash['name']
-    user.email = hash['email']
-    user
-  end
-
-  def buildHash(user, id_included)
-    hash = {
-      'name' => user.name,
-      'email' => user.email
-    }
-    if id_included
-      hash['_id'] = user.id
-    end
-    hash
+class UserFactory < Rmodel::SimpleFactory
+  def initialize
+    super(User, :name, :email)
   end
 end
 
