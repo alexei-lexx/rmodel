@@ -5,7 +5,7 @@ class User
   alias_method :_id, :id
 end
 
-class UserFactory < Rmodel::SimpleFactory
+class UserFactory < Rmodel::Mongodb::SimpleFactory
   def initialize
     super(User, :name, :email)
   end
