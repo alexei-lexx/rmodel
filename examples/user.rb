@@ -2,7 +2,6 @@ require 'rmodel'
 
 class User
   attr_accessor :id, :name, :email
-  alias_method :_id, :id
 end
 
 class UserFactory < Rmodel::Mongodb::SimpleFactory
