@@ -1,7 +1,7 @@
 RSpec.describe Rmodel::Mongodb::SimpleFactory do
   context 'when the User(id, name, email) class is defined' do
-    User = Struct.new(:id, :name, :email)
-    subject(:factory) { Rmodel::Mongodb::SimpleFactory.new(User, :name, :email) }
+    let(:user_klass) { Struct.new(:id, :name, :email) }
+    subject(:factory) { Rmodel::Mongodb::SimpleFactory.new(user_klass, :name, :email) }
 
     describe '#fromHash' do
       context 'when the hash with _id, name and email is given' do
@@ -9,7 +9,7 @@ RSpec.describe Rmodel::Mongodb::SimpleFactory do
         let(:result) { factory.fromHash(hash) }
 
         it 'returns an instance of User' do
-          expect(result).to be_an_instance_of User
+          expect(result).to be_an_instance_of user_klass
         end
 
         it 'sets the attributes correctly' do
@@ -24,7 +24,7 @@ RSpec.describe Rmodel::Mongodb::SimpleFactory do
     end
 
     describe '#toHash' do
-      let(:user) { User.new(1, 'John', 'john@example.com') }
+      let(:user) { user_klass.new(1, 'John', 'john@example.com') }
       context 'when id_included is false' do
         let(:result) { factory.toHash(user, false) }
 
