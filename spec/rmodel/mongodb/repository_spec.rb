@@ -27,5 +27,44 @@ RSpec.describe Rmodel::Mongodb::Repository do
         end
       end
     end
+
+    describe '#insert' do
+      context 'when the user has no id' do
+        let(:user) { user_klass.new(nil, 'John', 'john@example.com') }
+
+        it 'sets the id before insert' do
+          repo.insert(user)
+          expect(user.id).not_to be_nil
+        end
+
+        it 'persists the user' do
+          repo.insert(user)
+          found = session[:users].find(name: 'John', email: 'john@example.com').count
+          expect(found).to eq 1
+        end
+
+        it 'returns true' do
+          expect(repo.insert(user)).to be true
+        end
+      end
+
+      context 'when the user has the id' do
+        let(:user) { user_klass.new(1, 'John', 'john@example.com') }
+
+        it 'uses the existent id' do
+          repo.insert(user)
+          expect(user.id).to eq 1
+        end
+      end
+
+      context 'when the given id already exists' do
+        let(:user) { user_klass.new(nil, 'John', 'john@example.com') }
+        before { repo.insert(user) }
+
+        it 'raises the error' do
+          expect { repo.insert(user) }.to raise_error Moped::Errors::OperationFailure
+        end
+      end
+    end
   end
 end
