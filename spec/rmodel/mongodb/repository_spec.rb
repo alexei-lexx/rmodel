@@ -66,5 +66,24 @@ RSpec.describe Rmodel::Mongodb::Repository do
         end
       end
     end
+
+    describe '#update' do
+      let(:user) { user_klass.new(nil, 'John', 'john@example.com') }
+
+      before do
+        repo.insert(user)
+        user.name = 'John Smith'
+      end
+
+      it 'updates the record' do
+        repo.update(user)
+        found = session[:users].find(name: 'John Smith').count
+        expect(found).to eq 1
+      end
+
+      it 'returns true' do
+        expect(repo.update(user)).to be true
+      end
+    end
   end
 end
