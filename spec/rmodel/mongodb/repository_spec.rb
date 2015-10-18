@@ -42,10 +42,6 @@ RSpec.describe Rmodel::Mongodb::Repository do
           found = session[:users].find(name: 'John', email: 'john@example.com').count
           expect(found).to eq 1
         end
-
-        it 'returns true' do
-          expect(repo.insert(user)).to be true
-        end
       end
 
       context 'when the user has the id' do
@@ -80,10 +76,6 @@ RSpec.describe Rmodel::Mongodb::Repository do
         found = session[:users].find(name: 'John Smith').count
         expect(found).to eq 1
       end
-
-      it 'returns true' do
-        expect(repo.update(user)).to be true
-      end
     end
 
     describe '#remove' do
@@ -94,10 +86,6 @@ RSpec.describe Rmodel::Mongodb::Repository do
         repo.remove(user)
         found = session[:users].find(name: 'John').count
         expect(found).to eq 0
-      end
-
-      it 'returns true' do
-        expect(repo.remove(user)).to be true
       end
     end
   end

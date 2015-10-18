@@ -21,18 +21,15 @@ module Rmodel::Mongodb
       if object.id.nil?
         object.id = BSON::ObjectId.new
       end
-      result = @collection.insert(@factory.toHash(object, true))
-      result['err'].nil?
+      @collection.insert(@factory.toHash(object, true))
     end
 
     def update(object)
-      result = @collection.find(_id: object.id).update(@factory.toHash(object, false))
-      result['err'].nil?
+      @collection.find(_id: object.id).update(@factory.toHash(object, false))
     end
 
     def remove(object)
-      result = @collection.find(_id: object.id).remove
-      result['err'].nil?
+      @collection.find(_id: object.id).remove
     end
   end
 end
