@@ -85,5 +85,20 @@ RSpec.describe Rmodel::Mongodb::Repository do
         expect(repo.update(user)).to be true
       end
     end
+
+    describe '#remove' do
+      let(:user) { user_klass.new(nil, 'John', 'john@example.com') }
+      before { repo.insert(user) }
+
+      it 'removes the record' do
+        repo.remove(user)
+        found = session[:users].find(name: 'John').count
+        expect(found).to eq 0
+      end
+
+      it 'returns true' do
+        expect(repo.remove(user)).to be true
+      end
+    end
   end
 end
