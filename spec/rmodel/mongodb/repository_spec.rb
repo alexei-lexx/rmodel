@@ -2,21 +2,20 @@ RSpec.describe Rmodel::Mongodb::Repository do
   include_context 'clean mongodb database'
 
   context 'when the User(id, name, email) class is defined' do
-    let(:user_klass) { Struct.new(:id, :name, :email) }
+    before { stub_const('User', Struct.new(:id, :name, :email)) }
 
-    let(:session) { Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test') }
-    let(:factory) { Rmodel::Mongodb::SimpleFactory.new(user_klass, :name, :email) }
-    subject(:repo) { Rmodel::Mongodb::Repository.new(session, :users, factory) }
+    let(:factory) { Rmodel::Mongodb::SimpleFactory.new(User, :name, :email) }
+    subject(:repo) { Rmodel::Mongodb::Repository.new(mongo_session, :users, factory) }
 
     describe '#find' do
       context 'when an existent id is given' do
         before do
-          session[:users].insert_one(_id: 1, name: 'John', email: 'john@example.com')
+          mongo_session[:users].insert_one(_id: 1, name: 'John', email: 'john@example.com')
         end
 
         it 'returns the correct instance of User' do
           user = repo.find(1)
-          expect(user).to be_an_instance_of user_klass
+          expect(user).to be_an_instance_of User
         end
       end
 
@@ -29,7 +28,7 @@ RSpec.describe Rmodel::Mongodb::Repository do
 
     describe '#insert' do
       context 'when the user has no id' do
-        let(:user) { user_klass.new(nil, 'John', 'john@example.com') }
+        let(:user) { User.new(nil, 'John', 'john@example.com') }
 
         it 'sets the id before insert' do
           repo.insert(user)
@@ -38,13 +37,13 @@ RSpec.describe Rmodel::Mongodb::Repository do
 
         it 'persists the user' do
           repo.insert(user)
-          found = session[:users].find(name: 'John', email: 'john@example.com').count
+          found = mongo_session[:users].find(name: 'John', email: 'john@example.com').count
           expect(found).to eq 1
         end
       end
 
       context 'when the user has the id' do
-        let(:user) { user_klass.new(1, 'John', 'john@example.com') }
+        let(:user) { User.new(1, 'John', 'john@example.com') }
 
         it 'uses the existent id' do
           repo.insert(user)
@@ -53,7 +52,7 @@ RSpec.describe Rmodel::Mongodb::Repository do
       end
 
       context 'when the given id already exists' do
-        let(:user) { user_klass.new(nil, 'John', 'john@example.com') }
+        let(:user) { User.new(nil, 'John', 'john@example.com') }
         before { repo.insert(user) }
 
         it 'raises the error' do
@@ -63,7 +62,7 @@ RSpec.describe Rmodel::Mongodb::Repository do
     end
 
     describe '#update' do
-      let(:user) { user_klass.new(nil, 'John', 'john@example.com') }
+      let(:user) { User.new(nil, 'John', 'john@example.com') }
 
       before do
         repo.insert(user)
@@ -72,18 +71,18 @@ RSpec.describe Rmodel::Mongodb::Repository do
 
       it 'updates the record' do
         repo.update(user)
-        found = session[:users].find(name: 'John Smith').count
+        found = mongo_session[:users].find(name: 'John Smith').count
         expect(found).to eq 1
       end
     end
 
     describe '#remove' do
-      let(:user) { user_klass.new(nil, 'John', 'john@example.com') }
+      let(:user) { User.new(nil, 'John', 'john@example.com') }
       before { repo.insert(user) }
 
       it 'removes the record' do
         repo.remove(user)
-        found = session[:users].find(name: 'John').count
+        found = mongo_session[:users].find(name: 'John').count
         expect(found).to eq 0
       end
     end
