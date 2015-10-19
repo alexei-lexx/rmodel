@@ -1,8 +1,6 @@
 require 'rmodel'
 
-class User
-  attr_accessor :id, :name, :email
-end
+User = Struct.new(:id, :name, :email)
 
 class UserFactory < Rmodel::Mongodb::SimpleFactory
   def initialize
@@ -19,18 +17,10 @@ end
 session = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_development')
 userRepo = UserRepository.new(session)
 
-user = User.new
-user.name = 'John Doe'
-user.email = 'john@example.com'
-p userRepo.insert(user)
+john = User.new(nil, 'John', 'john@example.com')
+bill = User.new(nil, 'Bill', 'bill@example.com')
+bob = User.new(nil, 'Bob', 'bob@example.com')
 
-p userRepo.find(user.id)
-
-user.name = 'Smith'
-p userRepo.update(user)
-
-p userRepo.find(user.id)
-
-p userRepo.remove(user)
-
-p userRepo.find(user.id)
+userRepo.insert(john)
+userRepo.insert(bill)
+userRepo.insert(bob)
