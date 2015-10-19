@@ -1,18 +1,17 @@
 RSpec.describe Rmodel::Mongodb::Repository do
-  include_context 'clean moped'
+  include_context 'clean mongodb database'
 
   context 'when the User(id, name, email) class is defined' do
     let(:user_klass) { Struct.new(:id, :name, :email) }
 
-    let(:session) { Moped::Session.new([ "127.0.0.1:27017" ]) }
+    let(:session) { Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test') }
     let(:factory) { Rmodel::Mongodb::SimpleFactory.new(user_klass, :name, :email) }
-    before { session.use 'rmodel_test' }
     subject(:repo) { Rmodel::Mongodb::Repository.new(session, :users, factory) }
 
     describe '#find' do
       context 'when an existent id is given' do
         before do
-          session[:users].insert(_id: 1, name: 'John', email: 'john@example.com')
+          session[:users].insert_one(_id: 1, name: 'John', email: 'john@example.com')
         end
 
         it 'returns the correct instance of User' do
@@ -58,7 +57,7 @@ RSpec.describe Rmodel::Mongodb::Repository do
         before { repo.insert(user) }
 
         it 'raises the error' do
-          expect { repo.insert(user) }.to raise_error Moped::Errors::OperationFailure
+          expect { repo.insert(user) }.to raise_error Mongo::Error::OperationFailure
         end
       end
     end
