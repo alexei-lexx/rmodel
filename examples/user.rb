@@ -16,8 +16,7 @@ class UserRepository < Rmodel::Mongodb::Repository
   end
 end
 
-session = Moped::Session.new([ "127.0.0.1:27017" ])
-session.use 'rmodel_development'
+session = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_development')
 userRepo = UserRepository.new(session)
 
 user = User.new

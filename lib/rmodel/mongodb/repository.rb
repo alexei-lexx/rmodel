@@ -1,5 +1,4 @@
-require 'moped'
-require 'bson'
+require 'mongo'
 
 module Rmodel::Mongodb
   class Repository
@@ -21,15 +20,15 @@ module Rmodel::Mongodb
       if object.id.nil?
         object.id = BSON::ObjectId.new
       end
-      @collection.insert(@factory.toHash(object, true))
+      @collection.insert_one(@factory.toHash(object, true))
     end
 
     def update(object)
-      @collection.find(_id: object.id).update(@factory.toHash(object, false))
+      @collection.find(_id: object.id).update_one(@factory.toHash(object, false))
     end
 
     def remove(object)
-      @collection.find(_id: object.id).remove
+      @collection.find(_id: object.id).delete_one
     end
   end
 end
