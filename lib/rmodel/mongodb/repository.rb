@@ -3,7 +3,11 @@ require 'mongo'
 module Rmodel::Mongodb
   class Repository
     def initialize(session, collection, factory)
-      @collection = session[collection]
+      @session = session || self.class.setting_session || Rmodel.sessions[:default]
+      unless @session
+        raise ArgumentError.new('Session can not be nil')
+      end
+      @collection = @session[collection]
       @factory = factory
     end
 
@@ -29,6 +33,14 @@ module Rmodel::Mongodb
 
     def remove(object)
       @collection.find(_id: object.id).delete_one
+    end
+
+    class << self
+      attr_accessor :setting_session
+
+      def session(name)
+        self.setting_session = Rmodel.sessions[name]
+      end
     end
   end
 end
