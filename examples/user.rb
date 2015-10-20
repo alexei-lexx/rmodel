@@ -2,6 +2,8 @@ require 'rmodel'
 
 User = Struct.new(:id, :name, :email)
 
+Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_development')
+
 class UserFactory < Rmodel::Mongodb::SimpleFactory
   def initialize
     super(User, :name, :email)
@@ -9,13 +11,12 @@ class UserFactory < Rmodel::Mongodb::SimpleFactory
 end
 
 class UserRepository < Rmodel::Mongodb::Repository
-  def initialize(session)
-    super(session, :users, UserFactory.new)
+  def initialize
+    super(nil, :users, UserFactory.new)
   end
 end
 
-session = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_development')
-userRepo = UserRepository.new(session)
+userRepo = UserRepository.new
 
 john = User.new(nil, 'John', 'john@example.com')
 bill = User.new(nil, 'Bill', 'bill@example.com')
