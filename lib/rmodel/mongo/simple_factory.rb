@@ -1,4 +1,4 @@
-module Rmodel::Mongodb
+module Rmodel::Mongo
   class SimpleFactory
     def initialize(klass, *attributes)
       @klass = klass

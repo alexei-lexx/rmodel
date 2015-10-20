@@ -1,8 +1,8 @@
-RSpec.describe Rmodel::Mongodb::SimpleFactory do
+RSpec.describe Rmodel::Mongo::SimpleFactory do
   context 'when the User(id, name, email) class is defined' do
     before { stub_const('User', Struct.new(:id, :name, :email)) }
 
-    subject(:factory) { Rmodel::Mongodb::SimpleFactory.new(User, :name, :email) }
+    subject(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
 
     describe '#fromHash' do
       context 'when the hash with _id, name and email is given' do
