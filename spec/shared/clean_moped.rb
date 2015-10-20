@@ -1,4 +1,4 @@
-RSpec.shared_context 'clean mongodb database' do
+RSpec.shared_context 'clean Mongo database' do
   let(:mongo_session) { Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test') }
 
   before(:all) do
