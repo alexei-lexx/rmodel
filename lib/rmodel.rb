@@ -1,7 +1,7 @@
 require 'rmodel/version'
 require 'rmodel/sessions'
-require 'rmodel/mongodb/simple_factory'
-require 'rmodel/mongodb/repository'
+require 'rmodel/mongo/simple_factory'
+require 'rmodel/mongo/repository'
 
 module Rmodel
   extend Rmodel::Sessions

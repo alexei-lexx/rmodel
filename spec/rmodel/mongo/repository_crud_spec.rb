@@ -1,11 +1,11 @@
-RSpec.describe Rmodel::Mongodb::Repository do
-  include_context 'clean mongodb database'
+RSpec.describe Rmodel::Mongo::Repository do
+  include_context 'clean Mongo database'
 
   context 'when the User(id, name, email) class is defined' do
     before { stub_const('User', Struct.new(:id, :name, :email)) }
 
-    let(:factory) { Rmodel::Mongodb::SimpleFactory.new(User, :name, :email) }
-    subject(:repo) { Rmodel::Mongodb::Repository.new(mongo_session, :users, factory) }
+    let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
+    subject(:repo) { Rmodel::Mongo::Repository.new(mongo_session, :users, factory) }
 
     describe '#find' do
       context 'when an existent id is given' do

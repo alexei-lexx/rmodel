@@ -1,6 +1,6 @@
 require 'mongo'
 
-module Rmodel::Mongodb
+module Rmodel::Mongo
   class Repository
     def initialize(session, collection, factory)
       @session = session || self.class.setting_session || Rmodel.sessions[:default]

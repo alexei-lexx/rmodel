@@ -1,11 +1,11 @@
-RSpec.describe Rmodel::Mongodb::Repository do
+RSpec.describe Rmodel::Mongo::Repository do
   before { Rmodel.sessions.clear }
   before { stub_const('User', Struct.new(:id, :name, :email)) }
 
   let(:session_a) { stub_session }
   let(:session_b) { stub_session }
   let(:session_d) { stub_session }
-  let(:factory) { Rmodel::Mongodb::SimpleFactory.new(User, :name, :email) }
+  let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
 
   before { Rmodel.sessions[:session_a] = session_a }
 
@@ -13,7 +13,7 @@ RSpec.describe Rmodel::Mongodb::Repository do
 
     context 'when the A session is defined by class macro .session' do
       before do
-        stub_const('UserRepository', Class.new(Rmodel::Mongodb::Repository) {
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           session :session_a
         })
       end
@@ -39,7 +39,7 @@ RSpec.describe Rmodel::Mongodb::Repository do
 
     context 'when the A session is not defined by class macro .session' do
       before do
-        stub_const('UserRepository', Class.new(Rmodel::Mongodb::Repository))
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
       end
 
       context 'but the B session is passed to the constructor' do
