@@ -1,21 +1,27 @@
 require 'mongo'
+require 'active_support/inflector'
 
 module Rmodel::Mongo
   class Repository
     attr_accessor :session
     private 'session='
 
+    attr_accessor :collection
+    private 'collection='
+
     def initialize(session, collection, factory)
       self.session = session || self.class.setting_session ||
                       Rmodel.sessions[:default] or
-                      raise ArgumentError.new('Session can not be nil')
+                      raise ArgumentError.new('Session can not be guessed')
 
-      @collection = self.session[collection]
+      self.collection = collection || self.class.setting_collection ||
+                      self.class.collection_by_convention or
+                      raise ArgumentError.new('Collection can not be guessed')
       @factory = factory
     end
 
     def find(id)
-      result = @collection.find(_id: id).first
+      result = self.session[collection].find(_id: id).first
       if result
         @factory.fromHash(result)
       else
@@ -27,15 +33,15 @@ module Rmodel::Mongo
       if object.id.nil?
         object.id = BSON::ObjectId.new
       end
-      @collection.insert_one(@factory.toHash(object, true))
+      self.session[collection].insert_one(@factory.toHash(object, true))
     end
 
     def update(object)
-      @collection.find(_id: object.id).update_one(@factory.toHash(object, false))
+      self.session[collection].find(_id: object.id).update_one(@factory.toHash(object, false))
     end
 
     def remove(object)
-      @collection.find(_id: object.id).delete_one
+      self.session[collection].find(_id: object.id).delete_one
     end
 
     class << self
@@ -43,6 +49,15 @@ module Rmodel::Mongo
 
       def session(name)
         self.setting_session = Rmodel.sessions[name]
+      end
+
+      attr_accessor :setting_collection
+      alias_method :collection, 'setting_collection='
+
+      def collection_by_convention
+        if name =~ /(.*)Repository$/
+          ActiveSupport::Inflector.tableize($1).to_sym
+        end
       end
     end
   end
