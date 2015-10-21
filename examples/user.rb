@@ -12,7 +12,7 @@ end
 
 class UserRepository < Rmodel::Mongo::Repository
   def initialize
-    super(nil, :users, UserFactory.new)
+    super(nil, nil, UserFactory.new)
   end
 end
 
