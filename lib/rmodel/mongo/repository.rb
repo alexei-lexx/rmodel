@@ -2,12 +2,15 @@ require 'mongo'
 
 module Rmodel::Mongo
   class Repository
+    attr_accessor :session
+    private 'session='
+
     def initialize(session, collection, factory)
-      @session = session || self.class.setting_session || Rmodel.sessions[:default]
-      unless @session
-        raise ArgumentError.new('Session can not be nil')
-      end
-      @collection = @session[collection]
+      self.session = session || self.class.setting_session ||
+                      Rmodel.sessions[:default] or
+                      raise ArgumentError.new('Session can not be nil')
+
+      @collection = self.session[collection]
       @factory = factory
     end
 
