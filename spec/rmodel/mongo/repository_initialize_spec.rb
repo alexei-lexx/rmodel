@@ -120,6 +120,57 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
       end
     end
+
+    describe 'how to get the factory' do
+      context 'when the A factory is defined by class macro .simple_factory' do
+        before do
+          stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+            simple_factory User, :name, :email
+          })
+        end
+        let(:factory_a) { UserRepository.setting_factory }
+
+        context 'and the B factory is passed to the constructor' do
+          let(:factory_b) { factory }
+          subject(:repo) { UserRepository.new(stub_session, :users, factory_b) }
+
+          it 'uses the B factory' do
+            expect(repo.factory).to equal factory_b
+          end
+        end
+
+        context 'and no factory is passed to the constructor' do
+          subject(:repo) { UserRepository.new(stub_session, :users, nil) }
+
+          it 'uses the A factory' do
+            expect(repo.factory).to equal factory_a
+          end
+        end
+      end
+
+      context 'when no factory is defined by class macro .simple_factory' do
+        before do
+          stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
+        end
+
+        context 'but the B factory is passed to the constructor' do
+          let(:factory_b) { factory }
+          subject(:repo) { UserRepository.new(stub_session, :users, factory_b) }
+
+          it 'uses the B factory' do
+            expect(repo.factory).to equal factory_b
+          end
+        end
+
+        context 'and no factory is passed to the constructor' do
+          it 'raises an error' do
+            expect {
+              UserRepository.new(stub_session, :users, nil)
+            }.to raise_error ArgumentError
+          end
+        end
+      end
+    end
   end
 
   def stub_session
