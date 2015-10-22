@@ -1,8 +1,11 @@
 require 'mongo'
 require 'active_support/inflector'
+require 'rmodel/mongo/repository_ext/queryable'
 
 module Rmodel::Mongo
   class Repository
+    include RepositoryExt::Queryable
+
     attr_accessor :session
     private 'session='
 
