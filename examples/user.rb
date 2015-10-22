@@ -4,15 +4,11 @@ User = Struct.new(:id, :name, :email)
 
 Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_development')
 
-class UserFactory < Rmodel::Mongo::SimpleFactory
-  def initialize
-    super(User, :name, :email)
-  end
-end
-
 class UserRepository < Rmodel::Mongo::Repository
+  simple_factory User, :name, :email
+
   def initialize
-    super(nil, nil, UserFactory.new)
+    super(nil, nil, nil)
   end
 end
 
