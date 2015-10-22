@@ -22,8 +22,7 @@ RSpec.describe Rmodel::Mongo::Repository do
           subject(:repo) { UserRepository.new(session_b, :users, factory) }
 
           it 'uses the B' do
-            actual_session = repo.instance_variable_get('@session')
-            expect(actual_session).to equal session_b
+            expect(repo.session).to equal session_b
           end
         end
 
@@ -31,8 +30,7 @@ RSpec.describe Rmodel::Mongo::Repository do
           subject(:repo) { UserRepository.new(nil, :users, factory) }
 
           it 'uses the A' do
-            actual_session = repo.instance_variable_get('@session')
-            expect(actual_session).to equal session_a
+            expect(repo.session).to equal session_a
           end
         end
       end
@@ -46,8 +44,7 @@ RSpec.describe Rmodel::Mongo::Repository do
           subject(:repo) { UserRepository.new(session_b, :users, factory) }
 
           it 'uses the B' do
-            actual_session = repo.instance_variable_get('@session')
-            expect(actual_session).to equal session_b
+            expect(repo.session).to equal session_b
           end
         end
 
@@ -66,8 +63,7 @@ RSpec.describe Rmodel::Mongo::Repository do
           subject(:repo) { UserRepository.new(nil, :users, factory) }
 
           it 'uses the :default session' do
-            actual_session = repo.instance_variable_get('@session')
-            expect(actual_session).to equal session_d
+            expect(repo.session).to equal session_d
           end
         end
       end
