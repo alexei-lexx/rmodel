@@ -12,7 +12,7 @@ module Rmodel::Mongo
     attr_accessor :factory
     private 'factory='
 
-    def initialize(session, collection, factory)
+    def initialize(session = nil, collection = nil, factory = nil)
       self.session = session || self.class.setting_session ||
                       Rmodel.sessions[:default] or
                       raise ArgumentError.new('Session can not be guessed')
