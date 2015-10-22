@@ -167,6 +167,21 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
       end
     end
+
+    context 'when the session, collection adn factory are defined by class macroses' do
+      before do
+        Rmodel.sessions[:default] = stub_session
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+          simple_factory User, :name, :email
+        })
+      end
+
+      context 'and no arguments are passed to the constructor' do
+        it 'works!' do
+          expect { UserRepository.new }.not_to raise_error
+        end
+      end
+    end
   end
 
   def stub_session
