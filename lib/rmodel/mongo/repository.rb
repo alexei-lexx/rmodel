@@ -9,6 +9,9 @@ module Rmodel::Mongo
     attr_accessor :collection
     private 'collection='
 
+    attr_accessor :factory
+    private 'factory='
+
     def initialize(session, collection, factory)
       self.session = session || self.class.setting_session ||
                       Rmodel.sessions[:default] or
@@ -17,7 +20,9 @@ module Rmodel::Mongo
       self.collection = collection || self.class.setting_collection ||
                       self.class.collection_by_convention or
                       raise ArgumentError.new('Collection can not be guessed')
-      @factory = factory
+
+      self.factory = factory || self.class.setting_factory or
+                      raise ArgumentError.new('Factory can not be guessed')
     end
 
     def find(id)
@@ -58,6 +63,12 @@ module Rmodel::Mongo
         if name =~ /(.*)Repository$/
           ActiveSupport::Inflector.tableize($1).to_sym
         end
+      end
+
+      attr_accessor :setting_factory
+
+      def simple_factory(klass, *attributes)
+        self.setting_factory = SimpleFactory.new(klass, *attributes)
       end
     end
   end
