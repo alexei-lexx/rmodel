@@ -19,15 +19,11 @@ class UserRepository < Rmodel::Mongo::Repository
   simple_factory User, :name, :email
 
   scope :example_com do
-    where(email: { '$regex' => /@example\.com$/ })
+    where(email: { '$regex' => /@example\.com$/i })
   end
 
-  scope :bill do
-    where(name: 'Bill')
-  end
-
-  scope :bob do
-    where(name: 'Bob')
+  scope :start_with_b do
+    where(name: { '$regex' => /^b/i })
   end
 end
 
@@ -43,6 +39,6 @@ userRepo.insert(bob)
 
 p userRepo.query.example_com.to_a
 p '--------------------------------'
-p userRepo.query.example_com.bill.to_a
+p userRepo.query.example_com.start_with_b.to_a
 p '--------------------------------'
-p userRepo.query.bob.to_a
+p userRepo.query.start_with_b.to_a
