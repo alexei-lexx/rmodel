@@ -31,6 +31,10 @@ module Rmodel::Mongo
       end
     end
 
+    def find!(id)
+      find(id) or raise Rmodel::NotFound.new(self, { id: id })
+    end
+
     def insert(object)
       if object.id.nil?
         object.id = BSON::ObjectId.new
