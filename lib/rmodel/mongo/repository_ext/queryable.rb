@@ -7,8 +7,8 @@ module Rmodel::Mongo
         self.class.query_klass.new(self)
       end
 
-      def execute_query(queryable)
-        self.session[collection].find(queryable.selector, queryable.options)
+      def execute_query(selector, options)
+        self.session[collection].find(selector, options)
       end
 
       def self.included(base)
@@ -20,13 +20,7 @@ module Rmodel::Mongo
 
         def scope(name, &block)
           self.query_klass ||= Class.new(Query)
-
-          self.query_klass.class_eval do
-            define_method name do |*args|
-              new_queryable = @queryable.instance_exec(*args, &block)
-              self.class.new(@repo, new_queryable)
-            end
-          end
+          self.query_klass.define_scope(name, &block)
         end
       end
     end
