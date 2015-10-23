@@ -47,3 +47,10 @@ p userRepo.query.start_with('b').count
 p '================================'
 userRepo.query.start_with('b').remove
 p userRepo.query.count
+
+begin
+  p userRepo.find!(john.id)
+  p userRepo.find!(bill.id)
+rescue Rmodel::NotFound => err
+  p err
+end
