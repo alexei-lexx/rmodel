@@ -6,14 +6,10 @@ module Rmodel::Mongo
   class Repository
     include RepositoryExt::Queryable
 
-    attr_accessor :session, :collection, :factory
-    private 'session=', 'collection=', 'factory='
+    attr_accessor :collection, :factory
+    private 'collection=', 'factory='
 
-    def initialize(session = nil, collection = nil, factory = nil)
-      self.session = session || self.class.setting_session ||
-                      Rmodel.sessions[:default] or
-                      raise ArgumentError.new('Session can not be guessed')
-
+    def initialize(collection = nil, factory = nil)
       self.collection = collection || self.class.setting_collection ||
                       self.class.collection_by_convention or
                       raise ArgumentError.new('Collection can not be guessed')
@@ -64,14 +60,10 @@ module Rmodel::Mongo
 
     class << self
       attr_reader :client_name
-      attr_accessor :setting_session, :setting_collection, :setting_factory
+      attr_accessor :setting_collection, :setting_factory
 
       def client(name)
         @client_name = name
-      end
-
-      def session(name)
-        self.setting_session = Rmodel.sessions[name]
       end
 
       alias_method :collection, 'setting_collection='

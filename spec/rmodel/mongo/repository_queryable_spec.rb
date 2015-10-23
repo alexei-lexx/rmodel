@@ -2,7 +2,6 @@ RSpec.describe Rmodel::Mongo::Repository do
   include_context 'clean Mongo database'
 
   before do
-    Rmodel.sessions[:default] = mongo_session
     Rmodel.setup do
       client :default, hosts: [ 'localhost' ], database: 'rmodel_test'
     end
