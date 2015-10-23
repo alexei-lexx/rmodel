@@ -30,6 +30,10 @@ RSpec.describe Rmodel::Mongo::Repository do
       it 'works!' do
         expect(repo.query.a_equals_2.count).to eq 2
       end
+
+      it 'returns an array of instances of the appropriate class' do
+        expect(repo.query.a_equals_2.first).to be_an_instance_of Thing
+      end
     end
 
     context 'when a scope w/ arguments is defined' do

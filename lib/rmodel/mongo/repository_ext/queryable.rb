@@ -7,6 +7,12 @@ module Rmodel::Mongo
         (self.class.query_klass ||= Class.new(Query)).new(self)
       end
 
+      def find_by_query(selector, options)
+        execute_query(selector, options).map do |hash|
+          factory.fromHash(hash)
+        end
+      end
+
       def execute_query(selector, options)
         self.session[collection].find(selector, options)
       end

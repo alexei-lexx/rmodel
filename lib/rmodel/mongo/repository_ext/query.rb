@@ -15,12 +15,12 @@ module Rmodel::Mongo
       end
 
       def each(&block)
-        execute.each(&block)
+        @repo.find_by_query(@queryable.selector, @queryable.options).each(&block)
         self
       end
 
       def remove
-        execute.delete_many
+        @repo.execute_query(@queryable.selector, @queryable.options).delete_many
       end
 
       def self.define_scope(name, &block)
@@ -28,12 +28,6 @@ module Rmodel::Mongo
           new_queryable = @queryable.instance_exec(*args, &block)
           self.class.new(@repo, new_queryable)
         end
-      end
-
-      private
-
-      def execute
-        @repo.execute_query(@queryable.selector, @queryable.options)
       end
     end
   end
