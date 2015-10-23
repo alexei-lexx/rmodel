@@ -22,6 +22,18 @@ module Rmodel::Mongo
                       raise ArgumentError.new('Factory can not be guessed')
     end
 
+    def client
+      client_name = self.class.client_name || :default
+      config = Rmodel.setup.clients[client_name]
+      raise ArgumentError.new('Client driver is not setup') if config.nil?
+
+      hosts = config[:hosts]
+      options = config.dup
+      options.delete :hosts
+
+      @client ||= Mongo::Client.new(hosts, options)
+    end
+
     def find(id)
       result = self.session[collection].find(_id: id).first
       if result
@@ -51,7 +63,12 @@ module Rmodel::Mongo
     end
 
     class << self
+      attr_reader :client_name
       attr_accessor :setting_session, :setting_collection, :setting_factory
+
+      def client(name)
+        @client_name = name
+      end
 
       def session(name)
         self.setting_session = Rmodel.sessions[name]
