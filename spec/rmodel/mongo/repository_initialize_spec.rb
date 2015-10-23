@@ -3,6 +3,70 @@ RSpec.describe Rmodel::Mongo::Repository do
   before { stub_const('User', Struct.new(:id, :name, :email)) }
   let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
 
+  describe '.client(name)' do
+    before { Rmodel.setup.clear }
+    subject { UserRepository.new }
+
+    context 'when it is called with an existent name' do
+      before do
+        Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test')
+        Rmodel.setup do
+          client :mongo, { hosts: [ 'localhost' ] }
+        end
+
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+          client :mongo
+          simple_factory User, :name, :email
+        })
+      end
+
+      it 'sets the appropriate #client' do
+        expect(subject.client).to be_an_instance_of Mongo::Client
+      end
+    end
+
+    context 'when it is called with a non-existent name' do
+      before do
+        Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test')
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+          client :mongo
+          simple_factory User, :name, :email
+        })
+      end
+
+      it 'makes #client raise the ArgumentError' do
+        expect { subject.client }.to raise_error ArgumentError
+      end
+    end
+
+    context 'when it is not called' do
+      before do
+        Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test')
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+          simple_factory User, :name, :email
+        })
+      end
+
+      context 'when the :default client is set' do
+        before do
+          Rmodel.setup do
+            client :default, { hosts: [ 'localhost' ] }
+          end
+        end
+
+        it 'sets #client to be default' do
+          expect(subject.client).to be_an_instance_of Mongo::Client
+        end
+      end
+
+      context 'when the :default client is not set' do
+        it 'makes #client raise the ArgumentError' do
+          expect { subject.client }.to raise_error ArgumentError
+        end
+      end
+    end
+  end
+
   describe '#initialize' do
     describe 'how to guess the session' do
       let(:session_a) { stub_session }
