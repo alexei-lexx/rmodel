@@ -14,7 +14,7 @@ module Rmodel::Mongo
       end
 
       def execute_query(selector, options)
-        self.session[collection].find(selector, options)
+        self.client[collection].find(selector, options)
       end
 
       def self.included(base)
