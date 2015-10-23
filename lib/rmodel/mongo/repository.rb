@@ -6,18 +6,15 @@ module Rmodel::Mongo
   class Repository
     include RepositoryExt::Queryable
 
-    attr_reader :collection
+    attr_reader :collection, :factory
 
-    attr_accessor :factory
-    private 'factory='
-
-    def initialize(factory = nil)
+    def initialize
       @collection = self.class.setting_collection ||
                     self.class.collection_by_convention or
                     raise ArgumentError.new('Collection can not be guessed')
 
-      self.factory = factory || self.class.setting_factory or
-                      raise ArgumentError.new('Factory can not be guessed')
+      @factory = self.class.setting_factory or
+                 raise ArgumentError.new('Factory can not be guessed')
     end
 
     def client
@@ -61,8 +58,7 @@ module Rmodel::Mongo
     end
 
     class << self
-      attr_reader :client_name, :setting_collection
-      attr_accessor :setting_factory
+      attr_reader :client_name, :setting_collection, :setting_factory
 
       def client(name)
         @client_name = name
@@ -79,7 +75,7 @@ module Rmodel::Mongo
       end
 
       def simple_factory(klass, *attributes)
-        self.setting_factory = SimpleFactory.new(klass, *attributes)
+        @setting_factory = SimpleFactory.new(klass, *attributes)
       end
     end
   end

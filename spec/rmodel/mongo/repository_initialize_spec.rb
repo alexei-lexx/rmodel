@@ -1,12 +1,12 @@
 RSpec.describe Rmodel::Mongo::Repository do
-  before { Rmodel.setup.clear }
+  before do
+    Rmodel.setup.clear
+    stub_const('User', Struct.new(:id, :name, :email))
+  end
 
-  before { stub_const('User', Struct.new(:id, :name, :email)) }
-  let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
+  subject { UserRepository.new }
 
   describe '.client(name)' do
-    subject { UserRepository.new }
-
     context 'when it is called with an existent name' do
       before do
         Rmodel.setup do
@@ -65,8 +65,6 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   describe '.collection(name)' do
-    subject { UserRepository.new }
-
     context 'when the :people collection is given' do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
@@ -93,69 +91,28 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
   end
 
-  describe '#initialize' do
-    describe 'how to get the factory' do
-      context 'when the A factory is defined by class macro .simple_factory' do
-        before do
-          stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-            simple_factory User, :name, :email
-          })
-        end
-        let(:factory_a) { UserRepository.setting_factory }
-
-        context 'and the B factory is passed to the constructor' do
-          let(:factory_b) { factory }
-          subject(:repo) { UserRepository.new(factory_b) }
-
-          it 'uses the B factory' do
-            expect(repo.factory).to equal factory_b
-          end
-        end
-
-        context 'and no factory is passed to the constructor' do
-          subject(:repo) { UserRepository.new(nil) }
-
-          it 'uses the A factory' do
-            expect(repo.factory).to equal factory_a
-          end
-        end
-      end
-
-      context 'when no factory is defined by class macro .simple_factory' do
-        before do
-          stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
-        end
-
-        context 'but the B factory is passed to the constructor' do
-          let(:factory_b) { factory }
-          subject(:repo) { UserRepository.new(factory_b) }
-
-          it 'uses the B factory' do
-            expect(repo.factory).to equal factory_b
-          end
-        end
-
-        context 'and no factory is passed to the constructor' do
-          it 'raises an error' do
-            expect {
-              UserRepository.new(:users, nil)
-            }.to raise_error ArgumentError
-          end
-        end
-      end
-    end
-
-    context 'when the collection adn factory are defined by class macroses' do
+  describe '.simple_factory(klass, attribute1, attribute2, ...)' do
+    context 'when it is called' do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           simple_factory User, :name, :email
         })
       end
 
-      context 'and no arguments are passed to the constructor' do
-        it 'works!' do
-          expect { UserRepository.new }.not_to raise_error
-        end
+      it 'sets the appropriate #factory' do
+        expect(subject.factory).to be_an_instance_of Rmodel::Mongo::SimpleFactory
+      end
+    end
+
+    context 'when it is not called' do
+      before do
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
+      end
+
+      it 'make #initialize raise an error' do
+        expect {
+          UserRepository.new
+        }.to raise_error ArgumentError
       end
     end
   end
