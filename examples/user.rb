@@ -16,11 +16,10 @@ Rmodel.setup do
   client :default, { hosts: [ '127.0.0.1:27017' ], database: 'rmodel_development' }
 end
 
-p Rmodel.setup.clients[:default]
-
 Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_development')
 
 class UserRepository < Rmodel::Mongo::Repository
+  client :default
   simple_factory User, :name, :email
 
   scope :example_com do
@@ -47,6 +46,17 @@ userRepo.insert(john)
 userRepo.insert(bill)
 userRepo.insert(bob)
 
+p userRepo.find(john.id)
+
+john.name = 'John Smith'
+userRepo.update(john)
+p userRepo.find(john.id)
+
+userRepo.remove(john)
+p userRepo.find(john.id)
+
+
+userRepo.insert(john)
 p '--------------------------------'
 p userRepo.query.example_com.sorted.map { |user| user.name }
 p '--------------------------------'
