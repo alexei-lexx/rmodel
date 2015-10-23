@@ -12,8 +12,13 @@ class User
   end
 end
 
+Rmodel.setup do
+  client :default, { hosts: [ '127.0.0.1:27017' ], database: 'rmodel_development' }
+end
+
+p Rmodel.setup.clients[:default]
+
 Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_development')
-Rmodel.sessions[:default][:users].drop
 
 class UserRepository < Rmodel::Mongo::Repository
   simple_factory User, :name, :email
@@ -32,6 +37,7 @@ class UserRepository < Rmodel::Mongo::Repository
 end
 
 userRepo = UserRepository.new
+userRepo.query.remove
 
 john = User.new(nil, 'John', 'john@example.com')
 bill = User.new(nil, 'Bill', 'bill@example.com')
