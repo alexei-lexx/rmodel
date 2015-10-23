@@ -16,6 +16,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           client :mongo
           simple_factory User, :name, :email
+          attr_reader :client
         })
       end
 
@@ -29,6 +30,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           client :mongo
           simple_factory User, :name, :email
+          attr_reader :client
         })
       end
 
@@ -41,6 +43,7 @@ RSpec.describe Rmodel::Mongo::Repository do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           simple_factory User, :name, :email
+          attr_reader :client
         })
       end
 
@@ -65,11 +68,18 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   describe '.collection(name)' do
+    before do
+      Rmodel.setup do
+        client :default, { hosts: [ 'localhost' ] }
+      end
+    end
+
     context 'when the :people collection is given' do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           collection :people
           simple_factory User, :name, :email
+          attr_reader :collection
         })
       end
 
@@ -82,6 +92,7 @@ RSpec.describe Rmodel::Mongo::Repository do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           simple_factory User, :name, :email
+          attr_reader :collection
         })
       end
 
@@ -92,10 +103,17 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   describe '.simple_factory(klass, attribute1, attribute2, ...)' do
+    before do
+      Rmodel.setup do
+        client :default, { hosts: [ 'localhost' ] }
+      end
+    end
+
     context 'when it is called' do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           simple_factory User, :name, :email
+          attr_reader :factory
         })
       end
 

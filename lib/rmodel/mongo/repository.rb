@@ -6,9 +6,13 @@ module Rmodel::Mongo
   class Repository
     include RepositoryExt::Queryable
 
-    attr_reader :collection, :factory
-
     def initialize
+      config = Rmodel.setup.clients[self.class.client_name] ||
+               Rmodel.setup.clients[:default] or
+               raise ArgumentError.new('Client driver is not setup')
+
+      @client = Mongo::Client.new(config[:hosts], config)
+
       @collection = self.class.setting_collection ||
                     self.class.collection_by_convention or
                     raise ArgumentError.new('Collection can not be guessed')
@@ -17,20 +21,8 @@ module Rmodel::Mongo
                  raise ArgumentError.new('Factory can not be guessed')
     end
 
-    def client
-      client_name = self.class.client_name || :default
-      config = Rmodel.setup.clients[client_name]
-      raise ArgumentError.new('Client driver is not setup') if config.nil?
-
-      hosts = config[:hosts]
-      options = config.dup
-      options.delete :hosts
-
-      @client ||= Mongo::Client.new(hosts, options)
-    end
-
     def find(id)
-      result = self.client[collection].find(_id: id).first
+      result = @client[@collection].find(_id: id).first
       if result
         @factory.fromHash(result)
       else
@@ -46,15 +38,15 @@ module Rmodel::Mongo
       if object.id.nil?
         object.id = BSON::ObjectId.new
       end
-      self.client[collection].insert_one(@factory.toHash(object, true))
+      @client[@collection].insert_one(@factory.toHash(object, true))
     end
 
     def update(object)
-      self.client[collection].find(_id: object.id).update_one(@factory.toHash(object, false))
+      @client[@collection].find(_id: object.id).update_one(@factory.toHash(object, false))
     end
 
     def remove(object)
-      self.client[collection].find(_id: object.id).delete_one
+      @client[@collection].find(_id: object.id).delete_one
     end
 
     class << self

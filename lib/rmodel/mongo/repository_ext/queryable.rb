@@ -9,12 +9,12 @@ module Rmodel::Mongo
 
       def find_by_query(selector, options)
         execute_query(selector, options).map do |hash|
-          factory.fromHash(hash)
+          @factory.fromHash(hash)
         end
       end
 
       def execute_query(selector, options)
-        self.client[collection].find(selector, options)
+        @client[@collection].find(selector, options)
       end
 
       def self.included(base)
