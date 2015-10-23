@@ -1,10 +1,19 @@
 RSpec.describe Rmodel::Mongo::Repository do
   include_context 'clean Mongo database'
 
-  before { stub_const('User', Struct.new(:id, :name, :email)) }
+  before do
+    stub_const('User', Struct.new(:id, :name, :email))
+    stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+      simple_factory User, :name, :email
+    })
+    Rmodel.setup do
+      client :default, hosts: [ 'localhost' ], database: 'rmodel_test'
+    end
+    Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test')
+  end
 
   let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
-  subject(:repo) { Rmodel::Mongo::Repository.new(mongo_session, :users, factory) }
+  subject(:repo) { UserRepository.new }
 
   describe '#find' do
     context 'when an existent id is given' do

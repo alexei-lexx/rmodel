@@ -35,7 +35,7 @@ module Rmodel::Mongo
     end
 
     def find(id)
-      result = self.session[collection].find(_id: id).first
+      result = self.client[collection].find(_id: id).first
       if result
         @factory.fromHash(result)
       else
@@ -51,15 +51,15 @@ module Rmodel::Mongo
       if object.id.nil?
         object.id = BSON::ObjectId.new
       end
-      self.session[collection].insert_one(@factory.toHash(object, true))
+      self.client[collection].insert_one(@factory.toHash(object, true))
     end
 
     def update(object)
-      self.session[collection].find(_id: object.id).update_one(@factory.toHash(object, false))
+      self.client[collection].find(_id: object.id).update_one(@factory.toHash(object, false))
     end
 
     def remove(object)
-      self.session[collection].find(_id: object.id).delete_one
+      self.client[collection].find(_id: object.id).delete_one
     end
 
     class << self
