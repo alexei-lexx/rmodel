@@ -4,7 +4,7 @@ module Rmodel::Mongo
   module RepositoryExt
     module Queryable
       def query
-        Query.new(self)
+        self.class.query_klass.new(self)
       end
 
       def execute_query(queryable)
@@ -16,11 +16,17 @@ module Rmodel::Mongo
       end
 
       module ClassMethods
-        attr_accessor :scopes
+        attr_accessor :query_klass
 
         def scope(name, &block)
-          self.scopes ||= {}
-          self.scopes[name.to_sym] = block
+          self.query_klass ||= Class.new(Query)
+
+          self.query_klass.class_eval do
+            define_method name do
+              new_queriable = @queryable.instance_eval &block
+              self.class.new(@repo, new_queriable)
+            end
+          end
         end
       end
     end

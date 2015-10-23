@@ -14,15 +14,6 @@ module Rmodel::Mongo
         @queryable = parent_queryable || Queryable.new
       end
 
-      def method_missing(method, *args, &block)
-        if @repo.class.scopes.has_key?(method)
-          new_queriable = @queryable.instance_eval &@repo.class.scopes[method]
-          Query.new(@repo, new_queriable)
-        else
-          super
-        end
-      end
-
       def each(&block)
         @repo.execute_query(@queryable).each(&block)
         self
