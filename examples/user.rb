@@ -22,8 +22,8 @@ class UserRepository < Rmodel::Mongo::Repository
     where(email: { '$regex' => /@example\.com$/i })
   end
 
-  scope :start_with_b do
-    where(name: { '$regex' => /^b/i })
+  scope :start_with do |letter|
+    where(name: { '$regex' => "^#{letter}", '$options' => 'i' })
   end
 end
 
@@ -39,6 +39,6 @@ userRepo.insert(bob)
 
 p userRepo.query.example_com.to_a
 p '--------------------------------'
-p userRepo.query.example_com.start_with_b.to_a
+p userRepo.query.example_com.start_with('b').to_a
 p '--------------------------------'
-p userRepo.query.start_with_b.to_a
+p userRepo.query.start_with('b').to_a
