@@ -72,4 +72,30 @@ RSpec.describe Rmodel::Mongo::Repository do
       end
     end
   end
+
+  describe '.query' do
+    describe '#remove' do
+      context 'when no scope is given' do
+        it 'removes all objects' do
+          repo.query.remove
+          expect(repo.query.count).to eq 0
+        end
+      end
+
+      context 'when the scope filters 2 objects from 3' do
+        before do
+          ThingRepository.class_eval do
+            scope :a_equals_2 do
+              where(a: 2)
+            end
+          end
+        end
+
+        it 'removes 2 objects' do
+          repo.query.a_equals_2.remove
+          expect(repo.query.count).to eq 1
+        end
+      end
+    end
+  end
 end

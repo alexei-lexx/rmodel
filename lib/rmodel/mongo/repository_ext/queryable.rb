@@ -4,7 +4,7 @@ module Rmodel::Mongo
   module RepositoryExt
     module Queryable
       def query
-        self.class.query_klass.new(self)
+        (self.class.query_klass ||= Class.new(Query)).new(self)
       end
 
       def execute_query(selector, options)
