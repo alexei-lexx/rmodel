@@ -3,6 +3,9 @@ RSpec.describe Rmodel::Mongo::Repository do
 
   before do
     Rmodel.sessions[:default] = mongo_session
+    Rmodel.setup do
+      client :default, hosts: [ 'localhost' ], database: 'rmodel_test'
+    end
     stub_const('Thing', Struct.new(:id, :a, :b))
     stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository) {
       simple_factory Thing, :a, :b
