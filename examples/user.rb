@@ -25,6 +25,10 @@ class UserRepository < Rmodel::Mongo::Repository
   scope :start_with do |letter|
     where(name: { '$regex' => "^#{letter}", '$options' => 'i' })
   end
+
+  scope :sorted do
+    asc(:name)
+  end
 end
 
 userRepo = UserRepository.new
@@ -38,7 +42,7 @@ userRepo.insert(bill)
 userRepo.insert(bob)
 
 p '--------------------------------'
-p userRepo.query.example_com.count
+p userRepo.query.example_com.sorted.map { |user| user.name }
 p '--------------------------------'
 p userRepo.query.example_com.start_with('b').count
 p '--------------------------------'
