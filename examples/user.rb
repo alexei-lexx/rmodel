@@ -37,8 +37,13 @@ userRepo.insert(john)
 userRepo.insert(bill)
 userRepo.insert(bob)
 
-p userRepo.query.example_com.to_a
 p '--------------------------------'
-p userRepo.query.example_com.start_with('b').to_a
+p userRepo.query.example_com.count
 p '--------------------------------'
-p userRepo.query.start_with('b').to_a
+p userRepo.query.example_com.start_with('b').count
+p '--------------------------------'
+p userRepo.query.start_with('b').count
+
+p '================================'
+userRepo.query.start_with('b').remove
+p userRepo.query.count
