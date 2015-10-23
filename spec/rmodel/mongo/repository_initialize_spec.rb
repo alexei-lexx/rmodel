@@ -1,9 +1,10 @@
 RSpec.describe Rmodel::Mongo::Repository do
+  before { Rmodel.setup.clear }
+
   before { stub_const('User', Struct.new(:id, :name, :email)) }
   let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
 
   describe '.client(name)' do
-    before { Rmodel.setup.clear }
     subject { UserRepository.new }
 
     context 'when it is called with an existent name' do
@@ -63,55 +64,36 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
   end
 
-  describe '#initialize' do
-    describe 'how to get the collection' do
-      context 'when the :people collection is defined by class macro .collection' do
-        before do
-          stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-            collection :people
-          })
-        end
+  describe '.collection(name)' do
+    subject { UserRepository.new }
 
-        context 'and also the :clients collection is passed to the constructor' do
-          subject(:repo) { UserRepository.new(:clients, factory) }
-
-          it 'users the :clients' do
-            expect(repo.collection).to eq :clients
-          end
-        end
-
-        context 'and no collection is passed to the constructor' do
-          subject(:repo) { UserRepository.new(nil, factory) }
-
-          it 'users the :people' do
-            expect(repo.collection).to eq :people
-          end
-        end
+    context 'when the :people collection is given' do
+      before do
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+          collection :people
+          simple_factory User, :name, :email
+        })
       end
 
-      context 'when no collection is defined by class macro .collection' do
-        before do
-          stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
-        end
-
-        context 'but the :clients collection is passed to the constructor' do
-          subject(:repo) { UserRepository.new(:clients, factory) }
-
-          it 'users the :clients' do
-            expect(repo.collection).to eq :clients
-          end
-        end
-
-        context 'and no collection is passed to the constructor' do
-          subject(:repo) { UserRepository.new(nil, factory) }
-
-          it 'gets the right name by convention' do
-            expect(repo.collection).to eq :users
-          end
-        end
+      it 'uses the :people' do
+        expect(subject.collection).to eq :people
       end
     end
 
+    context 'when no collection is given' do
+      before do
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+          simple_factory User, :name, :email
+        })
+      end
+
+      it 'gets the right name by convention' do
+        expect(subject.collection).to eq :users
+      end
+    end
+  end
+
+  describe '#initialize' do
     describe 'how to get the factory' do
       context 'when the A factory is defined by class macro .simple_factory' do
         before do
@@ -123,7 +105,7 @@ RSpec.describe Rmodel::Mongo::Repository do
 
         context 'and the B factory is passed to the constructor' do
           let(:factory_b) { factory }
-          subject(:repo) { UserRepository.new(:users, factory_b) }
+          subject(:repo) { UserRepository.new(factory_b) }
 
           it 'uses the B factory' do
             expect(repo.factory).to equal factory_b
@@ -131,7 +113,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
 
         context 'and no factory is passed to the constructor' do
-          subject(:repo) { UserRepository.new(:users, nil) }
+          subject(:repo) { UserRepository.new(nil) }
 
           it 'uses the A factory' do
             expect(repo.factory).to equal factory_a
@@ -146,7 +128,7 @@ RSpec.describe Rmodel::Mongo::Repository do
 
         context 'but the B factory is passed to the constructor' do
           let(:factory_b) { factory }
-          subject(:repo) { UserRepository.new(:users, factory_b) }
+          subject(:repo) { UserRepository.new(factory_b) }
 
           it 'uses the B factory' do
             expect(repo.factory).to equal factory_b
