@@ -17,7 +17,6 @@ Rmodel.setup do
 end
 
 class UserRepository < Rmodel::Mongo::Repository
-  client :default
   simple_factory User, :name, :email
 
   scope :example_com do
