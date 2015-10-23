@@ -22,9 +22,9 @@ module Rmodel::Mongo
           self.query_klass ||= Class.new(Query)
 
           self.query_klass.class_eval do
-            define_method name do
-              new_queriable = @queryable.instance_eval &block
-              self.class.new(@repo, new_queriable)
+            define_method name do |*args|
+              new_queryable = @queryable.instance_exec(*args, &block)
+              self.class.new(@repo, new_queryable)
             end
           end
         end
