@@ -6,14 +6,8 @@ module Rmodel::Mongo
   class Repository
     include RepositoryExt::Queryable
 
-    attr_accessor :session
-    private 'session='
-
-    attr_accessor :collection
-    private 'collection='
-
-    attr_accessor :factory
-    private 'factory='
+    attr_accessor :session, :collection, :factory
+    private 'session=', 'collection=', 'factory='
 
     def initialize(session = nil, collection = nil, factory = nil)
       self.session = session || self.class.setting_session ||
@@ -53,13 +47,12 @@ module Rmodel::Mongo
     end
 
     class << self
-      attr_accessor :setting_session
+      attr_accessor :setting_session, :setting_collection, :setting_factory
 
       def session(name)
         self.setting_session = Rmodel.sessions[name]
       end
 
-      attr_accessor :setting_collection
       alias_method :collection, 'setting_collection='
 
       def collection_by_convention
@@ -67,8 +60,6 @@ module Rmodel::Mongo
           ActiveSupport::Inflector.tableize($1).to_sym
         end
       end
-
-      attr_accessor :setting_factory
 
       def simple_factory(klass, *attributes)
         self.setting_factory = SimpleFactory.new(klass, *attributes)
