@@ -11,7 +11,9 @@ module Rmodel::Mongo
                Rmodel.setup.clients[:default] or
                raise ArgumentError.new('Client driver is not setup')
 
-      @client = Mongo::Client.new(config[:hosts], config)
+      options = config.dup
+      options.delete :hosts
+      @client = Mongo::Client.new(config[:hosts], options)
 
       @collection = self.class.setting_collection ||
                     self.class.collection_by_convention or
