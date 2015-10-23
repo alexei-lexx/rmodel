@@ -1,5 +1,4 @@
 RSpec.describe Rmodel::Mongo::Repository do
-  before { Rmodel.sessions.clear }
   before { stub_const('User', Struct.new(:id, :name, :email)) }
   let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
 
@@ -9,7 +8,6 @@ RSpec.describe Rmodel::Mongo::Repository do
 
     context 'when it is called with an existent name' do
       before do
-        Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test')
         Rmodel.setup do
           client :mongo, { hosts: [ 'localhost' ] }
         end
@@ -27,7 +25,6 @@ RSpec.describe Rmodel::Mongo::Repository do
 
     context 'when it is called with a non-existent name' do
       before do
-        Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test')
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           client :mongo
           simple_factory User, :name, :email
@@ -41,7 +38,6 @@ RSpec.describe Rmodel::Mongo::Repository do
 
     context 'when it is not called' do
       before do
-        Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test')
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           simple_factory User, :name, :email
         })
@@ -68,71 +64,6 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   describe '#initialize' do
-    describe 'how to guess the session' do
-      let(:session_a) { stub_session }
-      let(:session_b) { stub_session }
-      let(:session_d) { stub_session }
-
-      before { Rmodel.sessions[:session_a] = session_a }
-
-      context 'when the A session is defined by class macro .session' do
-        before do
-          stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-            session :session_a
-          })
-        end
-
-        context 'and also the B session is passed to the constructor' do
-          subject(:repo) { UserRepository.new(session_b, :users, factory) }
-
-          it 'uses the B' do
-            expect(repo.session).to equal session_b
-          end
-        end
-
-        context 'and no session is passed to the constructor' do
-          subject(:repo) { UserRepository.new(nil, :users, factory) }
-
-          it 'uses the A' do
-            expect(repo.session).to equal session_a
-          end
-        end
-      end
-
-      context 'when no session is defined by class macro .session' do
-        before do
-          stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
-        end
-
-        context 'but the B session is passed to the constructor' do
-          subject(:repo) { UserRepository.new(session_b, :users, factory) }
-
-          it 'uses the B' do
-            expect(repo.session).to equal session_b
-          end
-        end
-
-        context 'and no session is passed to the constructor' do
-          subject(:repo) { UserRepository.new(nil, :users, factory) }
-
-          it 'raises an error' do
-            expect {
-              UserRepository.new(nil, :users, factory)
-            }.to raise_error ArgumentError
-          end
-        end
-
-        context 'but there is the :default session set up' do
-          before { Rmodel.sessions[:default] = session_d }
-          subject(:repo) { UserRepository.new(nil, :users, factory) }
-
-          it 'uses the :default session' do
-            expect(repo.session).to equal session_d
-          end
-        end
-      end
-    end
-
     describe 'how to get the collection' do
       context 'when the :people collection is defined by class macro .collection' do
         before do
@@ -142,7 +73,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
 
         context 'and also the :clients collection is passed to the constructor' do
-          subject(:repo) { UserRepository.new(stub_session, :clients, factory) }
+          subject(:repo) { UserRepository.new(:clients, factory) }
 
           it 'users the :clients' do
             expect(repo.collection).to eq :clients
@@ -150,7 +81,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
 
         context 'and no collection is passed to the constructor' do
-          subject(:repo) { UserRepository.new(stub_session, nil, factory) }
+          subject(:repo) { UserRepository.new(nil, factory) }
 
           it 'users the :people' do
             expect(repo.collection).to eq :people
@@ -164,7 +95,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
 
         context 'but the :clients collection is passed to the constructor' do
-          subject(:repo) { UserRepository.new(stub_session, :clients, factory) }
+          subject(:repo) { UserRepository.new(:clients, factory) }
 
           it 'users the :clients' do
             expect(repo.collection).to eq :clients
@@ -172,7 +103,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
 
         context 'and no collection is passed to the constructor' do
-          subject(:repo) { UserRepository.new(stub_session, nil, factory) }
+          subject(:repo) { UserRepository.new(nil, factory) }
 
           it 'gets the right name by convention' do
             expect(repo.collection).to eq :users
@@ -192,7 +123,7 @@ RSpec.describe Rmodel::Mongo::Repository do
 
         context 'and the B factory is passed to the constructor' do
           let(:factory_b) { factory }
-          subject(:repo) { UserRepository.new(stub_session, :users, factory_b) }
+          subject(:repo) { UserRepository.new(:users, factory_b) }
 
           it 'uses the B factory' do
             expect(repo.factory).to equal factory_b
@@ -200,7 +131,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
 
         context 'and no factory is passed to the constructor' do
-          subject(:repo) { UserRepository.new(stub_session, :users, nil) }
+          subject(:repo) { UserRepository.new(:users, nil) }
 
           it 'uses the A factory' do
             expect(repo.factory).to equal factory_a
@@ -215,7 +146,7 @@ RSpec.describe Rmodel::Mongo::Repository do
 
         context 'but the B factory is passed to the constructor' do
           let(:factory_b) { factory }
-          subject(:repo) { UserRepository.new(stub_session, :users, factory_b) }
+          subject(:repo) { UserRepository.new(:users, factory_b) }
 
           it 'uses the B factory' do
             expect(repo.factory).to equal factory_b
@@ -225,16 +156,15 @@ RSpec.describe Rmodel::Mongo::Repository do
         context 'and no factory is passed to the constructor' do
           it 'raises an error' do
             expect {
-              UserRepository.new(stub_session, :users, nil)
+              UserRepository.new(:users, nil)
             }.to raise_error ArgumentError
           end
         end
       end
     end
 
-    context 'when the session, collection adn factory are defined by class macroses' do
+    context 'when the collection adn factory are defined by class macroses' do
       before do
-        Rmodel.sessions[:default] = stub_session
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           simple_factory User, :name, :email
         })
@@ -246,11 +176,5 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
       end
     end
-  end
-
-  def stub_session
-    dbl = double
-    allow(dbl).to receive(:[])
-    dbl
   end
 end
