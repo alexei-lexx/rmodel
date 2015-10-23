@@ -9,7 +9,6 @@ RSpec.describe Rmodel::Mongo::Repository do
     Rmodel.setup do
       client :default, hosts: [ 'localhost' ], database: 'rmodel_test'
     end
-    Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_test')
   end
 
   let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }

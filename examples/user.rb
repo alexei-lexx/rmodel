@@ -16,8 +16,6 @@ Rmodel.setup do
   client :default, { hosts: [ '127.0.0.1:27017' ], database: 'rmodel_development' }
 end
 
-Rmodel.sessions[:default] = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'rmodel_development')
-
 class UserRepository < Rmodel::Mongo::Repository
   client :default
   simple_factory User, :name, :email
