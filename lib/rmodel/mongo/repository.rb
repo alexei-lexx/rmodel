@@ -7,13 +7,8 @@ module Rmodel::Mongo
     include RepositoryExt::Queryable
 
     def initialize
-      config = Rmodel.setup.clients[self.class.client_name] ||
-               Rmodel.setup.clients[:default] or
-               raise ArgumentError.new('Client driver is not setup')
-
-      options = config.dup
-      options.delete :hosts
-      @client = Mongo::Client.new(config[:hosts], options)
+      @client = Rmodel.setup.establish_mongo_client(self.class.client_name || :default) or
+                raise ArgumentError.new('Client driver is not setup')
 
       @collection = self.class.setting_collection ||
                     self.class.collection_by_convention or

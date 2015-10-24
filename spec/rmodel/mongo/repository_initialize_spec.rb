@@ -7,6 +7,9 @@ RSpec.describe Rmodel::Mongo::Repository do
   subject { UserRepository.new }
 
   describe '.client(name)' do
+    before do
+      Rmodel::Setup.send :public, :client
+    end
     context 'when it is called with an existent name' do
       before do
         Rmodel.setup do
