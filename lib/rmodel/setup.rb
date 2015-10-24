@@ -5,17 +5,22 @@ module Rmodel
     include Singleton
 
     def initialize
-      @clients = {}
+      @clients_config = {}
+      @established_clients = {}
     end
 
-    attr_reader :clients
-
     def client(name, config)
-      @clients[name] = config
+      @clients_config[name] = config
     end
 
     def clear
-      @clients.clear
+      @clients_config.clear
+    end
+
+    private
+
+    def establish_client(name)
+      @established_clients[name] ||= yield
     end
   end
 
