@@ -3,6 +3,10 @@ require 'rmodel/mongo/repository_ext/query'
 module Rmodel::Mongo
   module RepositoryExt
     module Queryable
+      def self.included(base)
+        base.extend ClassMethods
+      end
+
       def query
         (self.class.query_klass ||= Class.new(Query)).new(self)
       end
@@ -15,10 +19,6 @@ module Rmodel::Mongo
 
       def execute_query(selector, options)
         @client[@collection].find(selector, options)
-      end
-
-      def self.included(base)
-        base.extend ClassMethods
       end
 
       module ClassMethods

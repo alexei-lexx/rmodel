@@ -20,11 +20,7 @@ module Rmodel::Mongo
 
     def find(id)
       result = @client[@collection].find(_id: id).first
-      if result
-        @factory.fromHash(result)
-      else
-        nil
-      end
+      result && @factory.fromHash(result)
     end
 
     def find!(id)
@@ -32,9 +28,7 @@ module Rmodel::Mongo
     end
 
     def insert(object)
-      if object.id.nil?
-        object.id = BSON::ObjectId.new
-      end
+      object.id ||= BSON::ObjectId.new
       @client[@collection].insert_one(@factory.toHash(object, true))
     end
 
