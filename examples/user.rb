@@ -1,73 +1,48 @@
 require 'rmodel'
 
-Mongo::Logger.logger.level = Logger::WARN
+Rmodel.setup do
+  client :default, { hosts: [ 'localhost' ], database: 'test' }
+end
 
 class User
   attr_accessor :id, :name, :email
 
-  def initialize(id = nil, name = nil, email = nil)
-    self.id = id
+  def initialize(name = nil, email = nil)
     self.name = name
     self.email = email
   end
 end
 
-Rmodel.setup do
-  client :default, { hosts: [ '127.0.0.1:27017' ], database: 'rmodel_development' }
-end
-
 class UserRepository < Rmodel::Mongo::Repository
   simple_factory User, :name, :email
 
-  scope :example_com do
-    where(email: { '$regex' => /@example\.com$/i })
+  scope :have_email do
+    where(email: { '$exists' => true })
   end
 
   scope :start_with do |letter|
     where(name: { '$regex' => "^#{letter}", '$options' => 'i' })
   end
-
-  scope :sorted do
-    asc(:name)
-  end
 end
 
-userRepo = UserRepository.new
-userRepo.query.remove
+userRepository = UserRepository.new
+userRepository.query.remove
 
-john = User.new(nil, 'John', 'john@example.com')
-bill = User.new(nil, 'Bill', 'bill@example.com')
-bob = User.new(nil, 'Bob', 'bob@test.com')
+john = User.new('John', 'john@example.com')
+bill = User.new('Bill', 'bill@example.com')
+bob = User.new('Bob', 'bob@example.com')
 
-userRepo.insert(john)
-userRepo.insert(bill)
-userRepo.insert(bob)
-
-p userRepo.find(john.id)
+userRepository.insert(john)
+userRepository.insert(bill)
+userRepository.insert(bob)
 
 john.name = 'John Smith'
-userRepo.update(john)
-p userRepo.find(john.id)
+userRepository.update(john)
 
-userRepo.remove(john)
-p userRepo.find(john.id)
+userRepository.remove(bob)
 
+p userRepository.find(john.id)
+p userRepository.find(bob.id)
 
-userRepo.insert(john)
-p '--------------------------------'
-p userRepo.query.example_com.sorted.map { |user| user.name }
-p '--------------------------------'
-p userRepo.query.example_com.start_with('b').count
-p '--------------------------------'
-p userRepo.query.start_with('b').count
-
-p '================================'
-userRepo.query.start_with('b').remove
-p userRepo.query.count
-
-begin
-  p userRepo.find!(john.id)
-  p userRepo.find!(bill.id)
-rescue Rmodel::NotFound => err
-  p err
-end
+userRepository.query.have_email.remove
+p userRepository.query.count
