@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/alexei-lexx/rmodel.svg)](https://travis-ci.org/alexei-lexx/rmodel)
+
 # Rmodel
 
 Rmodel is an ORM library, which tends to follow the SOLID principles.
