@@ -2,7 +2,7 @@
 
 Rmodel is an ORM library, which tends to follow the SOLID principles.
 
-The main thouhgts behind it are:
+The main thoughts behind it are:
 
 * let you models be simple and independent of the persistent layer,
 * be able to switch the persistent layer at any moment,
@@ -56,34 +56,103 @@ class User
   attr_accessor :id, :name, :email
 end
 
-class UserRepository
-  simple_factory User, :name, :email
+class UserRepository < Rmodel::Mongo::Repository
 end
 
 userRepository = UserRepository.new
 ```
-
-
-Let's create and save a new user.
+The code above raises the exception *Client driver is not setup (ArgumentError)*. UserRepository derives from Rmodel::Mongo::Repository, which uses the ruby mongo driver to access the database. We must provide the appropriate connection options. To do this we use the following code:
 
 ```ruby
-require 'rmodel' # dont forget to require the gem
+require 'rmodel'
 
-class User
-  attr_accessor :id, :name, :email
+Rmodel.setup do
+  client :default, { hosts: [ 'localhost' ], database: 'test' }
 end
-
-class UserRepository
-  simple_factory User, :name, :email
-end
-
-userRepository = UserRepository.new
-
-john = User.new
-john.name = 'John'
-userRepository.insert(john)
 ```
 
+The `:default` client is used by every repository that doesn't specify it's client explicitly.
+
+Run the code again and get another error *Factory can not be guessed (ArgumentError)*. The factory is used to convert the array of database tuples (hashes) to the array of User objects.
+
+```ruby
+class UserRepository < Rmodel::Mongo::Repository
+  simple_factory User, :name, :email
+end
+```
+
+The `simple_factory` class macro says that every database tuple will be straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id, because it's required.
+
+### CRUD
+
+Let's create and insert several users.
+
+```ruby
+john = User.new('John', 'john@example.com')
+bill = User.new('Bill', 'bill@example.com')
+bob = User.new('Bob', 'bob@example.com')
+
+userRepository.insert(john)
+userRepository.insert(bill)
+userRepository.insert(bob)
+```
+
+Now you can check you `test` database. There are 3 new users there. Print the `john`. As you can see it's got the `@id`.
+
+```ruby
+p john
+#<User:0x00... @name="John", @email="john@example.com", @id=BSON::ObjectId('562a...')>
+```
+
+Let's update John and remove Bob.
+
+```ruby
+john.name = 'John Smith'
+userRepository.update(john)
+
+userRepository.remove(bob)
+
+p userRepository.find(john.id) # #<User:0x000000037237d0 @name="John Smith" ... >
+p userRepository.find(bob.id) # nil
+p userRepository.find!(bob.id) # nil
+```
+
+### Scopes
+
+Scopes are defined inside the repository.
+
+```ruby
+class UserRepository < Rmodel::Mongo::Repository
+  simple_factory User, :name, :email
+
+  scope :have_email do
+    where(email: { '$exists' => true })
+  end
+
+  scope :start_with do |letter|
+    where(name: { '$regex' => "^#{letter}", '$options' => 'i' })
+  end
+end
+
+userRepository.query.start_with('b').to_a
+```
+
+Of course you can chain scopes.
+
+```ruby
+userRepository.query.start_with('b').have_email
+```
+
+The result of the scope is Enumerable, so you can apply the #each method and others (map, select etc).
+
+Inside the scopes you can use any methods supported by the driver (database client). In our case we use Origin (https://github.com/mongoid/origin) as a query builder for mongo.
+
+Also it's possible to use scopes to run the multi-row operations.
+
+```ruby
+userRepository.query.have_email.remove
+p userRepository.query.count # 0
+```
 
 ## Contributing
 
