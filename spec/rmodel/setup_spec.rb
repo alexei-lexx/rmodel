@@ -8,6 +8,8 @@ RSpec.describe Rmodel do
     end
 
     context 'when the block is passed' do
+      let(:clients_config) { Rmodel::Setup.instance.instance_variable_get('@clients_config') }
+
       it 'returns Rmodel::Setup.instance' do
         expect(Rmodel.setup).to equal Rmodel::Setup.instance
       end
@@ -16,13 +18,14 @@ RSpec.describe Rmodel do
         Rmodel.setup do
           client :default, {}
         end
-        expect(Rmodel::Setup.instance.clients[:default]).to eq({})
+        expect(clients_config[:default]).to eq({})
       end
     end
   end
 
   describe Rmodel::Setup do
     subject { Rmodel::Setup.instance }
+    let(:clients_config) { subject.instance_variable_get('@clients_config') }
 
     describe '#new' do
       it 'raises the NoMethodError' do
@@ -33,7 +36,7 @@ RSpec.describe Rmodel do
     describe '#client(name, config)' do
       it 'makes config available via #clients[name]' do
         subject.client :default, { host: 'localhost' }
-        expect(subject.clients[:default]).to eq( host: 'localhost' )
+        expect(clients_config[:default]).to eq( host: 'localhost' )
       end
     end
 
@@ -43,7 +46,7 @@ RSpec.describe Rmodel do
 
         it 'removes all clients' do
           subject.clear
-          expect(subject.clients).to be_empty
+          expect(clients_config).to be_empty
         end
       end
     end
