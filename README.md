@@ -116,7 +116,7 @@ userRepository.remove(bob)
 
 p userRepository.find(john.id) # #<User:0x000000037237d0 @name="John Smith" ... >
 p userRepository.find(bob.id) # nil
-p userRepository.find!(bob.id) # nil
+p userRepository.find!(bob.id) # raises Rmodel::NotFound
 ```
 
 ### Scopes
