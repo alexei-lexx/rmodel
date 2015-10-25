@@ -28,5 +28,26 @@ RSpec.describe Rmodel::Mongo::Repository do
         end
       end
     end
+
+    describe 'save' do
+      let(:thing) { Thing.new }
+
+      context 'when a new object is given' do
+        it 'gets inserted' do
+          repo.save(thing)
+          expect(repo.find(thing.id)).not_to be_nil
+        end
+      end
+
+      context 'when an existent object is given' do
+        before { repo.insert(thing) }
+
+        it 'gets updated' do
+          thing.name = 'chair'
+          repo.save(thing)
+          expect(repo.find(thing.id).name).to eq 'chair'
+        end
+      end
+    end
   end
 end
