@@ -1,10 +1,12 @@
 require 'mongo'
 require 'active_support/inflector'
 require 'rmodel/mongo/repository_ext/queryable'
+require 'rmodel/mongo/repository_ext/timestampable'
 
 module Rmodel::Mongo
   class Repository
     include RepositoryExt::Queryable
+    prepend RepositoryExt::Timestampable
 
     def initialize
       @client = Rmodel.setup.establish_mongo_client(self.class.client_name || :default) or

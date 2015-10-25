@@ -156,6 +156,34 @@ userRepository.query.have_email.remove
 p userRepository.query.count # 0
 ```
 
+### Timestamps
+
+Here is an example how to track the time, when the entity was created and updated.
+
+```ruby
+class Thing
+  attr_accessor :id, :name, :created_at, :updated_at
+end
+
+class ThingRepository < Rmodel::Mongo::Repository
+  simple_factory Thing, :name, :created_at, :updated_at
+end
+repo = ThingRepository.new
+
+thing = Thing.new
+thing.name = 'chair'
+repo.insert(thing)
+p thing.created_at
+
+sleep 2
+
+thing.name = 'table'
+repo.update(thing)
+p thing.updated_at
+```
+
+To enable time tracking  just add attributes `created_at` and `updated_at` or one of them to your entity.
+
 ## Contributing
 
 1. Fork it ( https://github.com/alexei-lexx/rmodel/fork )
