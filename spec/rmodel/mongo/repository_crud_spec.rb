@@ -32,26 +32,6 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
   end
 
-  describe '#find!' do
-    context 'when an existent id is given' do
-      before do
-        mongo_session[:users].insert_one(_id: 1, name: 'John', email: 'john@example.com')
-      end
-
-      it 'returns the right instance' do
-        expect(repo.find!(1)).not_to be_nil
-      end
-    end
-
-    context 'when a non-existent id is given' do
-      it 'raises the NotFound error' do
-        expect {
-          repo.find!(1)
-        }.to raise_error Rmodel::NotFound
-      end
-    end
-  end
-
   describe '#insert' do
     context 'when the id is not provided' do
       let(:user) { User.new(nil, 'John', 'john@example.com') }

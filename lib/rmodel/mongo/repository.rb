@@ -2,11 +2,13 @@ require 'mongo'
 require 'active_support/inflector'
 require 'rmodel/mongo/repository_ext/queryable'
 require 'rmodel/mongo/repository_ext/timestampable'
+require 'rmodel/mongo/repository_ext/sugarable'
 
 module Rmodel::Mongo
   class Repository
     include RepositoryExt::Queryable
     prepend RepositoryExt::Timestampable
+    include RepositoryExt::Sugarable
 
     def initialize
       @client = Rmodel.setup.establish_mongo_client(self.class.client_name || :default) or
@@ -23,10 +25,6 @@ module Rmodel::Mongo
     def find(id)
       result = @client[@collection].find(_id: id).first
       result && @factory.fromHash(result)
-    end
-
-    def find!(id)
-      find(id) or raise Rmodel::NotFound.new(self, { id: id })
     end
 
     def insert(object)
