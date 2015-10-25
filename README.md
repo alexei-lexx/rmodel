@@ -118,7 +118,6 @@ userRepository.remove(bob)
 
 p userRepository.find(john.id) # #<User:0x000000037237d0 @name="John Smith" ... >
 p userRepository.find(bob.id) # nil
-p userRepository.find!(bob.id) # raises Rmodel::NotFound
 ```
 
 ### Scopes
@@ -185,6 +184,19 @@ p thing.updated_at
 ```
 
 To enable time tracking  just add attributes `created_at` and `updated_at` or one of them to your entity.
+
+### Sugar methods
+
+```ruby
+repo.save(thing)
+repo.find!(1)
+```
+
+The `save` method can be used instead of `insert` and `update`.
+If the object has no not-nil id then it gets inserted. Otherwise it gets updated.
+
+The `find!` method works like the simple `find`
+, but instead of nil it raises the Rmodel::NotFound error.
 
 ## Contributing
 
