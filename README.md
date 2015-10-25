@@ -4,6 +4,8 @@
 
 Rmodel is an ORM library, which tends to follow the SOLID principles.
 
+**Currently works with MongoDB only.**
+
 The main thoughts behind it are:
 
 * let you models be simple and independent of the persistent layer,
