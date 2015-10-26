@@ -7,7 +7,8 @@
   * [CRUD](#crud)
   * [Scopes](#scopes)
   * [Timestamps](#timestamps)
-  * [Sugar Methods](#sugar-methods)
+  * [Sugar methods](#sugar-methods)
+  * [Advanced creation of repository](#advanced-creation-of-repository)
 
 Rmodel is an ORM library, which tends to follow the SOLID principles.
 
@@ -204,6 +205,28 @@ If the object has no not-nil id then it gets inserted. Otherwise it gets updated
 
 The `find!` method works like the simple `find`
 , but instead of nil it raises the Rmodel::NotFound error.
+
+### Advanced creation of repository
+
+```ruby
+require 'rmodel'
+
+class Thing
+  attr_accessor :id, :name
+end
+
+class ThingRepository < Rmodel::Mongo::Repository
+end
+
+client = Mongo::Client.new([ 'localhost:27017' ], database: 'test')
+collection = :things
+factory = Rmodel::Mongo::SimpleFactory.new(Thing, :name)
+
+repo = ThingRepository.new(client, collection, factory)
+repo.find(1)
+```
+
+The `factory` is an object, which has 2 methods: `#fromHash(hash)` and `#toHash(object)`.
 
 ## Contributing
 
