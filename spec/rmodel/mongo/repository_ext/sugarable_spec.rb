@@ -5,8 +5,10 @@ RSpec.describe Rmodel::Mongo::Repository do
     stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
   end
 
-  let(:factory) { Rmodel::Mongo::SimpleFactory.new(Thing, :name) }
-  subject { ThingRepository.new(mongo_session, :things, factory) }
+  subject do
+    factory = Rmodel::Mongo::SimpleFactory.new(Thing, :name)
+    ThingRepository.new(mongo_session, :things, factory)
+  end
 
   include_examples 'sugarable repository'
 end
