@@ -1,4 +1,4 @@
-module Rmodel::Mongo
+module Rmodel::Base
   module RepositoryExt
     module Sugarable
       def find!(id)
