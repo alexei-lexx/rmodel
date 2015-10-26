@@ -1,15 +1,13 @@
 RSpec.describe Rmodel::Mongo::Repository do
   before do
-    Rmodel.setup.clear
     stub_const('User', Struct.new(:id, :name, :email))
   end
 
-  subject { UserRepository.new }
-
   describe '.client(name)' do
-    before do
-      Rmodel::Setup.send :public, :client
-    end
+    subject { UserRepository.new }
+
+    before { Rmodel::Setup.send :public, :client }
+
     context 'when it is called with an existent name' do
       before do
         Rmodel.setup do
@@ -22,6 +20,7 @@ RSpec.describe Rmodel::Mongo::Repository do
           attr_reader :client
         })
       end
+      after { Rmodel::setup.clear }
 
       it 'sets the appropriate #client' do
         expect(subject.client).to be_an_instance_of Mongo::Client
@@ -56,6 +55,7 @@ RSpec.describe Rmodel::Mongo::Repository do
             client :default, { hosts: [ 'localhost' ] }
           end
         end
+        after { Rmodel::setup.clear }
 
         it 'sets #client to be default' do
           expect(subject.client).to be_an_instance_of Mongo::Client
@@ -71,11 +71,14 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   describe '.collection(name)' do
+    subject { UserRepository.new }
+
     before do
       Rmodel.setup do
         client :default, { hosts: [ 'localhost' ] }
       end
     end
+    after { Rmodel::setup.clear }
 
     context 'when the :people collection is given' do
       before do
@@ -106,11 +109,14 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   describe '.simple_factory(klass, attribute1, attribute2, ...)' do
+    subject { UserRepository.new }
+
     before do
       Rmodel.setup do
         client :default, { hosts: [ 'localhost' ] }
       end
     end
+    after { Rmodel::setup.clear }
 
     context 'when it is called' do
       before do
@@ -134,6 +140,21 @@ RSpec.describe Rmodel::Mongo::Repository do
         expect {
           UserRepository.new
         }.to raise_error ArgumentError
+      end
+    end
+  end
+
+  describe '#initialize(client, collection, factory)' do
+    context 'when all constructor arguments are passed' do
+      before do
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
+      end
+      let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
+
+      it 'works!' do
+        expect {
+          UserRepository.new(Object.new, :users, factory)
+        }.not_to raise_error
       end
     end
   end

@@ -4,12 +4,11 @@ RSpec.describe Rmodel::Mongo::Repository do
   describe Rmodel::Mongo::RepositoryExt::Sugarable do
     before do
       stub_const('Thing', Struct.new(:id, :name))
-      stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository) {
-        simple_factory Thing, :name
-      })
+      stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
     end
 
-    subject(:repo) { ThingRepository.new }
+    let(:factory) { Rmodel::Mongo::SimpleFactory.new(Thing, :name) }
+    subject(:repo) { ThingRepository.new(mongo_session, :things, factory) }
 
     describe '#find!' do
       context 'when an existent id is given' do
