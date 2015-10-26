@@ -1,14 +1,18 @@
 RSpec.describe Rmodel::Mongo::Repository do
+  include_context 'clean Mongo database'
+
   describe Rmodel::Mongo::RepositoryExt::Timestampable do
-    subject(:repo) { ThingRepository.new }
+    before do
+      stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
+    end
 
     context 'when the entity object has attributes created_at and updated_at' do
       before do
         stub_const('Thing', Struct.new(:id, :name, :created_at, :updated_at))
-        stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory Thing, :name, :created_at, :updated_at
-        })
       end
+
+      let(:factory) { Rmodel::Mongo::SimpleFactory.new(Thing, :name, :created_at, :updated_at) }
+      subject(:repo) { ThingRepository.new(mongo_session, :things, factory) }
 
       context 'when we insert(object)' do
         context 'and the object.created_at is already set' do
@@ -46,10 +50,10 @@ RSpec.describe Rmodel::Mongo::Repository do
     context 'when the entity has no attributes :created_at and updated_at' do
       before do
         stub_const('Thing', Struct.new(:id, :name))
-        stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory Thing, :name
-        })
       end
+
+      let(:factory) { Rmodel::Mongo::SimpleFactory.new(Thing, :name) }
+      subject(:repo) { ThingRepository.new(mongo_session, :things, factory) }
       let(:thing) { Thing.new(nil, 'chair') }
 
       context 'when we insert(object)' do

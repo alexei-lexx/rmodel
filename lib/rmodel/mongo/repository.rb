@@ -10,15 +10,15 @@ module Rmodel::Mongo
     prepend RepositoryExt::Timestampable
     include RepositoryExt::Sugarable
 
-    def initialize
-      @client = Rmodel.setup.establish_mongo_client(self.class.client_name || :default) or
+    def initialize(client = nil, collection = nil, factory = nil)
+      @client = client || Rmodel.setup.establish_mongo_client(self.class.client_name || :default) or
                 raise ArgumentError.new('Client driver is not setup')
 
-      @collection = self.class.setting_collection ||
+      @collection = collection || self.class.setting_collection ||
                     self.class.collection_by_convention or
                     raise ArgumentError.new('Collection can not be guessed')
 
-      @factory = self.class.setting_factory or
+      @factory = factory || self.class.setting_factory or
                  raise ArgumentError.new('Factory can not be guessed')
     end
 
