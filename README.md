@@ -2,6 +2,13 @@
 
 # Rmodel
 
+* [Installation](#installation)
+* [Usage](#usage)
+  * [CRUD](#crud)
+  * [Scopes](#scopes)
+  * [Timestamps](#timestamps)
+  * [Sugar Methods](#sugar-methods)
+
 Rmodel is an ORM library, which tends to follow the SOLID principles.
 
 **Currently works with MongoDB only.**
