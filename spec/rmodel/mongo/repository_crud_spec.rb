@@ -3,16 +3,11 @@ RSpec.describe Rmodel::Mongo::Repository do
 
   before do
     stub_const('User', Struct.new(:id, :name, :email))
-    stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-      simple_factory User, :name, :email
-    })
-    Rmodel.setup do
-      client :default, hosts: [ 'localhost' ], database: 'rmodel_test'
-    end
+    stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
   end
 
   let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
-  subject(:repo) { UserRepository.new }
+  subject(:repo) { UserRepository.new(mongo_session, :users, factory) }
 
   describe '#find' do
     context 'when an existent id is given' do
