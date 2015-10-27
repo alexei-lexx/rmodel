@@ -6,7 +6,7 @@ module Rmodel::Base
     include RepositoryExt::Sugarable
 
     def self.inherited(subclass)
-      subclass.prepend RepositoryExt::Timestampable
+      subclass.send :prepend, RepositoryExt::Timestampable
     end
   end
 end
