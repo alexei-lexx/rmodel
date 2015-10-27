@@ -164,5 +164,85 @@ RSpec.shared_examples 'callbackable repository' do
         end
       end
     end
+
+    describe '.before_remove' do
+      let(:thing) { Thing.new }
+      before { subject.insert(thing) }
+      let(:total_count) { subject.query.count }
+
+      context 'when a block is given' do
+        before do
+          ThingRepository.class_eval do
+            before_remove do |thing|
+              thing.name = 'set before remove'
+            end
+          end
+          subject.remove(thing)
+        end
+
+        it 'works' do
+          expect(thing.name).to eq 'set before remove'
+          expect(total_count).to eq 0
+        end
+      end
+
+      context 'when a method name is given' do
+        before do
+          ThingRepository.class_eval do
+            before_remove :set_name
+
+            def set_name(thing)
+              thing.name = 'set before remove'
+            end
+          end
+          subject.remove(thing)
+        end
+
+        it 'works' do
+          expect(thing.name).to eq 'set before remove'
+          expect(total_count).to eq 0
+        end
+      end
+    end
+
+    describe '.after_remove' do
+      let(:thing) { Thing.new }
+      before { subject.insert(thing) }
+      let(:total_count) { subject.query.count }
+
+      context 'when a block is given' do
+        before do
+          ThingRepository.class_eval do
+            after_remove do |thing|
+              thing.name = 'set after remove'
+            end
+          end
+          subject.remove(thing)
+        end
+
+        it 'works' do
+          expect(thing.name).to eq 'set after remove'
+          expect(total_count).to eq 0
+        end
+      end
+
+      context 'when a method name is given' do
+        before do
+          ThingRepository.class_eval do
+            after_remove :set_name
+
+            def set_name(thing)
+              thing.name = 'set after remove'
+            end
+          end
+          subject.remove(thing)
+        end
+
+        it 'works' do
+          expect(thing.name).to eq 'set after remove'
+          expect(total_count).to eq 0
+        end
+      end
+    end
   end
 end

@@ -22,6 +22,12 @@ module Rmodel::Base
         run_callbacks :after_update, object
       end
 
+      def remove(object)
+        run_callbacks :before_remove, object
+        super
+        run_callbacks :after_remove, object
+      end
+
       private
 
       def run_callbacks(chain_name, object)
