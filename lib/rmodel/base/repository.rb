@@ -1,3 +1,4 @@
+require 'rmodel/base/repository_ext/callbackable'
 require 'rmodel/base/repository_ext/sugarable'
 require 'rmodel/base/repository_ext/timestampable'
 
@@ -6,6 +7,7 @@ module Rmodel::Base
     include RepositoryExt::Sugarable
 
     def self.inherited(subclass)
+      subclass.send :prepend, RepositoryExt::Callbackable
       subclass.send :prepend, RepositoryExt::Timestampable
     end
   end
