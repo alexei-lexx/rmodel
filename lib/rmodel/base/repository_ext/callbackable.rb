@@ -13,6 +13,7 @@ module Rmodel::Base
       def insert(object)
         run_callbacks :before_insert, object
         super
+        run_callbacks :after_insert, object
       end
 
       private
@@ -31,23 +32,14 @@ module Rmodel::Base
       module ClassMethods
         attr_accessor :callbacks_chain
 
-        def before_insert(method_name = nil, &block)
-          add_to_callbacks_chain(:before_insert, method_name || block)
-        end
-
-        def after_insert(&block)
-        end
-
-        def before_update(&block)
-        end
-
-        def after_update(&block)
-        end
-
-        def before_remove(&block)
-        end
-
-        def after_remove(&block)
+        [
+          :before_insert, :after_insert,
+          :before_update, :after_update,
+          :before_remove, :after_remove
+        ].each do |chain_name|
+          define_method chain_name do |method_name = nil, &block|
+            add_to_callbacks_chain(chain_name, method_name || block)
+          end
         end
 
         private
