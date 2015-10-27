@@ -84,5 +84,85 @@ RSpec.shared_examples 'callbackable repository' do
         end
       end
     end
+
+    describe '.before_update' do
+      let(:thing) { Thing.new }
+      before { subject.insert(thing) }
+      let(:just_updated) { subject.query.first }
+
+      context 'when a block is given' do
+        before do
+          ThingRepository.class_eval do
+            before_update do |thing|
+              thing.name = 'set before update'
+            end
+          end
+          subject.update(thing)
+        end
+
+        it 'works' do
+          expect(thing.name).to eq 'set before update'
+          expect(just_updated.name).to eq 'set before update'
+        end
+      end
+
+      context 'when a method name is given' do
+        before do
+          ThingRepository.class_eval do
+            before_update :set_name
+
+            def set_name(thing)
+              thing.name = 'set before update'
+            end
+          end
+          subject.update(thing)
+        end
+
+        it 'works' do
+          expect(thing.name).to eq 'set before update'
+          expect(just_updated.name).to eq 'set before update'
+        end
+      end
+    end
+
+    describe '.after_update' do
+      let(:thing) { Thing.new }
+      before { subject.insert(thing) }
+      let(:just_updated) { subject.query.first }
+
+      context 'when a block is given' do
+        before do
+          ThingRepository.class_eval do
+            after_update do |thing|
+              thing.name = 'set after update'
+            end
+          end
+          subject.update(thing)
+        end
+
+        it 'works' do
+          expect(thing.name).to eq 'set after update'
+          expect(just_updated.name).to be_nil
+        end
+      end
+
+      context 'when a method name is given' do
+        before do
+          ThingRepository.class_eval do
+            after_update :set_name
+
+            def set_name(thing)
+              thing.name = 'set after update'
+            end
+          end
+          subject.update(thing)
+        end
+
+        it 'works' do
+          expect(thing.name).to eq 'set after update'
+          expect(just_updated.name).to be_nil
+        end
+      end
+    end
   end
 end

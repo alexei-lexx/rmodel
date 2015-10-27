@@ -16,6 +16,12 @@ module Rmodel::Base
         run_callbacks :after_insert, object
       end
 
+      def update(object)
+        run_callbacks :before_update, object
+        super
+        run_callbacks :after_update, object
+      end
+
       private
 
       def run_callbacks(chain_name, object)
