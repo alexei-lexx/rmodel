@@ -2,6 +2,9 @@ RSpec.shared_examples 'callbackable repository' do
   describe Rmodel::Base::RepositoryExt::Callbackable do
     before do
       stub_const('Thing', Struct.new(:id, :name))
+      ThingRepository.class_eval do
+        include Rmodel::Base::RepositoryExt::Callbackable
+      end
     end
 
     describe '.before_insert' do
