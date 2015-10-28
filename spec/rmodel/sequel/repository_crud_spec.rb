@@ -1,5 +1,5 @@
 RSpec.describe Rmodel::Sequel::Repository do
-  include_examples 'repository crud' do
+  it_behaves_like 'repository crud' do
     include_examples 'clean sequel database'
 
     before do
@@ -15,7 +15,9 @@ RSpec.describe Rmodel::Sequel::Repository do
     subject { ThingRepository.new(sequel_conn, :things, factory) }
     let(:unique_constraint_error) { Sequel::UniqueConstraintViolation }
 
-    def insert_record(record)
+    def insert_record(id, columns)
+      record = columns.dup
+      record[:id] = id
       sequel_conn[:things].insert(record)
     end
   end

@@ -1,6 +1,6 @@
 RSpec.describe Rmodel::Mongo::Repository do
   include_examples 'timestampable repository' do
-    include_context 'clean Mongo database'
+    include_context 'clean mongo database'
 
     before do
       stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
