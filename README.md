@@ -15,7 +15,7 @@ Rmodel is an ORM library, which tends to follow the SOLID principles.
 
 **Currently works with MongoDB and SQL databases supported by Sequel.**
 
-The main thoughts behind it are:
+The main thoughts of it are:
 
 * let you models be simple and independent of the persistent layer,
 * be able to switch the persistent layer at any moment,
@@ -32,7 +32,7 @@ Basic implemented features:
 
 1. CRUD operations: `find`, `insert`, `update`, `remove`;
 2. Scopes: `userRepository.query.recent.sorted`
-3. Based on query operations: `userRepository.query.recent.remove`
+3. Query-based operations: `userRepository.query.recent.remove`
 
 ## Installation
 
