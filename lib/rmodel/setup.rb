@@ -15,6 +15,7 @@ module Rmodel
 
     def clear
       @clients_config.clear
+      @established_clients.clear
     end
 
     private
