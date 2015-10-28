@@ -21,10 +21,12 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'mongo', '~> 2.1'
   spec.add_dependency 'activesupport'
   spec.add_dependency 'origin'
+  spec.add_dependency 'sequel'
 
   spec.add_development_dependency 'bundler', '~> 1.6'
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'sqlite3'
 
   spec.required_ruby_version = '>= 2.0.0'
 end
