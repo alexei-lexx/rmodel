@@ -4,6 +4,7 @@ require 'rmodel/errors'
 require 'rmodel/mongo/setup'
 require 'rmodel/mongo/simple_factory'
 require 'rmodel/mongo/repository'
+require 'rmodel/sequel/setup'
 require 'rmodel/sequel/simple_factory'
 require 'rmodel/sequel/repository'
 
