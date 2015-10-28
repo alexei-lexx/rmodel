@@ -1,8 +1,10 @@
 require 'sequel'
 require 'rmodel/base/repository'
+require 'rmodel/sequel/repository_ext/queryable'
 
 module Rmodel::Sequel
   class Repository < Rmodel::Base::Repository
+    include RepositoryExt::Queryable
 
     def initialize(client = nil, table = nil, factory = nil)
       @client = client || Rmodel.setup.establish_sequel_client(self.class.client_name || :default) or
