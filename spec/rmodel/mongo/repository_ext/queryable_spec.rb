@@ -1,5 +1,5 @@
 RSpec.describe Rmodel::Mongo::Repository do
-  include_context 'clean Mongo database'
+  include_context 'clean mongo database'
 
   before do
     stub_const('Thing', Struct.new(:id, :a, :b))

@@ -4,7 +4,7 @@ RSpec.shared_examples 'repository crud' do
   end
 
   describe '#find' do
-    before { insert_record(id: 1, name: 'chair') }
+    before { insert_record(1, name: 'chair') }
 
     context 'when an existent id is given' do
       it 'returns the instance of correct type' do
