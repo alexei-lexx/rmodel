@@ -5,15 +5,28 @@ RSpec.describe Rmodel::Mongo::Repository do
     before do
       stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
     end
+
+    let(:factory) { Rmodel::Mongo::SimpleFactory.new(Thing, :name) }
+    subject { ThingRepository.new(mongo_session, :things, factory) }
+    let(:unique_constraint_error) { Mongo::Error::OperationFailure }
+
+    def insert_record(id, columns)
+      record = columns.dup
+      record['_id'] = id
+      mongo_session[:things].insert_one(record)
+    end
   end
 
-  let(:factory) { Rmodel::Mongo::SimpleFactory.new(Thing, :name) }
-  subject { ThingRepository.new(mongo_session, :things, factory) }
-  let(:unique_constraint_error) { Mongo::Error::OperationFailure }
+  it_behaves_like 'sugarable repository' do
+    include_context 'clean mongo database'
 
-  def insert_record(id, columns)
-    record = columns.dup
-    record['_id'] = id
-    mongo_session[:things].insert_one(record)
+    before do
+      stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
+    end
+
+    subject do
+      factory = Rmodel::Mongo::SimpleFactory.new(Thing, :name)
+      ThingRepository.new(mongo_session, :things, factory)
+    end
   end
 end
