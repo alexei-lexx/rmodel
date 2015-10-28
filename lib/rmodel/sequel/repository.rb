@@ -1,7 +1,8 @@
 require 'sequel'
+require 'rmodel/base/repository'
 
 module Rmodel::Sequel
-  class Repository
+  class Repository < Rmodel::Base::Repository
 
     def initialize(client, table, factory)
       @client = client
