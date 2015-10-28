@@ -19,6 +19,10 @@ module Rmodel::Sequel
         @dataset.delete
       end
 
+      def to_sql
+        @dataset.sql
+      end
+
       def self.define_scope(name, &block)
         define_method name do |*args|
           new_dataset = @dataset.instance_exec(*args, &block)
