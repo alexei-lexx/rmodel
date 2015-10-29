@@ -2,14 +2,20 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
   context 'when the Thing(id, name, price, parts, owner) class is defined' do
     before do
       stub_const('Thing', Struct.new(:id, :name, :price, :parts, :owner))
-      stub_const('Part', Struct.new(:id, :name))
-      stub_const('Owner', Struct.new(:id, :full_name))
+      stub_const('Part', Struct.new(:id, :name, :producer))
+      stub_const('Producer', Struct.new(:id, :country))
+      stub_const('Owner', Struct.new(:id, :full_name, :phones))
+      stub_const('Phone', Struct.new(:id, :number))
     end
 
     subject do
       described_class.new(Thing, :name, :price) do
-        embeds_many :parts, Rmodel::Mongo::SimpleFactory.new(Part, :name)
-        embeds_one :owner, Rmodel::Mongo::SimpleFactory.new(Owner, :full_name)
+        embeds_many :parts, simple_factory(Part, :name) do
+          embeds_one :producer, simple_factory(Producer, :country)
+        end
+        embeds_one :owner, simple_factory(Owner, :full_name) do
+          embeds_many :phones, simple_factory(Phone, :number)
+        end
       end
     end
 
@@ -45,7 +51,7 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
         let(:hash) do
           {
             'parts' => [
-              { '_id' => 1, 'name' => 'back' },
+              { '_id' => 1, 'name' => 'back', 'producer' => { '_id' => 10, 'country' => 'UK' } },
               { '_id' => 2, 'name' => 'leg' }
             ]
           }
@@ -53,24 +59,48 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
 
         it 'maps subdocuments to <many embedded>' do
           expect(result.parts.length).to eq 2
+
           expect(result.parts[0]).to be_an_instance_of Part
           expect(result.parts[0].id).to eq 1
           expect(result.parts[0].name).to eq 'back'
+
+          expect(result.parts[0].producer).to be_an_instance_of Producer
+          expect(result.parts[0].producer.id).to eq 10
+          expect(result.parts[0].producer.country).to eq 'UK'
+
           expect(result.parts[1]).to be_an_instance_of Part
           expect(result.parts[1].id).to eq 2
           expect(result.parts[1].name).to eq 'leg'
+          expect(result.parts[1].producer).to be_nil
         end
       end
 
       context 'when the hash contains one owner' do
         let(:hash) do
-          { 'owner' => { '_id' => 3, 'full_name' => 'John Doe' } }
+          {
+            'owner' => {
+              '_id' => 3,
+              'full_name' => 'John Doe',
+              'phones' => [
+                { '_id' => 20, 'number' => '+1111111111' },
+                { '_id' => 21, 'number' => '+2222222222' }
+              ]
+            }
+           }
         end
 
         it 'maps subdocument to <one embedded>' do
           expect(result.owner).to be_an_instance_of Owner
           expect(result.owner.id).to eq 3
           expect(result.owner.full_name).to eq 'John Doe'
+
+          expect(result.owner.phones.length).to eq 2
+
+          expect(result.owner.phones[0].id).to eq 20
+          expect(result.owner.phones[0].number).to eq '+1111111111'
+
+          expect(result.owner.phones[1].id).to eq 21
+          expect(result.owner.phones[1].number).to eq '+2222222222'
         end
       end
     end
@@ -105,14 +135,22 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
 
       context 'when the object has <many embedded>' do
         let(:thing) do
-          Thing.new(1, 'chair', 100, [ Part.new(1, 'back'), Part.new(2, 'leg') ])
+          Thing.new(1, 'chair', 100, [
+            Part.new(1, 'back', Producer.new(10, 'UK')),
+            Part.new(2, 'leg')
+          ])
         end
         let(:result) { subject.toHash(thing, true) }
 
         it 'maps <many embedded> to subdocuments' do
           expect(result['parts'].length).to eq 2
+
           expect(result['parts'][0]['_id']).to eq 1
           expect(result['parts'][0]['name']).to eq 'back'
+
+          expect(result['parts'][0]['producer']['_id']).to eq 10
+          expect(result['parts'][0]['producer']['country']).to eq 'UK'
+
           expect(result['parts'][1]['_id']).to eq 2
           expect(result['parts'][1]['name']).to eq 'leg'
         end
@@ -120,13 +158,24 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
 
       context 'when the object has <one embedded>' do
         let(:thing) do
-          Thing.new(1, 'chair', 100, nil, Owner.new(3, 'John Doe'))
+          Thing.new(1, 'chair', 100, nil, Owner.new(3, 'John Doe', [
+            Phone.new(20, '+1111111111'),
+            Phone.new(21, '+2222222222')
+          ]))
         end
         let(:result) { subject.toHash(thing, true) }
 
         it 'maps <one embedded> to the subdocument' do
           expect(result['owner']['_id']).to eq 3
           expect(result['owner']['full_name']).to eq 'John Doe'
+
+          expect(result['owner']['phones'].length).to eq 2
+
+          expect(result['owner']['phones'][0]['_id']).to eq 20
+          expect(result['owner']['phones'][0]['number']).to eq '+1111111111'
+
+          expect(result['owner']['phones'][1]['_id']).to eq 21
+          expect(result['owner']['phones'][1]['number']).to eq '+2222222222'
         end
       end
     end
