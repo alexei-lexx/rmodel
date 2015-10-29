@@ -5,20 +5,16 @@ Rmodel.setup do
 end
 
 Owner = Struct.new(:id, :first_name, :last_name)
-Room = Struct.new(:id, :name, :square)
+Room = Struct.new(:id, :name, :square, :bed)
 Flat = Struct.new(:id, :address, :rooms, :owner)
-
-class FlatFactory < Rmodel::Mongo::SimpleFactory
-  def initialize
-    super Flat, :address
-    embeds_many :rooms, Rmodel::Mongo::SimpleFactory.new(Room, :name, :square)
-    embeds_one :owner, Rmodel::Mongo::SimpleFactory.new(Owner, :first_name, :last_name)
-  end
-end
+Bed = Struct.new(:id, :type)
 
 class FlatRepository < Rmodel::Mongo::Repository
-  def initialize
-    super nil, nil, FlatFactory.new
+  simple_factory Flat, :address do
+    embeds_many :rooms, simple_factory(Room, :name, :square) do
+      embeds_one :bed, simple_factory(Bed, :type)
+    end
+    embeds_one :owner, simple_factory(Owner, :first_name, :last_name)
   end
 end
 repo = FlatRepository.new
@@ -26,12 +22,12 @@ repo.query.remove
 
 flat = Flat.new
 flat.address = 'Googleplex, Mountain View, California, U.S'
-flat.rooms = []
-flat.rooms << Room.new(nil, 'dining room', 150)
-flat.rooms << Room.new(nil, 'sleeping room #1', 50)
-flat.rooms << Room.new(nil, 'sleeping room #2', 20)
+flat.rooms = [
+  Room.new(nil, 'dining room', 150),
+  Room.new(nil, 'sleeping room #1', 50, Bed.new(nil, 'single')),
+  Room.new(nil, 'sleeping room #2', 20, Bed.new(nil, 'king-size'))
+]
 flat.owner = Owner.new(nil, 'John', 'Doe')
 
 repo.insert(flat)
-
 p repo.find(flat.id)

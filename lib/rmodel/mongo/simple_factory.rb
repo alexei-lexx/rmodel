@@ -61,12 +61,18 @@ module Rmodel::Mongo
 
     private
 
-    def embeds_many(attribute, factory)
+    def embeds_many(attribute, factory, &block)
+      factory.instance_eval(&block) if block
       @embeds_many[attribute.to_sym] = factory
     end
 
-    def embeds_one(attribute, factory)
+    def embeds_one(attribute, factory, &block)
+      factory.instance_eval(&block) if block
       @embeds_one[attribute.to_sym] = factory
+    end
+
+    def simple_factory(klass, *attributes, &block)
+      self.class.new(klass, *attributes, &block)
     end
   end
 end
