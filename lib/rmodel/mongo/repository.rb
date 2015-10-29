@@ -54,8 +54,8 @@ module Rmodel::Mongo
         end
       end
 
-      def simple_factory(klass, *attributes)
-        @setting_factory = SimpleFactory.new(klass, *attributes)
+      def simple_factory(klass, *attributes, &block)
+        @setting_factory = SimpleFactory.new(klass, *attributes, &block)
       end
     end
   end

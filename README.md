@@ -10,6 +10,7 @@
   * [Sugar methods](#sugar-methods)
   * [Advanced creation of repository](#advanced-creation-of-repository)
   * [SQL repository](#sql-repository)
+  * [Embedded documents in MongoDB](#embedded-documents-in-mongodb)
 
 Rmodel is an ORM library, which tends to follow the SOLID principles.
 
@@ -279,6 +280,114 @@ repo.insert Thing.new('iPad', 500)
 p repo.query.count # 3
 p repo.query.worth_more_than(400).count # 1
 p repo.query.worth_more_than(400).to_sql
+```
+
+### Embedded documents in MongoDB
+
+Let's assume that we have the `flats` collection and every documents reveals
+the following structure.
+
+```js
+> db.flats.findOne()
+{
+	"_id" : ObjectId("5632910ee5fcc32d40000000"),
+	"address" : "Googleplex, Mountain View, California, U.S",
+	"rooms" : [
+		{
+			"name" : "dining room",
+			"square" : 150,
+			"_id" : ObjectId("5632910ee5fcc32d40000001")
+		},
+		{
+			"name" : "sleeping room #1",
+			"square" : 50,
+			"_id" : ObjectId("5632910ee5fcc32d40000002"),
+			"bed" : {
+				"type" : "single",
+				"_id" : ObjectId("5632910ee5fcc32d40000003")
+			}
+		},
+		{
+			"name" : "sleeping room #2",
+			"square" : 20,
+			"_id" : ObjectId("5632910ee5fcc32d40000004"),
+			"bed" : {
+				"type" : "king-size",
+				"_id" : ObjectId("5632910ee5fcc32d40000005")
+			}
+		}
+	],
+	"owner" : {
+		"first_name" : "John",
+		"last_name" : "Doe",
+		"_id" : ObjectId("5632910ee5fcc32d40000006")
+	}
+}
+```
+
+We need a rather complicated factory to build such object. Here is the example how we can map nested embedded documents with SimpleFactory.
+
+```ruby
+Owner = Struct.new(:id, :first_name, :last_name)
+Room = Struct.new(:id, :name, :square, :bed)
+Flat = Struct.new(:id, :address, :rooms, :owner)
+Bed = Struct.new(:id, :type)
+
+class FlatRepository < Rmodel::Mongo::Repository
+  simple_factory Flat, :address do
+    embeds_many :rooms, simple_factory(Room, :name, :square) do
+      embeds_one :bed, simple_factory(Bed, :type)
+    end
+    embeds_one :owner, simple_factory(Owner, :first_name, :last_name)
+  end
+end
+```
+
+1. The row `simple_factory Flat, :address` create a factory for Flat.
+  * It takes a block, where the detailed declaration goes.
+  * `embeds_many` and `embeds_one` are methods of the created factory.
+2. The row `embeds_many :rooms, simple_factory(Room, :name, :square)` describes  the embedded array of rooms within the flat.
+  * The first argument `:room` is the name of the flat attribute (`flat.rooms`).
+  * The second argument is another simple factory for the Room class.
+  * The row `embeds_many :rooms` takes the block, that described nested embedded documents for the Room factory.
+3. etc.
+
+The full example.
+
+```ruby
+require 'rmodel'
+
+Rmodel.setup do
+  client :default, { hosts: [ 'localhost'], database: 'test' }
+end
+
+Owner = Struct.new(:id, :first_name, :last_name)
+Room = Struct.new(:id, :name, :square, :bed)
+Flat = Struct.new(:id, :address, :rooms, :owner)
+Bed = Struct.new(:id, :type)
+
+class FlatRepository < Rmodel::Mongo::Repository
+  simple_factory Flat, :address do
+    embeds_many :rooms, simple_factory(Room, :name, :square) do
+      embeds_one :bed, simple_factory(Bed, :type)
+    end
+    embeds_one :owner, simple_factory(Owner, :first_name, :last_name)
+  end
+end
+repo = FlatRepository.new
+repo.query.remove
+
+flat = Flat.new
+flat.address = 'Googleplex, Mountain View, California, U.S'
+flat.rooms = [
+  Room.new(nil, 'dining room', 150),
+  Room.new(nil, 'sleeping room #1', 50, Bed.new(nil, 'single')),
+  Room.new(nil, 'sleeping room #2', 20, Bed.new(nil, 'king-size'))
+]
+flat.owner = Owner.new(nil, 'John', 'Doe')
+
+repo.insert(flat)
+p repo.find(flat.id)
 ```
 
 ## Contributing
