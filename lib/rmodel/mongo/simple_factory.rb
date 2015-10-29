@@ -1,10 +1,11 @@
 module Rmodel::Mongo
   class SimpleFactory
-    def initialize(klass, *attributes)
+    def initialize(klass, *attributes, &block)
       @klass = klass
       @attributes = attributes
       @embeds_many = {}
       @embeds_one = {}
+      instance_eval(&block) if block
     end
 
     def fromHash(hash)
