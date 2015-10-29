@@ -1,5 +1,6 @@
 RSpec.describe Rmodel::Mongo::Repository do
   before do
+    Mongo::Logger.logger.level = Logger::ERROR
     stub_const('User', Struct.new(:id, :name, :email))
   end
 
@@ -108,7 +109,7 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
   end
 
-  describe '.simple_factory(klass, attribute1, attribute2, ...)' do
+  describe '.simple_factory(klass, attribute1, attribute2, ..., &block)' do
     subject { UserRepository.new }
 
     before do
@@ -140,6 +141,18 @@ RSpec.describe Rmodel::Mongo::Repository do
         expect {
           UserRepository.new
         }.to raise_error ArgumentError
+      end
+    end
+
+    context 'when a block is given' do
+      it 'evaluates the block within the context of the factory' do
+        tmp = nil
+        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+          simple_factory User, :name, :email do
+            tmp = self
+          end
+        })
+        expect(tmp).to be_an_instance_of Rmodel::Mongo::SimpleFactory
       end
     end
   end
