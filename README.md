@@ -31,7 +31,7 @@ It consists of 3 major components:
 
 Basic implemented features:
 
-1. CRUD operations: `find`, `insert`, `update`, `remove`;
+1. CRUD operations: `find`, `insert`, `update`, `destroy`;
 2. Scopes: `userRepository.query.recent.sorted`
 3. Query-based operations: `userRepository.query.recent.remove`
 
@@ -118,13 +118,13 @@ p john
 #<User:0x00... @name="John", @email="john@example.com", @id=BSON::ObjectId('562a...')>
 ```
 
-Let's update John and remove Bob.
+Let's update John and destroy Bob.
 
 ```ruby
 john.name = 'John Smith'
 userRepository.update(john)
 
-userRepository.remove(bob)
+userRepository.destroy(bob)
 
 p userRepository.find(john.id) # #<User:0x000000037237d0 @name="John Smith" ... >
 p userRepository.find(bob.id) # nil

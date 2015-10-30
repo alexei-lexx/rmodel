@@ -33,7 +33,7 @@ module Rmodel::Mongo
       @client[@collection].find(_id: object.id).update_one(@factory.toHash(object, false))
     end
 
-    def remove(object)
+    def destroy(object)
       @client[@collection].find(_id: object.id).delete_one
     end
 

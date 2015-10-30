@@ -32,7 +32,7 @@ module Rmodel::Sequel
       @client[@table].where(id: object.id).update(@factory.toHash(object, false))
     end
 
-    def remove(object)
+    def destroy(object)
       @client[@table].where(id: object.id).delete
     end
 
