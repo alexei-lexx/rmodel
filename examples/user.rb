@@ -39,7 +39,7 @@ userRepository.insert(bob)
 john.name = 'John Smith'
 userRepository.update(john)
 
-userRepository.remove(bob)
+userRepository.destroy(bob)
 
 p userRepository.find(john.id)
 p userRepository.find(bob.id)
