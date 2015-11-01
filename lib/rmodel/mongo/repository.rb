@@ -1,6 +1,4 @@
 require 'mongo'
-require 'rmodel/base/repository'
-require 'active_support/inflector'
 require 'rmodel/mongo/repository_ext/queryable'
 
 module Rmodel::Mongo
@@ -33,7 +31,7 @@ module Rmodel::Mongo
       @client[@collection].find(_id: object.id).update_one(@factory.toHash(object, false))
     end
 
-    def remove(object)
+    def destroy(object)
       @client[@collection].find(_id: object.id).delete_one
     end
 

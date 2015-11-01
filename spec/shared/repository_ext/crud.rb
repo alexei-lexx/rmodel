@@ -71,12 +71,12 @@ RSpec.shared_examples 'repository crud' do
     end
   end
 
-  describe '#remove' do
+  describe '#destroy' do
     let(:thing) { Thing.new }
     before { subject.insert(thing) }
 
-    it 'removes the record' do
-      subject.remove(thing)
+    it 'destroys the record' do
+      subject.destroy(thing)
       expect(subject.find(thing.id)).to be_nil
     end
   end
