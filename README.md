@@ -147,13 +147,13 @@ class UserRepository < Rmodel::Mongo::Repository
   end
 end
 
-userRepository.query.start_with('b').to_a
+repo.query.start_with('b').to_a
 ```
 
 Of course you can chain scopes.
 
 ```ruby
-userRepository.query.start_with('b').have_email
+repo.query.start_with('b').have_email
 ```
 
 The result of the scope is Enumerable, so you can apply the #each method and others (map, select etc).
@@ -163,8 +163,9 @@ Inside the scopes you can use any methods supported by the driver (database clie
 Also it's possible to use scopes to run the multi-row operations.
 
 ```ruby
-userRepository.query.have_email.remove
-p userRepository.query.count # 0
+repo.query.have_email.remove # simply run the operation against the database
+repo.query.have_email.destroy # extract users and run repo.destroy for the each one
+p repo.query.count # 0
 ```
 
 ### Timestamps
