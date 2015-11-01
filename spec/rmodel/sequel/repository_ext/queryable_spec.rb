@@ -102,6 +102,40 @@ RSpec.describe Rmodel::Sequel::Repository do
         end
       end
     end
+
+    describe '#destroy' do
+      context 'when no scope is given' do
+        it 'destroys all objects' do
+          subject.query.destroy
+          expect(subject.query.count).to eq 0
+        end
+
+        it 'calls #destroy for each object' do
+          expect(subject).to receive(:destroy).exactly(3).times
+          subject.query.destroy
+        end
+      end
+
+      context 'when the scope filters 2 objects from 3' do
+        before do
+          ThingRepository.class_eval do
+            scope :a_equals_2 do
+              where(a: 2)
+            end
+          end
+        end
+
+        it 'destroys 2 objects' do
+          subject.query.a_equals_2.destroy
+          expect(subject.query.count).to eq 1
+        end
+
+        it 'calls #destroy for each object' do
+          expect(subject).to receive(:destroy).exactly(2).times
+          subject.query.a_equals_2.destroy
+        end
+      end
+    end
   end
 
   def create_database

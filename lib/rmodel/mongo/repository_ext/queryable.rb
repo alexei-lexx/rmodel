@@ -11,14 +11,21 @@ module Rmodel::Mongo
         (self.class.query_klass ||= Class.new(Query)).new(self)
       end
 
-      def find_by_query(selector, options)
-        execute_query(selector, options).map do |hash|
+      def find_by_query(queryable)
+        execute_query(queryable).map do |hash|
           @factory.fromHash(hash)
         end
       end
 
-      def execute_query(selector, options)
-        @client[@collection].find(selector, options)
+      def destroy_by_query(queryable)
+        execute_query(queryable).map do |hash|
+          object = @factory.fromHash(hash)
+          destroy(object)
+        end
+      end
+
+      def execute_query(queryable)
+        @client[@collection].find(queryable.selector, queryable.options)
       end
 
       module ClassMethods
