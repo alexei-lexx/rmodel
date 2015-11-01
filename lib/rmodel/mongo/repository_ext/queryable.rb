@@ -1,4 +1,4 @@
-require 'rmodel/mongo/repository_ext/query'
+require 'origin'
 
 module Rmodel::Mongo
   module RepositoryExt
@@ -7,34 +7,44 @@ module Rmodel::Mongo
         base.extend ClassMethods
       end
 
-      def query
-        (self.class.query_klass ||= Class.new(Query)).new(self)
+      class Query
+        include Origin::Queryable
       end
 
-      def find_by_query(queryable)
-        execute_query(queryable).map do |hash|
+      def query
+        (self.class.query_klass ||= Class.new(Rmodel::Base::QueryBuilder)).new(self, Query.new)
+      end
+
+      def find_by_query(query)
+        execute_query(query).map do |hash|
           @factory.fromHash(hash)
         end
       end
 
-      def destroy_by_query(queryable)
-        execute_query(queryable).map do |hash|
+      def remove_by_query(query)
+        execute_query(query).delete_many
+      end
+
+      def destroy_by_query(query)
+        execute_query(query).map do |hash|
           object = @factory.fromHash(hash)
           destroy(object)
         end
-      end
-
-      def execute_query(queryable)
-        @client[@collection].find(queryable.selector, queryable.options)
       end
 
       module ClassMethods
         attr_accessor :query_klass
 
         def scope(name, &block)
-          self.query_klass ||= Class.new(Query)
+          self.query_klass ||= Class.new(Rmodel::Base::QueryBuilder)
           self.query_klass.define_scope(name, &block)
         end
+      end
+
+      private
+
+      def execute_query(query)
+        @client[@collection].find(query.selector, query.options)
       end
     end
   end
