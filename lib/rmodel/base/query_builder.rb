@@ -1,5 +1,7 @@
 module Rmodel::Base
   class QueryBuilder
+    include Enumerable
+
     def initialize(repo, query)
       @repo = repo
       @query = query
@@ -11,7 +13,7 @@ module Rmodel::Base
     end
 
     def remove
-      @repo.execute_query(@query).delete_many
+      @repo.remove_by_query(@query)
     end
 
     def destroy
