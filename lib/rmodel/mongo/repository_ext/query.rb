@@ -15,12 +15,16 @@ module Rmodel::Mongo
       end
 
       def each(&block)
-        @repo.find_by_query(@queryable.selector, @queryable.options).each(&block)
+        @repo.find_by_query(@queryable).each(&block)
         self
       end
 
       def remove
-        @repo.execute_query(@queryable.selector, @queryable.options).delete_many
+        @repo.execute_query(@queryable).delete_many
+      end
+
+      def destroy
+        @repo.destroy_by_query(@queryable)
       end
 
       def self.define_scope(name, &block)

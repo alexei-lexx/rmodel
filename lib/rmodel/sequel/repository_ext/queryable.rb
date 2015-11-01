@@ -17,6 +17,13 @@ module Rmodel::Sequel
         end
       end
 
+      def destroy_by_query(dataset)
+        dataset.map do |hash|
+          object = @factory.fromHash(hash)
+          destroy(object)
+        end
+      end
+
       module ClassMethods
         attr_accessor :query_klass
 

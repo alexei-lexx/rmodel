@@ -19,6 +19,10 @@ module Rmodel::Sequel
         @dataset.delete
       end
 
+      def destroy
+        @repo.destroy_by_query(@dataset)
+      end
+
       def to_sql
         @dataset.sql
       end
