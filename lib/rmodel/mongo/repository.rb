@@ -1,6 +1,4 @@
 require 'mongo'
-require 'rmodel/base/repository'
-require 'active_support/inflector'
 require 'rmodel/mongo/repository_ext/queryable'
 
 module Rmodel::Mongo

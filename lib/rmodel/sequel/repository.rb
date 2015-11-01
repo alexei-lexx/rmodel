@@ -1,5 +1,4 @@
 require 'sequel'
-require 'rmodel/base/repository'
 require 'rmodel/sequel/repository_ext/queryable'
 
 module Rmodel::Sequel
