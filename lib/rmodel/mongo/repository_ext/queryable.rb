@@ -3,16 +3,12 @@ require 'origin'
 module Rmodel::Mongo
   module RepositoryExt
     module Queryable
-      def self.included(base)
-        base.extend ClassMethods
-      end
-
       class Query
         include Origin::Queryable
       end
 
       def query
-        (self.class.query_klass ||= Class.new(Rmodel::Base::QueryBuilder)).new(self, Query.new)
+        self.class.query_klass.new(self, Query.new)
       end
 
       def find_by_query(query)
@@ -29,15 +25,6 @@ module Rmodel::Mongo
         execute_query(query).map do |hash|
           object = @factory.to_object(hash)
           destroy(object)
-        end
-      end
-
-      module ClassMethods
-        attr_accessor :query_klass
-
-        def scope(name, &block)
-          self.query_klass ||= Class.new(Rmodel::Base::QueryBuilder)
-          self.query_klass.define_scope(name, &block)
         end
       end
 
