@@ -22,7 +22,7 @@ module Rmodel::Sequel
       result && @factory.to_object(result)
     end
 
-    def insert(object)
+    def insert_one(object)
       id = @client[@table].insert(@factory.to_hash(object, true))
       object.id ||= id
     end
