@@ -7,6 +7,22 @@ module Rmodel::Base
     include RepositoryExt::Sugarable
     include RepositoryExt::Queryable
 
+    def insert(*args)
+      if args.length == 1
+        if args.first.is_a?(Array)
+          args.first.each do |object|
+            insert_one(object)
+          end
+        else
+          insert_one(args.first)
+        end
+      else
+        args.each do |object|
+          insert_one(object)
+        end
+      end
+    end
+
     def remove(object)
       warn '#remove is deprecated, use #destroy instead'
       destroy(object)
