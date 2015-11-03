@@ -22,7 +22,7 @@ module Rmodel::Mongo
       result && @factory.to_object(result)
     end
 
-    def insert(object)
+    def insert_one(object)
       object.id ||= BSON::ObjectId.new
       @client[@collection].insert_one(@factory.to_hash(object, true))
     end
