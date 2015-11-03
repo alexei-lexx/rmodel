@@ -23,12 +23,12 @@ module Rmodel::Sequel
     end
 
     def insert(object)
-      id = @client[@table].insert(@factory.toHash(object, true))
+      id = @client[@table].insert(@factory.to_hash(object, true))
       object.id ||= id
     end
 
     def update(object)
-      @client[@table].where(id: object.id).update(@factory.toHash(object, false))
+      @client[@table].where(id: object.id).update(@factory.to_hash(object, false))
     end
 
     def destroy(object)

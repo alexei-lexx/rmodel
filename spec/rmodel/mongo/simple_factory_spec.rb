@@ -105,11 +105,11 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
       end
     end
 
-    describe '#toHash(object, id_included)' do
+    describe '#to_hash(object, id_included)' do
       let(:thing) { Thing.new(1, 'chair', 100) }
 
       context 'when id_included is false' do
-        let(:result) { subject.toHash(thing, false) }
+        let(:result) { subject.to_hash(thing, false) }
 
         it 'returns an instance of Hash' do
           expect(result).to be_an_instance_of Hash
@@ -126,7 +126,7 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
       end
 
       context 'when id_included is true' do
-        let(:result) { subject.toHash(thing, true) }
+        let(:result) { subject.to_hash(thing, true) }
 
         it 'sets the "_id" key' do
           expect(result['_id']).to eq 1
@@ -140,7 +140,7 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
             Part.new(2, 'leg')
           ])
         end
-        let(:result) { subject.toHash(thing, true) }
+        let(:result) { subject.to_hash(thing, true) }
 
         it 'maps <many embedded> to subdocuments' do
           expect(result['parts'].length).to eq 2
@@ -163,7 +163,7 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
             Phone.new(21, '+2222222222')
           ]))
         end
-        let(:result) { subject.toHash(thing, true) }
+        let(:result) { subject.to_hash(thing, true) }
 
         it 'maps <one embedded> to the subdocument' do
           expect(result['owner']['_id']).to eq 3
