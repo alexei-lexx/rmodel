@@ -19,16 +19,16 @@ module Rmodel::Mongo
 
     def find(id)
       result = @client[@collection].find(_id: id).first
-      result && @factory.fromHash(result)
+      result && @factory.to_object(result)
     end
 
     def insert(object)
       object.id ||= BSON::ObjectId.new
-      @client[@collection].insert_one(@factory.toHash(object, true))
+      @client[@collection].insert_one(@factory.to_hash(object, true))
     end
 
     def update(object)
-      @client[@collection].find(_id: object.id).update_one(@factory.toHash(object, false))
+      @client[@collection].find(_id: object.id).update_one(@factory.to_hash(object, false))
     end
 
     def destroy(object)

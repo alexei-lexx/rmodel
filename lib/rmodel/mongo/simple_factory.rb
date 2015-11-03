@@ -8,7 +8,7 @@ module Rmodel::Mongo
       instance_eval(&block) if block
     end
 
-    def fromHash(hash)
+    def to_object(hash)
       object = @klass.new
       object.id = hash['_id']
       @attributes.each do |attribute|
@@ -18,20 +18,20 @@ module Rmodel::Mongo
         if hash[attribute.to_s]
           object.public_send "#{attribute}=", []
           hash[attribute.to_s].each do |sub_hash|
-            object.public_send(attribute) << factory.fromHash(sub_hash)
+            object.public_send(attribute) << factory.to_object(sub_hash)
           end
         end
       end
       @embeds_one.each do |attribute, factory|
         sub_hash = hash[attribute.to_s]
         if sub_hash
-          object.public_send "#{attribute}=", factory.fromHash(sub_hash)
+          object.public_send "#{attribute}=", factory.to_object(sub_hash)
         end
       end
       object
     end
 
-    def toHash(object, id_included)
+    def to_hash(object, id_included)
       hash = {}
       @attributes.each do |attribute|
         hash[attribute.to_s] = object.public_send(attribute)
@@ -45,7 +45,7 @@ module Rmodel::Mongo
         if sub_objects
           sub_objects.each do |sub_object|
             sub_object.id ||= BSON::ObjectId.new
-            hash[attribute.to_s] << factory.toHash(sub_object, true)
+            hash[attribute.to_s] << factory.to_hash(sub_object, true)
           end
         end
       end
@@ -53,7 +53,7 @@ module Rmodel::Mongo
         sub_object = object.public_send(attribute)
         if sub_object
           sub_object.id ||= BSON::ObjectId.new
-          hash[attribute.to_s] = factory.toHash(sub_object, true)
+          hash[attribute.to_s] = factory.to_hash(sub_object, true)
         end
       end
       hash
