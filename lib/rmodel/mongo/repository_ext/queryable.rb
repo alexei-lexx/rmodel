@@ -17,7 +17,7 @@ module Rmodel::Mongo
 
       def find_by_query(query)
         execute_query(query).map do |hash|
-          @factory.fromHash(hash)
+          @factory.to_object(hash)
         end
       end
 
@@ -27,7 +27,7 @@ module Rmodel::Mongo
 
       def destroy_by_query(query)
         execute_query(query).map do |hash|
-          object = @factory.fromHash(hash)
+          object = @factory.to_object(hash)
           destroy(object)
         end
       end

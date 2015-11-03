@@ -19,7 +19,7 @@ module Rmodel::Mongo
 
     def find(id)
       result = @client[@collection].find(_id: id).first
-      result && @factory.fromHash(result)
+      result && @factory.to_object(result)
     end
 
     def insert(object)
