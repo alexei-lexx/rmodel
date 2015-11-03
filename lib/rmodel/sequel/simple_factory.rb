@@ -14,7 +14,7 @@ module Rmodel::Sequel
       object
     end
 
-    def toHash(object, id_included)
+    def to_hash(object, id_included)
       hash = {}
       @attributes.each do |attribute|
         hash[attribute.to_sym] = object.public_send(attribute)

@@ -229,7 +229,7 @@ repo = ThingRepository.new(client, collection, factory)
 repo.find(1)
 ```
 
-The `factory` is an object, which has 2 methods: `#to_object(hash)` and `#toHash(object)`.
+The `factory` is an object, which has 2 methods: `#to_object(hash)` and `#to_hash(object)`.
 
 ### SQL repository
 
