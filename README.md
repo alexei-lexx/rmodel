@@ -130,6 +130,14 @@ p userRepository.find(john.id) # #<User:0x000000037237d0 @name="John Smith" ... 
 p userRepository.find(bob.id) # nil
 ```
 
+The `insert` method is polysemantic. All options below are valid.
+
+```ruby
+repo.insert(object)
+repo.insert([ object1, object2, object3 ])
+repo.insert(object1, object2, object3)
+```
+
 ### Scopes
 
 Scopes are defined inside the repository.

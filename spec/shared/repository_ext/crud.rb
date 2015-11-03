@@ -55,6 +55,20 @@ RSpec.shared_examples 'repository crud' do
         expect { subject.insert(thing) }.to raise_error unique_constraint_error
       end
     end
+
+    context 'when an array of objects is provided' do
+      it 'inserts all objects' do
+        subject.insert([ Thing.new, Thing.new ])
+        expect(subject.query.count).to eq 2
+      end
+    end
+
+    context 'when objects are provided as many arguments' do
+      it 'inserts all objects' do
+        subject.insert(Thing.new, Thing.new)
+        expect(subject.query.count).to eq 2
+      end
+    end
   end
 
   describe '#update' do
