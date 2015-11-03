@@ -76,6 +76,13 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   describe '.query' do
+    describe '#scope(&block)' do
+      it 'creates an inline scope and returns a new query' do
+        count = repo.query.scope { where(a: 2) }.count
+        expect(count).to eq 2
+      end
+    end
+
     describe '#remove' do
       context 'when no scope is given' do
         it 'removes all objects' do
