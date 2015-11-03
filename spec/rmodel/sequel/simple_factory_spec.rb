@@ -4,10 +4,10 @@ RSpec.describe Rmodel::Sequel::SimpleFactory do
 
     subject { described_class.new(User, :name, :email) }
 
-    describe '#fromHash' do
+    describe '#to_object' do
       context 'when the hash with id, name and email is given' do
         let(:hash) { { id: 1, name: 'John', email: 'john@example.com' } }
-        let(:result) { subject.fromHash(hash) }
+        let(:result) { subject.to_object(hash) }
 
         it 'returns an instance of User' do
           expect(result).to be_an_instance_of User

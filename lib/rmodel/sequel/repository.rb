@@ -19,7 +19,7 @@ module Rmodel::Sequel
 
     def find(id)
       result = @client[@table].where(id: id).first
-      result && @factory.fromHash(result)
+      result && @factory.to_object(result)
     end
 
     def insert(object)

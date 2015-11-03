@@ -19,8 +19,8 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
       end
     end
 
-    describe '#fromHash(hash)' do
-      let(:result) { subject.fromHash(hash) }
+    describe '#to_object(hash)' do
+      let(:result) { subject.to_object(hash) }
 
       context 'when the hash with _id, name and price is given' do
         let(:hash) { { '_id' => 1, 'name' => 'chair', 'price' => 100 } }
