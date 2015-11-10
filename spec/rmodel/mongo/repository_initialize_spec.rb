@@ -17,7 +17,7 @@ RSpec.describe Rmodel::Mongo::Repository do
 
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           client :mongo
-          simple_factory User, :name, :email
+          simple_mapper User, :name, :email
           attr_reader :client
         })
       end
@@ -32,7 +32,7 @@ RSpec.describe Rmodel::Mongo::Repository do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           client :mongo
-          simple_factory User, :name, :email
+          simple_mapper User, :name, :email
           attr_reader :client
         })
       end
@@ -45,7 +45,7 @@ RSpec.describe Rmodel::Mongo::Repository do
     context 'when it is not called' do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory User, :name, :email
+          simple_mapper User, :name, :email
           attr_reader :client
         })
       end
@@ -85,7 +85,7 @@ RSpec.describe Rmodel::Mongo::Repository do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
           collection :people
-          simple_factory User, :name, :email
+          simple_mapper User, :name, :email
           attr_reader :collection
         })
       end
@@ -98,7 +98,7 @@ RSpec.describe Rmodel::Mongo::Repository do
     context 'when no collection is given' do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory User, :name, :email
+          simple_mapper User, :name, :email
           attr_reader :collection
         })
       end
@@ -109,7 +109,7 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
   end
 
-  describe '.simple_factory(klass, attribute1, attribute2, ..., &block)' do
+  describe '.simple_mapper(klass, attribute1, attribute2, ..., &block)' do
     subject { UserRepository.new }
 
     before do
@@ -122,13 +122,13 @@ RSpec.describe Rmodel::Mongo::Repository do
     context 'when it is called' do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory User, :name, :email
-          attr_reader :factory
+          simple_mapper User, :name, :email
+          attr_reader :mapper
         })
       end
 
-      it 'sets the appropriate #factory' do
-        expect(subject.factory).to be_an_instance_of Rmodel::Mongo::SimpleFactory
+      it 'sets the appropriate #mapper' do
+        expect(subject.mapper).to be_an_instance_of Rmodel::Mongo::SimpleMapper
       end
     end
 
@@ -145,28 +145,28 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
 
     context 'when a block is given' do
-      it 'evaluates the block within the context of the factory' do
+      it 'evaluates the block within the context of the mapper' do
         tmp = nil
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory User, :name, :email do
+          simple_mapper User, :name, :email do
             tmp = self
           end
         })
-        expect(tmp).to be_an_instance_of Rmodel::Mongo::SimpleFactory
+        expect(tmp).to be_an_instance_of Rmodel::Mongo::SimpleMapper
       end
     end
   end
 
-  describe '#initialize(client, collection, factory)' do
+  describe '#initialize(client, collection, mapper)' do
     context 'when all constructor arguments are passed' do
       before do
         stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
       end
-      let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
+      let(:mapper) { Rmodel::Mongo::SimpleMapper.new(User, :name, :email) }
 
       it 'works!' do
         expect {
-          UserRepository.new(Object.new, :users, factory)
+          UserRepository.new(Object.new, :users, mapper)
         }.not_to raise_error
       end
     end

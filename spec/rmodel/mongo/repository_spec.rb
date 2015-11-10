@@ -6,8 +6,8 @@ RSpec.describe Rmodel::Mongo::Repository do
       stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
     end
 
-    let(:factory) { Rmodel::Mongo::SimpleFactory.new(Thing, :name) }
-    subject { ThingRepository.new(mongo_session, :things, factory) }
+    let(:mapper) { Rmodel::Mongo::SimpleMapper.new(Thing, :name) }
+    subject { ThingRepository.new(mongo_session, :things, mapper) }
     let(:unique_constraint_error) { Mongo::Error::OperationFailure }
 
     def insert_record(id, columns)
@@ -25,8 +25,8 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
 
     subject do
-      factory = Rmodel::Mongo::SimpleFactory.new(Thing, :name)
-      ThingRepository.new(mongo_session, :things, factory)
+      mapper = Rmodel::Mongo::SimpleMapper.new(Thing, :name)
+      ThingRepository.new(mongo_session, :things, mapper)
     end
   end
 
@@ -38,13 +38,13 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
 
     let(:repo_w_timestamps) do
-      factory = Rmodel::Mongo::SimpleFactory.new(Thing, :name, :created_at, :updated_at)
-      ThingRepository.new(mongo_session, :things, factory)
+      mapper = Rmodel::Mongo::SimpleMapper.new(Thing, :name, :created_at, :updated_at)
+      ThingRepository.new(mongo_session, :things, mapper)
     end
 
     let(:repo_wo_timestamps) do
-      factory = Rmodel::Mongo::SimpleFactory.new(Thing, :name)
-      ThingRepository.new(mongo_session, :things, factory)
+      mapper = Rmodel::Mongo::SimpleMapper.new(Thing, :name)
+      ThingRepository.new(mongo_session, :things, mapper)
     end
   end
 end

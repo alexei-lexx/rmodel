@@ -1,5 +1,5 @@
 module Rmodel::Sequel
-  class SimpleFactory
+  class SimpleMapper
     def initialize(klass, *attributes)
       @klass = klass
       @attributes = attributes

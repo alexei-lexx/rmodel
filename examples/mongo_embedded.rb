@@ -10,11 +10,11 @@ Flat = Struct.new(:id, :address, :rooms, :owner)
 Bed = Struct.new(:id, :type)
 
 class FlatRepository < Rmodel::Mongo::Repository
-  simple_factory Flat, :address do
-    embeds_many :rooms, simple_factory(Room, :name, :square) do
-      embeds_one :bed, simple_factory(Bed, :type)
+  simple_mapper Flat, :address do
+    embeds_many :rooms, simple_mapper(Room, :name, :square) do
+      embeds_one :bed, simple_mapper(Bed, :type)
     end
-    embeds_one :owner, simple_factory(Owner, :first_name, :last_name)
+    embeds_one :owner, simple_mapper(Owner, :first_name, :last_name)
   end
 end
 repo = FlatRepository.new

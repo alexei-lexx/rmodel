@@ -24,7 +24,7 @@ class Thing
 end
 
 class ThingRepository < Rmodel::Sequel::Repository
-  simple_factory Thing, :name, :price
+  simple_mapper Thing, :name, :price
 
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
