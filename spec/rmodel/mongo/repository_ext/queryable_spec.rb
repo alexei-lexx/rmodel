@@ -6,8 +6,8 @@ RSpec.describe Rmodel::Mongo::Repository do
     stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
   end
 
-  let(:factory) { Rmodel::Mongo::SimpleFactory.new(Thing, :a, :b) }
-  subject { ThingRepository.new(mongo_session, :things, factory) }
+  let(:mapper) { Rmodel::Mongo::SimpleMapper.new(Thing, :a, :b) }
+  subject { ThingRepository.new(mongo_session, :things, mapper) }
 
   before do
     subject.insert(Thing.new(nil, 2, 3))

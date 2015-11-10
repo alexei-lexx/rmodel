@@ -1,4 +1,4 @@
-RSpec.describe Rmodel::Sequel::SimpleFactory do
+RSpec.describe Rmodel::Sequel::SimpleMapper do
   context 'when the User(id, name, email) class is defined' do
     before { stub_const('User', Struct.new(:id, :name, :email)) }
 

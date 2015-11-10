@@ -8,8 +8,8 @@ RSpec.describe Rmodel::Sequel::Repository do
   end
 
   subject do
-    factory = Rmodel::Sequel::SimpleFactory.new(Thing, :a, :b)
-    ThingRepository.new(sequel_conn, :things, factory)
+    mapper = Rmodel::Sequel::SimpleMapper.new(Thing, :a, :b)
+    ThingRepository.new(sequel_conn, :things, mapper)
   end
 
   before do

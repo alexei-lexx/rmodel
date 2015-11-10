@@ -1,4 +1,4 @@
-RSpec.describe Rmodel::Mongo::SimpleFactory do
+RSpec.describe Rmodel::Mongo::SimpleMapper do
   context 'when the Thing(id, name, price, parts, owner) class is defined' do
     before do
       stub_const('Thing', Struct.new(:id, :name, :price, :parts, :owner))
@@ -10,11 +10,11 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
 
     subject do
       described_class.new(Thing, :name, :price) do
-        embeds_many :parts, simple_factory(Part, :name) do
-          embeds_one :producer, simple_factory(Producer, :country)
+        embeds_many :parts, simple_mapper(Part, :name) do
+          embeds_one :producer, simple_mapper(Producer, :country)
         end
-        embeds_one :owner, simple_factory(Owner, :full_name) do
-          embeds_many :phones, simple_factory(Phone, :number)
+        embeds_one :owner, simple_mapper(Owner, :full_name) do
+          embeds_many :phones, simple_mapper(Phone, :number)
         end
       end
     end
@@ -184,10 +184,10 @@ RSpec.describe Rmodel::Mongo::SimpleFactory do
       context 'when a block is given' do
         it 'passes self to the block' do
           tmp = nil
-          factory = described_class.new(Thing, :name) do
+          mapper = described_class.new(Thing, :name) do
             tmp = self
           end
-          expect(tmp).to be factory
+          expect(tmp).to be mapper
         end
       end
     end

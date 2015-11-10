@@ -9,7 +9,7 @@ end
 
 client = Mongo::Client.new([ 'localhost:27017' ], database: 'test')
 collection = :things
-factory = Rmodel::Mongo::SimpleFactory.new(Thing, :name)
+mapper = Rmodel::Mongo::SimpleMapper.new(Thing, :name)
 
-repo = ThingRepository.new(client, collection, factory)
+repo = ThingRepository.new(client, collection, mapper)
 p repo.find(1)

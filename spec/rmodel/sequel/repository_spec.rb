@@ -7,8 +7,8 @@ RSpec.describe Rmodel::Sequel::Repository do
       stub_const('ThingRepository', Class.new(Rmodel::Sequel::Repository))
     end
 
-    let(:factory) { Rmodel::Sequel::SimpleFactory.new(Thing, :name) }
-    subject { ThingRepository.new(sequel_conn, :things, factory) }
+    let(:mapper) { Rmodel::Sequel::SimpleMapper.new(Thing, :name) }
+    subject { ThingRepository.new(sequel_conn, :things, mapper) }
     let(:unique_constraint_error) { Sequel::UniqueConstraintViolation }
 
     def insert_record(id, columns)
@@ -27,8 +27,8 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
 
     subject do
-      factory = Rmodel::Sequel::SimpleFactory.new(Thing, :name)
-      ThingRepository.new(sequel_conn, :things, factory)
+      mapper = Rmodel::Sequel::SimpleMapper.new(Thing, :name)
+      ThingRepository.new(sequel_conn, :things, mapper)
     end
   end
 
@@ -41,13 +41,13 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
 
     let(:repo_w_timestamps) do
-      factory = Rmodel::Sequel::SimpleFactory.new(Thing, :name, :created_at, :updated_at)
-      ThingRepository.new(sequel_conn, :things, factory)
+      mapper = Rmodel::Sequel::SimpleMapper.new(Thing, :name, :created_at, :updated_at)
+      ThingRepository.new(sequel_conn, :things, mapper)
     end
 
     let(:repo_wo_timestamps) do
-      factory = Rmodel::Sequel::SimpleFactory.new(Thing, :name)
-      ThingRepository.new(sequel_conn, :things, factory)
+      mapper = Rmodel::Sequel::SimpleMapper.new(Thing, :name)
+      ThingRepository.new(sequel_conn, :things, mapper)
     end
   end
 

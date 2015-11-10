@@ -27,7 +27,7 @@ It consists of 3 major components:
 
 1. **Entities**; ex.: User, Order etc.
 2. **Repositories**, which are used to fetch, save and delete entities; ex.: UserRepository, OrderRepository
-3. **Factories**, which play the role of mappers.
+3. **Mappers**, which play the role of mappers.
 
 Basic implemented features:
 
@@ -87,15 +87,15 @@ end
 
 The `:default` client is used by every repository that doesn't specify it's client explicitly.
 
-Run the code again and get another error *Factory can not be guessed (ArgumentError)*. The factory is used to convert the array of database tuples (hashes) to the array of User objects.
+Run the code again and get another error *Mapper can not be guessed (ArgumentError)*. The mapper is used to convert the array of database tuples (hashes) to the array of User objects.
 
 ```ruby
 class UserRepository < Rmodel::Mongo::Repository
-  simple_factory User, :name, :email
+  simple_mapper User, :name, :email
 end
 ```
 
-The `simple_factory` class macro says that every database tuple will be straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id, because it's required.
+The `simple_mapper` class macro says that every database tuple will be straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id, because it's required.
 
 ### CRUD
 
@@ -144,7 +144,7 @@ Scopes are defined inside the repository.
 
 ```ruby
 class UserRepository < Rmodel::Mongo::Repository
-  simple_factory User, :name, :email
+  simple_mapper User, :name, :email
 
   scope :have_email do
     where(email: { '$exists' => true })
@@ -193,7 +193,7 @@ class Thing
 end
 
 class ThingRepository < Rmodel::Mongo::Repository
-  simple_factory Thing, :name, :created_at, :updated_at
+  simple_mapper Thing, :name, :created_at, :updated_at
 end
 repo = ThingRepository.new
 
@@ -238,13 +238,13 @@ end
 
 client = Mongo::Client.new([ 'localhost:27017' ], database: 'test')
 collection = :things
-factory = Rmodel::Mongo::SimpleFactory.new(Thing, :name)
+mapper = Rmodel::Mongo::SimpleMapper.new(Thing, :name)
 
-repo = ThingRepository.new(client, collection, factory)
+repo = ThingRepository.new(client, collection, mapper)
 repo.find(1)
 ```
 
-The `factory` is an object, which has 2 methods: `#to_object(hash)` and `#to_hash(object)`.
+The `mapper` is an object, which has 2 methods: `#to_object(hash)` and `#to_hash(object)`.
 
 ### SQL repository
 
@@ -280,7 +280,7 @@ class Thing
 end
 
 class ThingRepository < Rmodel::Sequel::Repository
-  simple_factory Thing, :name, :price
+  simple_mapper Thing, :name, :price
 
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
@@ -341,7 +341,7 @@ the following structure.
 }
 ```
 
-We need a rather complicated factory to build such object. Here is the example how we can map nested embedded documents with SimpleFactory.
+We need a rather complicated mapper to build such object. Here is the example how we can map nested embedded documents with SimpleMapper.
 
 ```ruby
 Owner = Struct.new(:id, :first_name, :last_name)
@@ -350,22 +350,22 @@ Flat = Struct.new(:id, :address, :rooms, :owner)
 Bed = Struct.new(:id, :type)
 
 class FlatRepository < Rmodel::Mongo::Repository
-  simple_factory Flat, :address do
-    embeds_many :rooms, simple_factory(Room, :name, :square) do
-      embeds_one :bed, simple_factory(Bed, :type)
+  simple_mapper Flat, :address do
+    embeds_many :rooms, simple_mapper(Room, :name, :square) do
+      embeds_one :bed, simple_mapper(Bed, :type)
     end
-    embeds_one :owner, simple_factory(Owner, :first_name, :last_name)
+    embeds_one :owner, simple_mapper(Owner, :first_name, :last_name)
   end
 end
 ```
 
-1. The row `simple_factory Flat, :address` create a factory for Flat.
+1. The row `simple_mapper Flat, :address` create a mapper for Flat.
   * It takes a block, where the detailed declaration goes.
-  * `embeds_many` and `embeds_one` are methods of the created factory.
-2. The row `embeds_many :rooms, simple_factory(Room, :name, :square)` describes  the embedded array of rooms within the flat.
+  * `embeds_many` and `embeds_one` are methods of the created mapper.
+2. The row `embeds_many :rooms, simple_mapper(Room, :name, :square)` describes  the embedded array of rooms within the flat.
   * The first argument `:room` is the name of the flat attribute (`flat.rooms`).
-  * The second argument is another simple factory for the Room class.
-  * The row `embeds_many :rooms` takes the block, that described nested embedded documents for the Room factory.
+  * The second argument is another simple mapper for the Room class.
+  * The row `embeds_many :rooms` takes the block, that described nested embedded documents for the Room mapper.
 3. etc.
 
 The full example.
@@ -383,11 +383,11 @@ Flat = Struct.new(:id, :address, :rooms, :owner)
 Bed = Struct.new(:id, :type)
 
 class FlatRepository < Rmodel::Mongo::Repository
-  simple_factory Flat, :address do
-    embeds_many :rooms, simple_factory(Room, :name, :square) do
-      embeds_one :bed, simple_factory(Bed, :type)
+  simple_mapper Flat, :address do
+    embeds_many :rooms, simple_mapper(Room, :name, :square) do
+      embeds_one :bed, simple_mapper(Bed, :type)
     end
-    embeds_one :owner, simple_factory(Owner, :first_name, :last_name)
+    embeds_one :owner, simple_mapper(Owner, :first_name, :last_name)
   end
 end
 repo = FlatRepository.new

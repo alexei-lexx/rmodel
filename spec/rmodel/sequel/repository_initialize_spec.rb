@@ -2,14 +2,14 @@ RSpec.describe Rmodel::Sequel::Repository do
   before do
     stub_const('Thing', Struct.new(:id, :name))
     stub_const('ThingRepository', Class.new(Rmodel::Sequel::Repository))
-    ThingRepository.send :attr_reader, :client, :table, :factory
+    ThingRepository.send :attr_reader, :client, :table, :mapper
   end
-  let(:factory) { Rmodel::Sequel::SimpleFactory.new(Thing, :name) }
+  let(:mapper) { Rmodel::Sequel::SimpleMapper.new(Thing, :name) }
 
   describe '.client(name)' do
     conn_options = { adapter: 'sqlite', database: 'rmodel_test.sqlite3' }
 
-    subject { ThingRepository.new(nil, :things, factory) }
+    subject { ThingRepository.new(nil, :things, mapper) }
 
     context 'when it is called with an existent name' do
       before do
@@ -63,7 +63,7 @@ RSpec.describe Rmodel::Sequel::Repository do
   end
 
   describe '.table(name)' do
-    subject { ThingRepository.new(Object.new, nil, factory) }
+    subject { ThingRepository.new(Object.new, nil, mapper) }
 
     context 'when the :people table is given' do
       before do
@@ -84,18 +84,18 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
   end
 
-  describe '.simple_factory(klass, attribute1, attribute2, ...)' do
+  describe '.simple_mapper(klass, attribute1, attribute2, ...)' do
     subject { ThingRepository.new(Object.new, :things) }
 
     context 'when it is called' do
       before do
         ThingRepository.class_eval do
-          simple_factory Thing, :name, :email
+          simple_mapper Thing, :name, :email
         end
       end
 
-      it 'sets the appropriate #factory' do
-        expect(subject.factory).to be_an_instance_of Rmodel::Sequel::SimpleFactory
+      it 'sets the appropriate #mapper' do
+        expect(subject.mapper).to be_an_instance_of Rmodel::Sequel::SimpleMapper
       end
     end
 
@@ -106,11 +106,11 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
   end
 
-  describe '#initialize(client, collection, factory)' do
+  describe '#initialize(client, collection, mapper)' do
     context 'when all constructor arguments are passed' do
       it 'works!' do
         expect {
-          ThingRepository.new(Object.new, :users, factory)
+          ThingRepository.new(Object.new, :users, mapper)
         }.not_to raise_error
       end
     end
