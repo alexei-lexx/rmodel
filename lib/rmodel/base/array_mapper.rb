@@ -1,4 +1,4 @@
-module Rmodel::Mongo
+module Rmodel::Base
   class ArrayMapper
     def initialize(mapper)
       @mapper = mapper

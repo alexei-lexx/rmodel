@@ -10,9 +10,10 @@ RSpec.describe Rmodel::Mongo::Mapper do
 
     class UserMapper
       model User
-      attributes :name, :age
+      attribute :name
+      attribute :age
       attribute :address, AddressMapper.new
-      attribute :phones, Rmodel::Mongo::ArrayMapper.new(PhoneMapper.new)
+      attribute :phones, Rmodel::Base::ArrayMapper.new(PhoneMapper.new)
     end
 
     class AddressMapper
