@@ -11,13 +11,6 @@ module Rmodel::Mongo
         end
         object.public_send "#{attribute}=", value
       end
-      embeds_many.each do |attribute, mapper|
-        array = hash[attribute.to_s]
-        if array
-          sub_objects = array.map { |entry| mapper.deserialize(entry) }
-          object.public_send "#{attribute}=", sub_objects
-        end
-      end
       object
     end
 
@@ -34,15 +27,6 @@ module Rmodel::Mongo
       if id_included
         hash['_id'] = object.id
       end
-      embeds_many.each do |attribute, mapper|
-        hash[attribute.to_s] = []
-        sub_objects = object.public_send(attribute)
-        if sub_objects
-          sub_objects.each do |sub_object|
-            hash[attribute.to_s] << mapper.serialize(sub_object, true)
-          end
-        end
-      end
       hash
     end
 
@@ -56,13 +40,8 @@ module Rmodel::Mongo
       self.class.declared_attributes || {}
     end
 
-    def embeds_many
-       self.class.declared_embeds_many || {}
-    end
-
     class << self
-      attr_reader :declared_model, :declared_attributes,
-                  :declared_embeds_many
+      attr_reader :declared_model, :declared_attributes
 
       def model(klass)
         @declared_model = klass
@@ -77,11 +56,6 @@ module Rmodel::Mongo
         attributes.each do |attr|
           attribute(attr, nil)
         end
-      end
-
-      def embeds_many(attribute, mapper)
-        @declared_embeds_many ||= {}
-        @declared_embeds_many[attribute] = mapper
       end
     end
   end
