@@ -12,7 +12,7 @@ RSpec.describe Rmodel::Mongo::Mapper do
       model User
       attributes :name, :age
       attribute :address, AddressMapper.new
-      embeds_many :phones, PhoneMapper.new
+      attribute :phones, Rmodel::Mongo::ArrayMapper.new(PhoneMapper.new)
     end
 
     class AddressMapper
