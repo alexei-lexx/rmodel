@@ -47,7 +47,7 @@ module Rmodel::Mongo
         @declared_model = klass
       end
 
-      def attribute(attr, mapper)
+      def attribute(attr, mapper = nil)
         @declared_attributes ||= {}
         @declared_attributes[attr] = mapper
       end
