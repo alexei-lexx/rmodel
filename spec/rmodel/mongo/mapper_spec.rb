@@ -101,14 +101,14 @@ RSpec.describe Rmodel::Mongo::Mapper do
     end
   end
 
-  describe '#to_hash(object, id_included)' do
+  describe '#serialize(object, id_included)' do
     it 'returns an instance of Hash' do
-      hash = subject.to_hash(User.new(1, 'John', 20), true)
+      hash = subject.serialize(User.new(1, 'John', 20), true)
       expect(hash).to be_an_instance_of Hash
     end
 
     it 'sets the keys correctly' do
-      hash = subject.to_hash(User.new(1, 'John', 20), true)
+      hash = subject.serialize(User.new(1, 'John', 20), true)
 
       expect(hash['name']).to eq 'John'
       expect(hash['age']).to eq 20
@@ -116,14 +116,14 @@ RSpec.describe Rmodel::Mongo::Mapper do
 
     context 'when id_included = true' do
       it 'sets the _id' do
-        hash = subject.to_hash(User.new(1), true)
+        hash = subject.serialize(User.new(1), true)
         expect(hash['_id']).to eq 1
       end
     end
 
     context 'when id_included = false' do
       it 'doesnt set the _id' do
-        hash = subject.to_hash(User.new(1), false)
+        hash = subject.serialize(User.new(1), false)
         expect(hash.has_key?('_id')).to be false
       end
     end
@@ -134,7 +134,7 @@ RSpec.describe Rmodel::Mongo::Mapper do
         user.address = Address.new(10, 'NY', '1st Avenue')
         user
       end
-      let(:hash) { subject.to_hash(object, true) }
+      let(:hash) { subject.serialize(object, true) }
 
       it 'creates the embedded hash correctly' do
         expect(hash['address']['_id']).to eq 10
@@ -149,7 +149,7 @@ RSpec.describe Rmodel::Mongo::Mapper do
         user.phones = [ Phone.new(100, '+1111'), Phone.new(101, '+2222') ]
         user
       end
-      let(:hash) { subject.to_hash(object, true) }
+      let(:hash) { subject.serialize(object, true) }
 
       it 'creates the embedded array correctly' do
         expect(hash['phones'].length).to eq 2

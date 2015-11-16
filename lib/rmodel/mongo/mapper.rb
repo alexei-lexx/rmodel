@@ -29,7 +29,7 @@ module Rmodel::Mongo
       object
     end
 
-    def to_hash(object, id_included)
+    def serialize(object, id_included)
       hash = {}
       @attributes.each do |attribute, mapper_klass|
         hash[attribute.to_s] = object.public_send(attribute)
@@ -40,7 +40,7 @@ module Rmodel::Mongo
       @embeds_one.each do |attribute, mapper_klass|
         sub_object = object.public_send(attribute)
         if sub_object
-          hash[attribute.to_s] = mapper_klass.new.to_hash(sub_object, true)
+          hash[attribute.to_s] = mapper_klass.new.serialize(sub_object, true)
         end
       end
       @embeds_many.each do |attribute, mapper_klass|
@@ -48,7 +48,7 @@ module Rmodel::Mongo
         sub_objects = object.public_send(attribute)
         if sub_objects
           sub_objects.each do |sub_object|
-            hash[attribute.to_s] << mapper_klass.new.to_hash(sub_object, true)
+            hash[attribute.to_s] << mapper_klass.new.serialize(sub_object, true)
           end
         end
       end

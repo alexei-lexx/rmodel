@@ -23,12 +23,12 @@ module Rmodel::Sequel
     end
 
     def insert_one(object)
-      id = @client[@table].insert(@mapper.to_hash(object, true))
+      id = @client[@table].insert(@mapper.serialize(object, true))
       object.id ||= id
     end
 
     def update(object)
-      @client[@table].where(id: object.id).update(@mapper.to_hash(object, false))
+      @client[@table].where(id: object.id).update(@mapper.serialize(object, false))
     end
 
     def destroy(object)

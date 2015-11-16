@@ -24,11 +24,11 @@ module Rmodel::Mongo
 
     def insert_one(object)
       object.id ||= BSON::ObjectId.new
-      @client[@collection].insert_one(@mapper.to_hash(object, true))
+      @client[@collection].insert_one(@mapper.serialize(object, true))
     end
 
     def update(object)
-      @client[@collection].find(_id: object.id).update_one(@mapper.to_hash(object, false))
+      @client[@collection].find(_id: object.id).update_one(@mapper.serialize(object, false))
     end
 
     def destroy(object)

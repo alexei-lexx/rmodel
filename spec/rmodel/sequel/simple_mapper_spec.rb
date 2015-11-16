@@ -24,10 +24,10 @@ RSpec.describe Rmodel::Sequel::SimpleMapper do
       end
     end
 
-    describe '#to_hash' do
+    describe '#serialize' do
       let(:user) { User.new(1, 'John', 'john@example.com') }
       context 'when id_included is false' do
-        let(:result) { subject.to_hash(user, false) }
+        let(:result) { subject.serialize(user, false) }
 
         it 'returns an instance of Hash' do
           expect(result).to be_an_instance_of Hash
@@ -44,7 +44,7 @@ RSpec.describe Rmodel::Sequel::SimpleMapper do
       end
 
       context 'when id_included is true' do
-        let(:result) { subject.to_hash(user, true) }
+        let(:result) { subject.serialize(user, true) }
 
         it 'sets the "id" key' do
           expect(result[:id]).to eq 1
