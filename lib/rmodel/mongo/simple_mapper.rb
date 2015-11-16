@@ -31,7 +31,7 @@ module Rmodel::Mongo
       object
     end
 
-    def to_hash(object, id_included)
+    def serialize(object, id_included)
       hash = {}
       @attributes.each do |attribute|
         hash[attribute.to_s] = object.public_send(attribute)
@@ -45,7 +45,7 @@ module Rmodel::Mongo
         if sub_objects
           sub_objects.each do |sub_object|
             sub_object.id ||= BSON::ObjectId.new
-            hash[attribute.to_s] << mapper.to_hash(sub_object, true)
+            hash[attribute.to_s] << mapper.serialize(sub_object, true)
           end
         end
       end
@@ -53,7 +53,7 @@ module Rmodel::Mongo
         sub_object = object.public_send(attribute)
         if sub_object
           sub_object.id ||= BSON::ObjectId.new
-          hash[attribute.to_s] = mapper.to_hash(sub_object, true)
+          hash[attribute.to_s] = mapper.serialize(sub_object, true)
         end
       end
       hash
