@@ -5,7 +5,7 @@ module Rmodel::Sequel
       @attributes = attributes
     end
 
-    def to_object(hash)
+    def deserialize(hash)
       object = @klass.new
       object.id = hash[:id]
       @attributes.each do |attribute|

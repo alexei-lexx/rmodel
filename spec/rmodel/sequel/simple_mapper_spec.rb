@@ -4,10 +4,10 @@ RSpec.describe Rmodel::Sequel::SimpleMapper do
 
     subject { described_class.new(User, :name, :email) }
 
-    describe '#to_object' do
+    describe '#deserialize' do
       context 'when the hash with id, name and email is given' do
         let(:hash) { { id: 1, name: 'John', email: 'john@example.com' } }
-        let(:result) { subject.to_object(hash) }
+        let(:result) { subject.deserialize(hash) }
 
         it 'returns an instance of User' do
           expect(result).to be_an_instance_of User

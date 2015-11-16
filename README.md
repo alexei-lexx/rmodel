@@ -244,7 +244,7 @@ repo = ThingRepository.new(client, collection, mapper)
 repo.find(1)
 ```
 
-The `mapper` is an object, which has 2 methods: `#to_object(hash)` and `#to_hash(object)`.
+The `mapper` is an object, which has 2 methods: `#deserialize(hash)` and `#to_hash(object)`.
 
 ### SQL repository
 

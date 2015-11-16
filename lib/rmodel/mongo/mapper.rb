@@ -7,7 +7,7 @@ module Rmodel::Mongo
       @embeds_many = self.class.declared_embeds_many || {}
     end
 
-    def to_object(hash)
+    def deserialize(hash)
       object = @model.new
       object.id = hash['_id']
       @attributes.each do |attribute, mapper_klass|
@@ -16,13 +16,13 @@ module Rmodel::Mongo
       @embeds_one.each do |attribute, mapper_klass|
         sub_hash = hash[attribute.to_s]
         if sub_hash
-          object.public_send "#{attribute}=", mapper_klass.new.to_object(sub_hash)
+          object.public_send "#{attribute}=", mapper_klass.new.deserialize(sub_hash)
         end
       end
       @embeds_many.each do |attribute, mapper_klass|
         array = hash[attribute.to_s]
         if array
-          sub_objects = array.map { |entry| mapper_klass.new.to_object(entry) }
+          sub_objects = array.map { |entry| mapper_klass.new.deserialize(entry) }
           object.public_send "#{attribute}=", sub_objects
         end
       end

@@ -8,7 +8,7 @@ module Rmodel::Mongo
       instance_eval(&block) if block
     end
 
-    def to_object(hash)
+    def deserialize(hash)
       object = @klass.new
       object.id = hash['_id']
       @attributes.each do |attribute|
@@ -18,14 +18,14 @@ module Rmodel::Mongo
         if hash[attribute.to_s]
           object.public_send "#{attribute}=", []
           hash[attribute.to_s].each do |sub_hash|
-            object.public_send(attribute) << mapper.to_object(sub_hash)
+            object.public_send(attribute) << mapper.deserialize(sub_hash)
           end
         end
       end
       @embeds_one.each do |attribute, mapper|
         sub_hash = hash[attribute.to_s]
         if sub_hash
-          object.public_send "#{attribute}=", mapper.to_object(sub_hash)
+          object.public_send "#{attribute}=", mapper.deserialize(sub_hash)
         end
       end
       object
