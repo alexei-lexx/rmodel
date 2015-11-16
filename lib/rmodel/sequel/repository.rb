@@ -5,7 +5,7 @@ module Rmodel::Sequel
   class Repository < Rmodel::Base::Repository
     include RepositoryExt::Queryable
 
-    def initialize(client = nil, table = nil, factory = nil)
+    def initialize(client = nil, table = nil, mapper = nil)
       @client = client || Rmodel.setup.establish_sequel_client(self.class.client_name || :default) or
                 raise ArgumentError.new('Client driver is not setup')
 
@@ -13,22 +13,22 @@ module Rmodel::Sequel
                self.class.table_by_convention or
                raise ArgumentError.new('Table can not be guessed')
 
-      @factory = factory || self.class.setting_factory or
-                 raise ArgumentError.new('Factory can not be guessed')
+      @mapper = mapper || self.class.declared_mapper or
+                 raise ArgumentError.new('Mapper can not be guessed')
     end
 
     def find(id)
       result = @client[@table].where(id: id).first
-      result && @factory.to_object(result)
+      result && @mapper.deserialize(result)
     end
 
     def insert_one(object)
-      id = @client[@table].insert(@factory.to_hash(object, true))
+      id = @client[@table].insert(@mapper.serialize(object, true))
       object.id ||= id
     end
 
     def update(object)
-      @client[@table].where(id: object.id).update(@factory.to_hash(object, false))
+      @client[@table].where(id: object.id).update(@mapper.serialize(object, false))
     end
 
     def destroy(object)
@@ -36,7 +36,7 @@ module Rmodel::Sequel
     end
 
     class << self
-      attr_reader :client_name, :setting_table, :setting_factory
+      attr_reader :client_name, :setting_table, :declared_mapper
 
       def client(name)
         @client_name = name
@@ -52,8 +52,8 @@ module Rmodel::Sequel
         end
       end
 
-      def simple_factory(klass, *attributes)
-        @setting_factory = SimpleFactory.new(klass, *attributes)
+      def mapper(mapper_klass)
+        @declared_mapper = mapper_klass.new
       end
     end
   end

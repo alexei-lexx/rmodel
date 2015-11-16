@@ -1,13 +1,24 @@
 RSpec.describe Rmodel::Mongo::Repository do
   before do
     Mongo::Logger.logger.level = Logger::ERROR
-    stub_const('User', Struct.new(:id, :name, :email))
+    stub_const 'User', Struct.new(:id, :name, :email)
+
+    stub_const 'UserMapper', Class.new(Rmodel::Mongo::Mapper)
+    class UserMapper
+      model User
+      attributes :name, :email
+    end
+
+    stub_const 'UserRepository', Class.new(Rmodel::Mongo::Repository)
+    class UserRepository
+      attr_reader :client, :collection, :mapper
+    end
   end
 
   describe '.client(name)' do
-    subject { UserRepository.new }
+    after { Rmodel::setup.clear }
 
-    before { Rmodel::Setup.send :public, :client }
+    subject { UserRepository.new(nil, :users, UserMapper.new) }
 
     context 'when it is called with an existent name' do
       before do
@@ -15,13 +26,10 @@ RSpec.describe Rmodel::Mongo::Repository do
           client :mongo, { hosts: [ 'localhost' ] }
         end
 
-        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+        class UserRepository
           client :mongo
-          simple_factory User, :name, :email
-          attr_reader :client
-        })
+        end
       end
-      after { Rmodel::setup.clear }
 
       it 'sets the appropriate #client' do
         expect(subject.client).to be_an_instance_of Mongo::Client
@@ -30,11 +38,9 @@ RSpec.describe Rmodel::Mongo::Repository do
 
     context 'when it is called with a non-existent name' do
       before do
-        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+        class UserRepository
           client :mongo
-          simple_factory User, :name, :email
-          attr_reader :client
-        })
+        end
       end
 
       it 'makes #client raise the ArgumentError' do
@@ -43,20 +49,12 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
 
     context 'when it is not called' do
-      before do
-        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory User, :name, :email
-          attr_reader :client
-        })
-      end
-
       context 'when the :default client is set' do
         before do
           Rmodel.setup do
             client :default, { hosts: [ 'localhost' ] }
           end
         end
-        after { Rmodel::setup.clear }
 
         it 'sets #client to be default' do
           expect(subject.client).to be_an_instance_of Mongo::Client
@@ -72,22 +70,13 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   describe '.collection(name)' do
-    subject { UserRepository.new }
-
-    before do
-      Rmodel.setup do
-        client :default, { hosts: [ 'localhost' ] }
-      end
-    end
-    after { Rmodel::setup.clear }
+    subject { UserRepository.new(Object.new, nil, UserMapper.new) }
 
     context 'when the :people collection is given' do
       before do
-        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
+        class UserRepository
           collection :people
-          simple_factory User, :name, :email
-          attr_reader :collection
-        })
+        end
       end
 
       it 'uses the :people' do
@@ -96,77 +85,41 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
 
     context 'when no collection is given' do
-      before do
-        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory User, :name, :email
-          attr_reader :collection
-        })
-      end
-
       it 'gets the right name by convention' do
         expect(subject.collection).to eq :users
       end
     end
   end
 
-  describe '.simple_factory(klass, attribute1, attribute2, ..., &block)' do
-    subject { UserRepository.new }
-
-    before do
-      Rmodel.setup do
-        client :default, { hosts: [ 'localhost' ] }
-      end
-    end
-    after { Rmodel::setup.clear }
+  describe '.mapper(mapper_klass)' do
+    subject { UserRepository.new(Object.new, :users, nil) }
 
     context 'when it is called' do
       before do
-        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory User, :name, :email
-          attr_reader :factory
-        })
+        class UserRepository
+          mapper UserMapper
+        end
       end
 
-      it 'sets the appropriate #factory' do
-        expect(subject.factory).to be_an_instance_of Rmodel::Mongo::SimpleFactory
+      it 'sets the appropriate #mapper' do
+        expect(subject.mapper).to be_an_instance_of UserMapper
       end
     end
 
     context 'when it is not called' do
-      before do
-        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
-      end
-
       it 'make #initialize raise an error' do
         expect {
-          UserRepository.new
+          UserRepository.new(Object.new, :users)
         }.to raise_error ArgumentError
-      end
-    end
-
-    context 'when a block is given' do
-      it 'evaluates the block within the context of the factory' do
-        tmp = nil
-        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository) {
-          simple_factory User, :name, :email do
-            tmp = self
-          end
-        })
-        expect(tmp).to be_an_instance_of Rmodel::Mongo::SimpleFactory
       end
     end
   end
 
-  describe '#initialize(client, collection, factory)' do
+  describe '#initialize(client, collection, mapper)' do
     context 'when all constructor arguments are passed' do
-      before do
-        stub_const('UserRepository', Class.new(Rmodel::Mongo::Repository))
-      end
-      let(:factory) { Rmodel::Mongo::SimpleFactory.new(User, :name, :email) }
-
       it 'works!' do
         expect {
-          UserRepository.new(Object.new, :users, factory)
+          UserRepository.new(Object.new, :users, UserMapper.new)
         }.not_to raise_error
       end
     end
