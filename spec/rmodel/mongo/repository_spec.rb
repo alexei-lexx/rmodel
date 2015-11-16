@@ -1,13 +1,21 @@
 RSpec.describe Rmodel::Mongo::Repository do
   include_context 'clean mongo database'
 
-  before do
-    stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
+  shared_examples 'definitions' do
+    before do
+      stub_const 'ThingRepository', Class.new(Rmodel::Mongo::Repository)
+      stub_const 'ThingMapper', Class.new(Rmodel::Mongo::Mapper)
+      class ThingMapper
+        model Thing
+        attributes :name
+      end
+    end
+
+    subject { ThingRepository.new(mongo_session, :things, ThingMapper.new) }
   end
 
   it_behaves_like 'repository crud' do
-    let(:mapper) { Rmodel::Mongo::SimpleMapper.new(Thing, :name) }
-    subject { ThingRepository.new(mongo_session, :things, mapper) }
+    include_context 'definitions'
     let(:unique_constraint_error) { Mongo::Error::OperationFailure }
 
     def insert_record(id, doc)
@@ -16,21 +24,32 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   it_behaves_like 'sugarable repository' do
-    subject do
-      mapper = Rmodel::Mongo::SimpleMapper.new(Thing, :name)
-      ThingRepository.new(mongo_session, :things, mapper)
-    end
+    include_context 'definitions'
   end
 
   it_behaves_like 'timestampable repository' do
+    before do
+      stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
+    end
+
     let(:repo_w_timestamps) do
-      mapper = Rmodel::Mongo::SimpleMapper.new(Thing, :name, :created_at, :updated_at)
-      ThingRepository.new(mongo_session, :things, mapper)
+      stub_const 'ThingMapperWithTimestamps', Class.new(Rmodel::Mongo::Mapper)
+      class ThingMapperWithTimestamps
+        model Thing
+        attributes :name, :created_at, :updated_at
+      end
+
+      ThingRepository.new(mongo_session, :things, ThingMapperWithTimestamps.new)
     end
 
     let(:repo_wo_timestamps) do
-      mapper = Rmodel::Mongo::SimpleMapper.new(Thing, :name)
-      ThingRepository.new(mongo_session, :things, mapper)
+      stub_const 'ThingMapperWithOutTimestamps', Class.new(Rmodel::Mongo::Mapper)
+      class ThingMapperWithOutTimestamps
+        model Thing
+        attributes :name
+      end
+
+      ThingRepository.new(mongo_session, :things, ThingMapperWithOutTimestamps.new)
     end
   end
 end

@@ -1,42 +1,32 @@
 RSpec.describe Rmodel::Sequel::Repository do
-  it_behaves_like 'repository crud' do
-    include_examples 'clean sequel database'
+  include_examples 'clean sequel database'
 
+  shared_examples 'definitions' do
     before do
-      create_database
       stub_const('ThingRepository', Class.new(Rmodel::Sequel::Repository))
     end
-
     let(:mapper) { Rmodel::Sequel::SimpleMapper.new(Thing, :name) }
     subject { ThingRepository.new(sequel_conn, :things, mapper) }
+  end
+
+  it_behaves_like 'repository crud' do
+    before { create_database }
+    include_context 'definitions'
     let(:unique_constraint_error) { Sequel::UniqueConstraintViolation }
 
-    def insert_record(id, columns)
-      record = columns.dup
-      record[:id] = id
-      sequel_conn[:things].insert(record)
+    def insert_record(id, record)
+      sequel_conn[:things].insert(record.dup().merge(id: id))
     end
   end
 
   it_behaves_like 'sugarable repository' do
-    include_examples 'clean sequel database'
-
-    before do
-      create_database
-      stub_const('ThingRepository', Class.new(Rmodel::Sequel::Repository))
-    end
-
-    subject do
-      mapper = Rmodel::Sequel::SimpleMapper.new(Thing, :name)
-      ThingRepository.new(sequel_conn, :things, mapper)
-    end
+    before { create_database }
+    include_context 'definitions'
   end
 
   it_behaves_like 'timestampable repository' do
-    include_examples 'clean sequel database'
-
+    before { create_database(true) }
     before do
-      create_database(true)
       stub_const('ThingRepository', Class.new(Rmodel::Sequel::Repository))
     end
 
