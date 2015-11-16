@@ -19,22 +19,32 @@ RSpec.shared_examples 'timestampable repository' do
 
       context 'and the object.created_at is not set yet' do
         let(:thing) { Thing.new(nil, 'chair') }
+        before { subject.insert(thing) }
 
         it 'sets the value of created_at' do
-          subject.insert(thing)
           expect(thing.created_at).not_to be_nil
+        end
+
+        it 'saves the created_at in a database' do
+          expect(subject.find(thing.id).created_at).not_to be_nil
         end
       end
     end
 
     context 'when we update(object)' do
       let(:thing) { Thing.new(nil, 'chair') }
-      before { subject.insert(thing) }
-
-      it 'sets the value of created_at' do
+      before do
+        subject.insert(thing)
         thing.name = 'table'
         subject.update(thing)
+      end
+
+      it 'sets the value of updated_at' do
         expect(thing.updated_at).not_to be_nil
+      end
+
+      it 'saves the updated_at in a database' do
+        expect(subject.find(thing.id).updated_at).not_to be_nil
       end
     end
   end
