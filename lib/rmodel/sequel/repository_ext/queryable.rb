@@ -7,7 +7,7 @@ module Rmodel::Sequel
 
       def find_by_query(dataset)
         dataset.map do |hash|
-          @factory.to_object(hash)
+          @mapper.deserialize(hash)
         end
       end
 
@@ -17,7 +17,7 @@ module Rmodel::Sequel
 
       def destroy_by_query(dataset)
         dataset.map do |hash|
-          object = @factory.to_object(hash)
+          object = @mapper.deserialize(hash)
           destroy(object)
         end
       end

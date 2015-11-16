@@ -9,7 +9,7 @@ class Thing
 end
 
 class ThingRepository < Rmodel::Mongo::Repository
-  simple_factory Thing, :name, :created_at, :updated_at
+  simple_mapper Thing, :name, :created_at, :updated_at
 end
 repo = ThingRepository.new
 

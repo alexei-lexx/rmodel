@@ -14,7 +14,7 @@ class User
 end
 
 class UserRepository < Rmodel::Mongo::Repository
-  simple_factory User, :name, :email
+  simple_mapper User, :name, :email
 
   scope :have_email do
     where(email: { '$exists' => true })
