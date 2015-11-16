@@ -19,8 +19,8 @@ RSpec.describe Rmodel::Mongo::SimpleMapper do
       end
     end
 
-    describe '#to_object(hash)' do
-      let(:result) { subject.to_object(hash) }
+    describe '#deserialize(hash)' do
+      let(:result) { subject.deserialize(hash) }
 
       context 'when the hash with _id, name and price is given' do
         let(:hash) { { '_id' => 1, 'name' => 'chair', 'price' => 100 } }

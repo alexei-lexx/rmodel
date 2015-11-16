@@ -19,7 +19,7 @@ module Rmodel::Mongo
 
     def find(id)
       result = @client[@collection].find(_id: id).first
-      result && @mapper.to_object(result)
+      result && @mapper.deserialize(result)
     end
 
     def insert_one(object)

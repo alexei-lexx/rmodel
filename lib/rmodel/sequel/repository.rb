@@ -19,7 +19,7 @@ module Rmodel::Sequel
 
     def find(id)
       result = @client[@table].where(id: id).first
-      result && @mapper.to_object(result)
+      result && @mapper.deserialize(result)
     end
 
     def insert_one(object)

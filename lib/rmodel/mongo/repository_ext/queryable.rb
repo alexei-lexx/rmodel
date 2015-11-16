@@ -13,7 +13,7 @@ module Rmodel::Mongo
 
       def find_by_query(query)
         execute_query(query).map do |hash|
-          @mapper.to_object(hash)
+          @mapper.deserialize(hash)
         end
       end
 
@@ -23,7 +23,7 @@ module Rmodel::Mongo
 
       def destroy_by_query(query)
         execute_query(query).map do |hash|
-          object = @mapper.to_object(hash)
+          object = @mapper.deserialize(hash)
           destroy(object)
         end
       end

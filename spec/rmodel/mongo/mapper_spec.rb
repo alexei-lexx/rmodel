@@ -28,26 +28,26 @@ RSpec.describe Rmodel::Mongo::Mapper do
 
   subject { UserMapper.new }
 
-  describe '#to_object(hash)' do
+  describe '#deserialize(hash)' do
     it 'returns an instance of the appropriate class' do
-      expect(subject.to_object({})).to be_an_instance_of User
+      expect(subject.deserialize({})).to be_an_instance_of User
     end
 
     it 'sets the attributes correctly' do
-      object = subject.to_object({ 'name' => 'John', 'age' => 20 })
+      object = subject.deserialize({ 'name' => 'John', 'age' => 20 })
 
       expect(object.name).to eq 'John'
       expect(object.age).to eq 20
     end
 
     it 'leaves not specified attributes out' do
-      object = subject.to_object({ 'name' => 'John' })
+      object = subject.deserialize({ 'name' => 'John' })
       expect(object.age).to be_nil
     end
 
     context 'when _id is given' do
       it 'sets the #id correctly' do
-        object = subject.to_object({ '_id' => 1 })
+        object = subject.deserialize({ '_id' => 1 })
         expect(object.id).to eq 1
       end
     end
@@ -62,7 +62,7 @@ RSpec.describe Rmodel::Mongo::Mapper do
           }
         }
       end
-      let(:object) { subject.to_object(hash) }
+      let(:object) { subject.deserialize(hash) }
 
       it 'creates the embedded object of the appropriate type' do
         expect(object.address).to be_an_instance_of Address
@@ -84,7 +84,7 @@ RSpec.describe Rmodel::Mongo::Mapper do
           ]
         }
       end
-      let(:object) { subject.to_object(hash) }
+      let(:object) { subject.deserialize(hash) }
 
       it 'creates the embedded array of objects of the appropriate type' do
         expect(object.phones).to be_an_instance_of Array
