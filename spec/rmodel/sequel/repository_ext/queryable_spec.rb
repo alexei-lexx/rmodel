@@ -3,14 +3,16 @@ RSpec.describe Rmodel::Sequel::Repository do
 
   before do
     create_database
-    stub_const('Thing', Struct.new(:id, :a, :b))
-    stub_const('ThingRepository', Class.new(Rmodel::Sequel::Repository))
+    stub_const 'Thing', Struct.new(:id, :a, :b)
+    stub_const 'ThingMapper', Class.new(Rmodel::Sequel::Mapper)
+    class ThingMapper
+      model Thing
+      attributes :a, :b
+    end
+    stub_const 'ThingRepository', Class.new(Rmodel::Sequel::Repository)
   end
 
-  subject do
-    mapper = Rmodel::Sequel::SimpleMapper.new(Thing, :a, :b)
-    ThingRepository.new(sequel_conn, :things, mapper)
-  end
+  subject { ThingRepository.new(sequel_conn, :things, ThingMapper.new) }
 
   before do
     subject.insert(Thing.new(nil, 2, 3))

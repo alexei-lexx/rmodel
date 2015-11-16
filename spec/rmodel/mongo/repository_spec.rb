@@ -19,7 +19,7 @@ RSpec.describe Rmodel::Mongo::Repository do
     let(:unique_constraint_error) { Mongo::Error::OperationFailure }
 
     def insert_record(id, doc)
-      mongo_session[:things].insert_one(doc.merge('_id' => id))
+      mongo_session[:things].insert_one(doc.dup.merge('_id' => id))
     end
   end
 
