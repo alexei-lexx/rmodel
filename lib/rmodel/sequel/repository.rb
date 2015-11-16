@@ -13,7 +13,7 @@ module Rmodel::Sequel
                self.class.table_by_convention or
                raise ArgumentError.new('Table can not be guessed')
 
-      @mapper = mapper || self.class.setting_mapper or
+      @mapper = mapper || self.class.declared_mapper or
                  raise ArgumentError.new('Mapper can not be guessed')
     end
 
@@ -36,7 +36,7 @@ module Rmodel::Sequel
     end
 
     class << self
-      attr_reader :client_name, :setting_table, :setting_mapper
+      attr_reader :client_name, :setting_table, :declared_mapper
 
       def client(name)
         @client_name = name
@@ -52,8 +52,8 @@ module Rmodel::Sequel
         end
       end
 
-      def simple_mapper(klass, *attributes)
-        @setting_mapper = SimpleMapper.new(klass, *attributes)
+      def mapper(mapper_klass)
+        @declared_mapper = mapper_klass.new
       end
     end
   end

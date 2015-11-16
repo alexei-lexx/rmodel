@@ -1,27 +1,36 @@
 RSpec.describe Rmodel::Sequel::Repository do
   before do
-    stub_const('Thing', Struct.new(:id, :name))
-    stub_const('ThingRepository', Class.new(Rmodel::Sequel::Repository))
-    ThingRepository.send :attr_reader, :client, :table, :mapper
+    stub_const 'Thing', Struct.new(:id, :name)
+
+    stub_const 'ThingMapper', Class.new(Rmodel::Sequel::Mapper)
+    class ThingMapper
+      model Thing
+      attributes :name
+    end
+
+    stub_const 'ThingRepository', Class.new(Rmodel::Sequel::Repository)
+    class ThingRepository
+      attr_reader :client, :table, :mapper
+    end
   end
-  let(:mapper) { Rmodel::Sequel::SimpleMapper.new(Thing, :name) }
 
   describe '.client(name)' do
+    after { Rmodel::setup.clear }
     conn_options = { adapter: 'sqlite', database: 'rmodel_test.sqlite3' }
 
-    subject { ThingRepository.new(nil, :things, mapper) }
+    subject { ThingRepository.new(nil, :things, ThingMapper.new) }
 
     context 'when it is called with an existent name' do
       before do
         Rmodel.setup do
-          client :not_default, conn_options
+          client :sequel, conn_options
         end
 
-        ThingRepository.class_eval do
-          client :not_default
+        class ThingRepository
+          client :sequel
         end
       end
-      after { Rmodel::setup.clear }
+
 
       it 'sets the appropriate #client' do
         expect(subject.client).to be_a_kind_of Sequel::Database
@@ -30,8 +39,8 @@ RSpec.describe Rmodel::Sequel::Repository do
 
     context 'when it is called with a non-existent name' do
       before do
-        ThingRepository.class_eval do
-          client :not_default
+        class ThingRepository
+          client :sequel
         end
       end
 
@@ -47,7 +56,6 @@ RSpec.describe Rmodel::Sequel::Repository do
             client :default, conn_options
           end
         end
-        after { Rmodel::setup.clear }
 
         it 'sets #client to be default' do
           expect(subject.client).to be_a_kind_of Sequel::Database
@@ -63,11 +71,11 @@ RSpec.describe Rmodel::Sequel::Repository do
   end
 
   describe '.table(name)' do
-    subject { ThingRepository.new(Object.new, nil, mapper) }
+    subject { ThingRepository.new(Object.new, nil, ThingMapper.new) }
 
     context 'when the :people table is given' do
       before do
-        ThingRepository.class_eval do
+        class ThingRepository
           table :people
         end
       end
@@ -84,18 +92,18 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
   end
 
-  describe '.simple_mapper(klass, attribute1, attribute2, ...)' do
-    subject { ThingRepository.new(Object.new, :things) }
+  describe '.mapper(mapper_klass)' do
+    subject { ThingRepository.new(Object.new, :things, nil) }
 
     context 'when it is called' do
       before do
-        ThingRepository.class_eval do
-          simple_mapper Thing, :name, :email
+        class ThingRepository
+          mapper ThingMapper
         end
       end
 
       it 'sets the appropriate #mapper' do
-        expect(subject.mapper).to be_an_instance_of Rmodel::Sequel::SimpleMapper
+        expect(subject.mapper).to be_an_instance_of ThingMapper
       end
     end
 
@@ -110,7 +118,7 @@ RSpec.describe Rmodel::Sequel::Repository do
     context 'when all constructor arguments are passed' do
       it 'works!' do
         expect {
-          ThingRepository.new(Object.new, :users, mapper)
+          ThingRepository.new(Object.new, :users, ThingMapper.new)
         }.not_to raise_error
       end
     end

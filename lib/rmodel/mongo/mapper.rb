@@ -8,7 +8,9 @@ module Rmodel::Mongo
 
     def deserialize(hash)
       object = model.new
-      object.id = hash['_id']
+      if object.respond_to?(:id)
+        object.id = hash['_id']
+      end
       attributes.each do |attribute, mapper|
         if mapper && hash[attribute.to_s]
           value = mapper.deserialize(hash[attribute.to_s])
@@ -30,7 +32,7 @@ module Rmodel::Mongo
         end
         hash[attribute.to_s] = value
       end
-      if id_included
+      if id_included && object.respond_to?(:id)
         hash['_id'] = object.id
       end
       hash

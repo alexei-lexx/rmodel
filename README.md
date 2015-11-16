@@ -20,6 +20,7 @@ The main thoughts of it are:
 
 * let you models be simple and independent of the persistent layer,
 * be able to switch the persistent layer at any moment,
+* be able to use different databases for different entities,
 * keep the simplicity of the Active Record pattern by default,
 * be able to implement any type of persistence: SQL, NoSQL, files, HTTP etc.
 
@@ -27,13 +28,13 @@ It consists of 3 major components:
 
 1. **Entities**; ex.: User, Order etc.
 2. **Repositories**, which are used to fetch, save and delete entities; ex.: UserRepository, OrderRepository
-3. **Mappers**, which play the role of mappers.
+3. **Mappers**, which are used to serialize/deserialize entities to/from database tuples.
 
 Basic implemented features:
 
 1. CRUD operations: `find`, `insert`, `update`, `destroy`;
-2. Scopes: `userRepository.query.recent.sorted`
-3. Query-based operations: `userRepository.query.recent.remove`
+2. Scopes: `userRepository.query.recent.sorted`;
+3. Query-based operations: `userRepository.query.recent.remove`.
 
 ## Installation
 
@@ -59,7 +60,8 @@ class User
 end
 ```
 
-As you see it's a plain ruby class with attributes. It must have either the zero-argument `#initialize` method or no `#initialize` at all.
+As you see it's a PORO (Plain Old Ruby Objects), a class which inherits from nothing.
+It must have either the zero-argument `#initialize` method or no `#initialize` at all.
 
 Of course we need a repository to save users.
 
@@ -68,14 +70,19 @@ require 'rmodel' # dont forget to require the gem
 
 class User
   attr_accessor :id, :name, :email
+
+  def initialize(name = nil, email = nil)
+    @name = name
+    @email = email
+  end
 end
 
 class UserRepository < Rmodel::Mongo::Repository
 end
 
-userRepository = UserRepository.new
+user_repository = UserRepository.new
 ```
-The code above raises the exception *Client driver is not setup (ArgumentError)*. UserRepository derives from Rmodel::Mongo::Repository, which uses the ruby mongo driver to access the database. We must provide the appropriate connection options. To do this we use the following code:
+The code above raises the exception *Client driver is not setup (ArgumentError)*. UserRepository inherits from Rmodel::Mongo::Repository, which uses the ruby mongo driver to access the database. We must provide the appropriate connection options. To do this we use the following code:
 
 ```ruby
 require 'rmodel'
@@ -87,15 +94,23 @@ end
 
 The `:default` client is used by every repository that doesn't specify it's client explicitly.
 
-Run the code again and get another error *Mapper can not be guessed (ArgumentError)*. The mapper is used to convert the array of database tuples (hashes) to the array of User objects.
+Run the code again and get another error *Mapper can not be guessed (ArgumentError)*. The mapper is used to convert the array of database tuples to the array of User objects and back.
 
 ```ruby
+class UserMapper < Rmodel::Mongo::Mapper
+  model User
+  attributes :name, :email
+end
+
 class UserRepository < Rmodel::Mongo::Repository
-  simple_mapper User, :name, :email
+  mapper UserMapper
 end
 ```
 
-The `simple_mapper` class macro says that every database tuple will be straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id, because it's required.
+The UserMapper class is an example of mappers.
+It's macroses such as `model` and `attributes` are used to declare the User entity's structure.
+
+It's a rather easy mapper. Every database tuple is straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id, because it's required.
 
 ### CRUD
 
@@ -106,12 +121,12 @@ john = User.new('John', 'john@example.com')
 bill = User.new('Bill', 'bill@example.com')
 bob = User.new('Bob', 'bob@example.com')
 
-userRepository.insert(john)
-userRepository.insert(bill)
-userRepository.insert(bob)
+user_repository.insert(john)
+user_repository.insert(bill)
+user_repository.insert(bob)
 ```
 
-Now you can check you `test` database. There are 3 new users there. Print the `john`. As you can see it's got the `@id`.
+Now you can check you `test` database. There must be 3 new users there. Print the `john`. As you can see it's got the `@id`.
 
 ```ruby
 p john
@@ -122,12 +137,12 @@ Let's update John and destroy Bob.
 
 ```ruby
 john.name = 'John Smith'
-userRepository.update(john)
+user_repository.update(john)
 
-userRepository.destroy(bob)
+user_repository.destroy(bob)
 
-p userRepository.find(john.id) # #<User:0x000000037237d0 @name="John Smith" ... >
-p userRepository.find(bob.id) # nil
+p user_repository.find(john.id) # #<User:0x000000037237d0 @name="John Smith" ... >
+p user_repository.find(bob.id) # nil
 ```
 
 The `insert` method is polysemantic. All options below are valid.
@@ -144,7 +159,7 @@ Scopes are defined inside the repository.
 
 ```ruby
 class UserRepository < Rmodel::Mongo::Repository
-  simple_mapper User, :name, :email
+  mapper UserMapper
 
   scope :have_email do
     where(email: { '$exists' => true })
@@ -192,8 +207,13 @@ class Thing
   attr_accessor :id, :name, :created_at, :updated_at
 end
 
+class ThingMapper < Rmodel::Mongo::Mapper
+  model Thing
+  attributes :name, :created_at, :updated_at
+end
+
 class ThingRepository < Rmodel::Mongo::Repository
-  simple_mapper Thing, :name, :created_at, :updated_at
+  mapper ThingMapper
 end
 repo = ThingRepository.new
 
@@ -233,12 +253,17 @@ class Thing
   attr_accessor :id, :name
 end
 
+class ThingMapper << Rmodel::Mongo::Mapper
+  model Thing
+  attributes :name
+end
+
 class ThingRepository < Rmodel::Mongo::Repository
 end
 
 client = Mongo::Client.new([ 'localhost:27017' ], database: 'test')
 collection = :things
-mapper = Rmodel::Mongo::SimpleMapper.new(Thing, :name)
+mapper = ThingMapper.new
 
 repo = ThingRepository.new(client, collection, mapper)
 repo.find(1)
@@ -279,8 +304,13 @@ class Thing
   end
 end
 
+class ThingMapper < Rmodel::Sequel::Mapper
+  model Thing
+  attributes :name, :price
+end
+
 class ThingRepository < Rmodel::Sequel::Repository
-  simple_mapper Thing, :name, :price
+  mapper ThingMapper
 
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
@@ -295,13 +325,11 @@ repo.insert Thing.new('iPad', 500)
 
 p repo.query.count # 3
 p repo.query.worth_more_than(400).count # 1
-p repo.query.worth_more_than(400).to_sql
 ```
 
 ### Embedded documents in MongoDB
 
-Let's assume that we have the `flats` collection and every documents reveals
-the following structure.
+Let's assume that we have the `flats` collection and every documents reveals the following structure.
 
 ```js
 > db.flats.findOne()
@@ -341,66 +369,62 @@ the following structure.
 }
 ```
 
-We need a rather complicated mapper to build such object. Here is the example how we can map nested embedded documents with SimpleMapper.
+We need a rather complicated mapper to build such object. Here is the example how we can map nested embedded documents with Rmodel::Mongo::Mapper.
 
-```ruby
-Owner = Struct.new(:id, :first_name, :last_name)
-Room = Struct.new(:id, :name, :square, :bed)
-Flat = Struct.new(:id, :address, :rooms, :owner)
-Bed = Struct.new(:id, :type)
-
-class FlatRepository < Rmodel::Mongo::Repository
-  simple_mapper Flat, :address do
-    embeds_many :rooms, simple_mapper(Room, :name, :square) do
-      embeds_one :bed, simple_mapper(Bed, :type)
-    end
-    embeds_one :owner, simple_mapper(Owner, :first_name, :last_name)
-  end
-end
-```
-
-1. The row `simple_mapper Flat, :address` create a mapper for Flat.
-  * It takes a block, where the detailed declaration goes.
-  * `embeds_many` and `embeds_one` are methods of the created mapper.
-2. The row `embeds_many :rooms, simple_mapper(Room, :name, :square)` describes  the embedded array of rooms within the flat.
-  * The first argument `:room` is the name of the flat attribute (`flat.rooms`).
-  * The second argument is another simple mapper for the Room class.
-  * The row `embeds_many :rooms` takes the block, that described nested embedded documents for the Room mapper.
-3. etc.
-
-The full example.
+The idea is easy:
+* define primitive mappers,
+* use them in declaration of composite mappers.
 
 ```ruby
 require 'rmodel'
 
 Rmodel.setup do
-  client :default, { hosts: [ 'localhost'], database: 'test' }
+  client :default, { hosts: [ 'localhost' ], database: 'test' }
 end
 
-Owner = Struct.new(:id, :first_name, :last_name)
-Room = Struct.new(:id, :name, :square, :bed)
+Owner = Struct.new(:first_name, :last_name)
+Bed = Struct.new(:type)
+Room = Struct.new(:name, :square, :bed)
 Flat = Struct.new(:id, :address, :rooms, :owner)
-Bed = Struct.new(:id, :type)
+
+class OwnerMapper < Rmodel::Mongo::Mapper
+  model Owner
+  attributes :first_name, :last_name
+end
+
+class BedMapper < Rmodel::Mongo::Mapper
+  model Bed
+  attributes :type
+end
+
+class RoomMapper < Rmodel::Mongo::Mapper
+  model Room
+  attributes :name, :square
+  attribute :bed, BedMapper.new
+end
+
+class FlatMapper < Rmodel::Mongo::Mapper
+  model Flat
+  attributes :address
+  attribute :rooms, Rmodel::Base::ArrayMapper.new(RoomMapper.new)
+  attribute :owner, OwnerMapper.new
+end
 
 class FlatRepository < Rmodel::Mongo::Repository
-  simple_mapper Flat, :address do
-    embeds_many :rooms, simple_mapper(Room, :name, :square) do
-      embeds_one :bed, simple_mapper(Bed, :type)
-    end
-    embeds_one :owner, simple_mapper(Owner, :first_name, :last_name)
-  end
+  mapper FlatMapper
 end
+
 repo = FlatRepository.new
 repo.query.remove
 
 flat = Flat.new
 flat.address = 'Googleplex, Mountain View, California, U.S'
 flat.rooms = [
-  Room.new(nil, 'dining room', 150),
-  Room.new(nil, 'sleeping room #1', 50, Bed.new(nil, 'single')),
-  Room.new(nil, 'sleeping room #2', 20, Bed.new(nil, 'king-size'))
+  Room.new('dining room', 150),
+  Room.new('sleeping room #1', 50, Bed.new('single')),
+  Room.new('sleeping room #2', 20, Bed.new('king-size'))
 ]
-flat.owner = Owner.new(nil, 'John', 'Doe')
+flat.owner = Owner.new('John', 'Doe')
 
 repo.insert(flat)
 p repo.find(flat.id)

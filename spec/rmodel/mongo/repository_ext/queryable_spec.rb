@@ -3,11 +3,15 @@ RSpec.describe Rmodel::Mongo::Repository do
 
   before do
     stub_const('Thing', Struct.new(:id, :a, :b))
+    stub_const 'ThingMapper', Class.new(Rmodel::Mongo::Mapper)
+    class ThingMapper
+      model Thing
+      attributes :a, :b
+    end
     stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
   end
 
-  let(:mapper) { Rmodel::Mongo::SimpleMapper.new(Thing, :a, :b) }
-  subject { ThingRepository.new(mongo_session, :things, mapper) }
+  subject { ThingRepository.new(mongo_session, :things, ThingMapper.new) }
 
   before do
     subject.insert(Thing.new(nil, 2, 3))
