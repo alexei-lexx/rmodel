@@ -4,26 +4,25 @@ RSpec.describe Rmodel::Mongo::Mapper do
     stub_const 'Address', Struct.new(:id, :city, :street)
     stub_const 'Phone', Struct.new(:id, :number)
 
-    stub_const 'UserMapper', Class.new(described_class)
     stub_const 'AddressMapper', Class.new(described_class)
-    stub_const 'PhoneMapper', Class.new(described_class)
+    class AddressMapper
+      model Address
+      attributes :city, :street
+    end
 
+    stub_const 'PhoneMapper', Class.new(described_class)
+    class PhoneMapper
+      model Phone
+      attributes :number
+    end
+
+    stub_const 'UserMapper', Class.new(described_class)
     class UserMapper
       model User
       attribute :name
       attribute :age
       attribute :address, AddressMapper.new
       attribute :phones, Rmodel::Base::ArrayMapper.new(PhoneMapper.new)
-    end
-
-    class AddressMapper
-      model Address
-      attributes :city, :street
-    end
-
-    class PhoneMapper
-      model Phone
-      attributes :number
     end
   end
 
@@ -154,6 +153,20 @@ RSpec.describe Rmodel::Mongo::Mapper do
 
       it 'creates the embedded array correctly' do
         expect(hash['phones'].length).to eq 2
+      end
+    end
+  end
+
+  describe '#initialize' do
+    context 'when the model is not declared' do
+      before do
+        stub_const 'UserMapper', Class.new(described_class)
+      end
+
+      it 'raises an error' do
+        expect {
+          subject
+        }.to raise_error ArgumentError
       end
     end
   end

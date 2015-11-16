@@ -1,5 +1,11 @@
 module Rmodel::Mongo
   class Mapper
+    def initialize
+      if model.nil?
+        raise ArgumentError.new('Model was not declared')
+      end
+    end
+
     def deserialize(hash)
       object = model.new
       object.id = hash['_id']
