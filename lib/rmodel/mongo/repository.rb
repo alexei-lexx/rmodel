@@ -7,10 +7,11 @@ module Rmodel::Mongo
 
     def initialize(client = nil, collection = nil, mapper = nil)
       super(mapper)
-      @client = client || Rmodel.setup.establish_mongo_client(self.class.client_name || :default) or
+      @client = client ||
+                Rmodel.setup.establish_mongo_client(self.class.declared_client_name || :default) or
                 raise ArgumentError.new('Client driver is not setup')
 
-      @collection = collection || self.class.setting_collection ||
+      @collection = collection || self.class.declared_collection ||
                     self.class.collection_by_convention or
                     raise ArgumentError.new('Collection can not be guessed')
     end
@@ -34,14 +35,10 @@ module Rmodel::Mongo
     end
 
     class << self
-      attr_reader :client_name, :setting_collection
-
-      def client(name)
-        @client_name = name
-      end
+      attr_reader :declared_collection
 
       def collection(name)
-        @setting_collection = name
+        @declared_collection = name
       end
 
       def collection_by_convention
