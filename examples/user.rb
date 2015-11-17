@@ -13,9 +13,11 @@ class User
   end
 end
 
-class UserRepository < Rmodel::Mongo::Repository
-  simple_mapper User, :name, :email
+class UserMapper < Rmodel::Mongo::Mapper
+  attributes :name, :email
+end
 
+class UserRepository < Rmodel::Mongo::Repository
   scope :have_email do
     where(email: { '$exists' => true })
   end

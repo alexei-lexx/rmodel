@@ -58,7 +58,7 @@ module Rmodel::Base
 
       def model_by_convention
         if name =~ /(.*)Mapper$/
-          ActiveSupport::Inflector.constantize($1).new
+          ActiveSupport::Inflector.constantize($1)
         end
       rescue NameError
         nil
