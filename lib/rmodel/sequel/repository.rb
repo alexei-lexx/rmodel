@@ -13,8 +13,9 @@ module Rmodel::Sequel
                self.class.table_by_convention or
                raise ArgumentError.new('Table can not be guessed')
 
-      @mapper = mapper || self.class.declared_mapper or
-                 raise ArgumentError.new('Mapper can not be guessed')
+      @mapper = mapper || self.class.declared_mapper ||
+                self.class.mapper_by_convention or
+                raise ArgumentError.new('Mapper can not be guessed')
     end
 
     def find(id)
@@ -50,6 +51,14 @@ module Rmodel::Sequel
         if name =~ /(.*)Repository$/
           ActiveSupport::Inflector.tableize($1).to_sym
         end
+      end
+
+      def mapper_by_convention
+        if name =~ /(.*)Repository$/
+          ActiveSupport::Inflector.constantize($1 + 'Mapper').new
+        end
+      rescue NameError
+        nil
       end
 
       def mapper(mapper_klass)
