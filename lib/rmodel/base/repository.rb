@@ -29,11 +29,6 @@ module Rmodel::Base
       end
     end
 
-    def remove(object)
-      warn '#remove is deprecated, use #destroy instead'
-      destroy(object)
-    end
-
     class << self
       def inherited(subclass)
         subclass.send :prepend, RepositoryExt::Timestampable
