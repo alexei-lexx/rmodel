@@ -5,11 +5,19 @@ module Rmodel::Base
     end
 
     def serialize(objects, id_included)
-      objects.map { |object| @mapper.serialize(object, id_included) }
+      if objects.nil?
+        nil
+      else
+        objects.map { |object| @mapper.serialize(object, id_included) }
+      end
     end
 
     def deserialize(array)
-      array.map { |entry| @mapper.deserialize(entry) }
+      if array.nil?
+        nil
+      else
+        array.map { |entry| @mapper.deserialize(entry) }
+      end
     end
   end
 end
