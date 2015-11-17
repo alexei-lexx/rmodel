@@ -1,11 +1,5 @@
 module Rmodel::Sequel
-  class Mapper
-    def initialize
-      if model.nil?
-        raise ArgumentError.new('Model was not declared')
-      end
-    end
-
+  class Mapper < Rmodel::Base::Mapper
     def deserialize(hash)
       object = model.new
       object.id = hash[:id]
@@ -28,28 +22,12 @@ module Rmodel::Sequel
 
     private
 
-    def model
-      self.class.declared_model || self.class.model_by_convention
-    end
-
     def attributes
       self.class.declared_attributes || []
     end
 
     class << self
-      attr_reader :declared_model, :declared_attributes
-
-      def model(klass)
-        @declared_model = klass
-      end
-
-      def model_by_convention
-        if name =~ /(.*)Mapper$/
-          ActiveSupport::Inflector.constantize($1).new
-        end
-      rescue NameError
-        nil
-      end
+      attr_reader :declared_attributes
 
       def attributes(*attributes)
         @declared_attributes = attributes
