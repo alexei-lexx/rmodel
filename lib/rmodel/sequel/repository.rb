@@ -6,15 +6,14 @@ module Rmodel::Sequel
     include RepositoryExt::Queryable
 
     def initialize(client = nil, table = nil, mapper = nil)
-      @client = client || Rmodel.setup.establish_sequel_client(self.class.client_name || :default) or
+      super(mapper)
+      @client = client ||
+                Rmodel.setup.establish_sequel_client(self.class.declared_client_name || :default) or
                 raise ArgumentError.new('Client driver is not setup')
 
-      @table = table || self.class.setting_table ||
+      @table = table || self.class.declared_table ||
                self.class.table_by_convention or
                raise ArgumentError.new('Table can not be guessed')
-
-      @mapper = mapper || self.class.declared_mapper or
-                 raise ArgumentError.new('Mapper can not be guessed')
     end
 
     def find(id)
@@ -36,24 +35,16 @@ module Rmodel::Sequel
     end
 
     class << self
-      attr_reader :client_name, :setting_table, :declared_mapper
-
-      def client(name)
-        @client_name = name
-      end
+      attr_reader :declared_table
 
       def table(name)
-        @setting_table = name
+        @declared_table = name
       end
 
       def table_by_convention
         if name =~ /(.*)Repository$/
           ActiveSupport::Inflector.tableize($1).to_sym
         end
-      end
-
-      def mapper(mapper_klass)
-        @declared_mapper = mapper_klass.new
       end
     end
   end

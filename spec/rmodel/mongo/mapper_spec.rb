@@ -157,17 +157,5 @@ RSpec.describe Rmodel::Mongo::Mapper do
     end
   end
 
-  describe '#initialize' do
-    context 'when the model is not declared' do
-      before do
-        stub_const 'UserMapper', Class.new(described_class)
-      end
-
-      it 'raises an error' do
-        expect {
-          subject
-        }.to raise_error ArgumentError
-      end
-    end
-  end
+  it_behaves_like 'base mapper'
 end

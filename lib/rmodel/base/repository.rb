@@ -6,6 +6,15 @@ module Rmodel::Base
   class Repository
     include RepositoryExt::Sugarable
     include RepositoryExt::Queryable
+    def self.inherited(subclass)
+      subclass.send :prepend, RepositoryExt::Timestampable
+    end
+
+    def initialize(mapper)
+      @mapper = mapper || self.class.declared_mapper ||
+                self.class.mapper_by_convention or
+                raise ArgumentError.new('Mapper can not be guessed')
+    end
 
     def insert(*args)
       if args.length == 1
@@ -23,13 +32,24 @@ module Rmodel::Base
       end
     end
 
-    def remove(object)
-      warn '#remove is deprecated, use #destroy instead'
-      destroy(object)
-    end
+    class << self
+      attr_reader :declared_client_name, :declared_mapper
 
-    def self.inherited(subclass)
-      subclass.send :prepend, RepositoryExt::Timestampable
+      def client(name)
+        @declared_client_name = name
+      end
+
+      def mapper(mapper_klass)
+        @declared_mapper = mapper_klass.new
+      end
+
+      def mapper_by_convention
+        if name =~ /(.*)Repository$/
+          ActiveSupport::Inflector.constantize($1 + 'Mapper').new
+        end
+      rescue NameError
+        nil
+      end
     end
   end
 end
