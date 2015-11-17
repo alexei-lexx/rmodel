@@ -9,9 +9,7 @@ RSpec.shared_examples 'base mapper' do
         before { stub_const 'User', Struct.new(:id) }
 
         it 'is guessed by convention' do
-          expect {
-            subject
-          }.not_to raise_error
+          expect(subject.deserialize({})).to be_an_instance_of User
         end
       end
 
