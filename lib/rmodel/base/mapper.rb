@@ -4,9 +4,12 @@ module Rmodel::Base
       if model.nil?
         raise ArgumentError.new('Model was not declared')
       end
+      self.primary_key = :id
     end
 
     private
+
+    attr_accessor :primary_key
 
     def model
       self.class.declared_model || self.class.model_by_convention

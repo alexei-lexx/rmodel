@@ -1,9 +1,14 @@
 module Rmodel::Mongo
   class Mapper < Rmodel::Base::Mapper
+    def initialize
+      super
+      self.primary_key = '_id'
+    end
+
     def deserialize(hash)
       object = model.new
       if object.respond_to?(:id)
-        object.id = hash['_id']
+        object.id = hash[primary_key]
       end
       attributes.each do |attribute, mapper|
         if mapper && hash[attribute.to_s]
@@ -27,7 +32,7 @@ module Rmodel::Mongo
         hash[attribute.to_s] = value
       end
       if id_included && object.respond_to?(:id)
-        hash['_id'] = object.id
+        hash[primary_key] = object.id
       end
       hash
     end
