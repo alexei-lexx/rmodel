@@ -29,7 +29,7 @@ module Rmodel::Sequel
     private
 
     def model
-      self.class.declared_model
+      self.class.declared_model || self.class.model_by_convention
     end
 
     def attributes
@@ -41,6 +41,14 @@ module Rmodel::Sequel
 
       def model(klass)
         @declared_model = klass
+      end
+
+      def model_by_convention
+        if name =~ /(.*)Mapper$/
+          ActiveSupport::Inflector.constantize($1).new
+        end
+      rescue NameError
+        nil
       end
 
       def attributes(*attributes)
