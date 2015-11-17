@@ -6,6 +6,9 @@ module Rmodel::Base
   class Repository
     include RepositoryExt::Sugarable
     include RepositoryExt::Queryable
+    def self.inherited(subclass)
+      subclass.send :prepend, RepositoryExt::Timestampable
+    end
 
     def initialize(mapper)
       @mapper = mapper || self.class.declared_mapper ||
@@ -30,11 +33,11 @@ module Rmodel::Base
     end
 
     class << self
-      def inherited(subclass)
-        subclass.send :prepend, RepositoryExt::Timestampable
-      end
+      attr_reader :declared_client_name, :declared_mapper
 
-      attr_reader :declared_mapper
+      def client(name)
+        @declared_client_name = name
+      end
 
       def mapper(mapper_klass)
         @declared_mapper = mapper_klass.new
