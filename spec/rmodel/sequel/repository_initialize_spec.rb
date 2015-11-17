@@ -108,8 +108,20 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
 
     context 'when it is not called' do
-      it 'make #initialize raise an error' do
-        expect { subject }.to raise_error ArgumentError
+      context 'and the mapper class is defined' do
+        it 'gets the right class by convention' do
+          expect(subject.mapper).to be_an_instance_of ThingMapper
+        end
+      end
+
+      context 'and the mapper class is not defined' do
+        before { hide_const('ThingMapper') }
+
+        it 'make #initialize raise an error' do
+          expect {
+            ThingRepository.new(Object.new, :users)
+          }.to raise_error ArgumentError
+        end
       end
     end
   end
