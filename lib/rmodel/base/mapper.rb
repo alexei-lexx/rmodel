@@ -9,31 +9,26 @@ module Rmodel::Base
     end
 
     def deserialize(hash)
+      return nil if hash.nil?
+
       object = model.new
       if object.respond_to?(:id)
         object.id = hash[primary_key.send(key_op)]
       end
       attributes.each do |attribute, mapper|
-        raw_value = hash[attribute.send(key_op)]
-        if mapper && raw_value
-          object.public_send "#{attribute}=", mapper.deserialize(raw_value)
-        else
-          object.public_send "#{attribute}=", raw_value
-        end
-
+        deserialized_value = mapper.deserialize(hash[attribute.send(key_op)])
+        object.public_send "#{attribute}=", deserialized_value
       end
       object
     end
 
     def serialize(object, id_included)
+      return nil if object.nil?
+
       hash = {}
       attributes.each do |attribute, mapper|
-        if mapper && object.public_send(attribute)
-          value = mapper.serialize(object.public_send(attribute), true)
-        else
-          value = object.public_send(attribute)
-        end
-        hash[attribute.send(key_op)] = value
+        serialized_value = mapper.serialize(object.public_send(attribute), true)
+        hash[attribute.send(key_op)] = serialized_value
       end
       if id_included && object.respond_to?(:id)
         hash[primary_key.send(key_op)] = object.id
@@ -72,8 +67,9 @@ module Rmodel::Base
       attr_reader :declared_attributes
 
       def attribute(attr, mapper = nil)
+        @dummy_mapper ||= DummyMapper.new
         @declared_attributes ||= {}
-        @declared_attributes[attr] = mapper
+        @declared_attributes[attr] = mapper || @dummy_mapper
       end
 
       def attributes(*attributes)
