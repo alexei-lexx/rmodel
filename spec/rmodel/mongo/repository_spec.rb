@@ -33,23 +33,23 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
 
     let(:repo_w_timestamps) do
-      stub_const 'ThingMapperWithTimestamps', Class.new(Rmodel::Mongo::Mapper)
-      class ThingMapperWithTimestamps
+      stub_const 'MapperWithTimestamps', Class.new(Rmodel::Mongo::Mapper)
+      class MapperWithTimestamps
         model Thing
         attributes :name, :created_at, :updated_at
       end
 
-      ThingRepository.new(mongo_session, :things, ThingMapperWithTimestamps.new)
+      ThingRepository.new(mongo_session, :things, MapperWithTimestamps.new)
     end
 
     let(:repo_wo_timestamps) do
-      stub_const 'ThingMapperWithOutTimestamps', Class.new(Rmodel::Mongo::Mapper)
-      class ThingMapperWithOutTimestamps
+      stub_const 'MapperWithOutTimestamps', Class.new(Rmodel::Mongo::Mapper)
+      class MapperWithOutTimestamps
         model Thing
         attributes :name
       end
 
-      ThingRepository.new(mongo_session, :things, ThingMapperWithOutTimestamps.new)
+      ThingRepository.new(mongo_session, :things, MapperWithOutTimestamps.new)
     end
   end
 end

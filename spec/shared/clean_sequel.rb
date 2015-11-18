@@ -1,5 +1,5 @@
 RSpec.shared_context 'clean sequel database' do
-  let(:sequel_conn) { Sequel.connect(adapter: 'sqlite', database: 'rmodel_test.sqlite3') }
+  let(:sequel_conn) { Sequel.sqlite('rmodel_test.sqlite3') }
 
   before(:all) do
     Mongo::Logger.logger.level = Logger::ERROR

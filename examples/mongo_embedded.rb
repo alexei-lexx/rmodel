@@ -1,7 +1,7 @@
 require 'rmodel'
 
 Rmodel.setup do
-  client :default, { hosts: [ 'localhost' ], database: 'test' }
+  client :default, hosts: ['localhost'], database: 'test'
 end
 
 Owner = Struct.new(:first_name, :last_name)
