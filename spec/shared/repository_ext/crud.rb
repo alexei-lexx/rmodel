@@ -58,7 +58,7 @@ RSpec.shared_examples 'repository crud' do
 
     context 'when an array of objects is provided' do
       it 'inserts all objects' do
-        subject.insert([ Thing.new, Thing.new ])
+        subject.insert([Thing.new, Thing.new])
         expect(subject.query.count).to eq 2
       end
     end
