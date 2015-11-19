@@ -72,9 +72,9 @@ RSpec.describe Rmodel::Mongo::Repository do
 
     context 'when an unknown scope is used' do
       it 'raises the NoMethodError' do
-        expect {
+        expect do
           subject.query.something
-        }.to raise_error NoMethodError
+        end.to raise_error NoMethodError
       end
     end
   end

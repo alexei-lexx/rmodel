@@ -35,23 +35,23 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
 
     let(:repo_w_timestamps) do
-      stub_const 'ThingMapperWithTimestamps', Class.new(Rmodel::Sequel::Mapper)
-      class ThingMapperWithTimestamps
+      stub_const 'MapperWithTimestamps', Class.new(Rmodel::Sequel::Mapper)
+      class MapperWithTimestamps
         model Thing
         attributes :name, :created_at, :updated_at
       end
 
-      ThingRepository.new(sequel_conn, :things, ThingMapperWithTimestamps.new)
+      ThingRepository.new(sequel_conn, :things, MapperWithTimestamps.new)
     end
 
     let(:repo_wo_timestamps) do
-      stub_const 'ThingMapperWithOutTimestamps', Class.new(Rmodel::Sequel::Mapper)
-      class ThingMapperWithOutTimestamps
+      stub_const 'MapperWithOutTimestamps', Class.new(Rmodel::Sequel::Mapper)
+      class MapperWithOutTimestamps
         model Thing
         attributes :name
       end
 
-      ThingRepository.new(sequel_conn, :things, ThingMapperWithOutTimestamps.new)
+      ThingRepository.new(sequel_conn, :things, MapperWithOutTimestamps.new)
     end
   end
 

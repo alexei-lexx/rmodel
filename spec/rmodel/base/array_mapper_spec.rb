@@ -13,7 +13,7 @@ RSpec.describe Rmodel::Base::ArrayMapper do
 
   describe '#deserialize(array)' do
     it 'returns an array of instances of the appropriate class' do
-      objects = subject.deserialize([ {}, {} ])
+      objects = subject.deserialize([{}, {}])
 
       expect(objects.length).to eq 2
       objects.each do |object|
@@ -30,7 +30,8 @@ RSpec.describe Rmodel::Base::ArrayMapper do
 
   describe '#serialize(objects, id_included)' do
     it 'returns an instance of Array' do
-      array = subject.serialize([ Thing.new(1, 'chair'), Thing.new(2, 'table') ], true)
+      things = [Thing.new(1, 'chair'), Thing.new(2, 'table')]
+      array = subject.serialize(things, true)
 
       expect(array.length).to eq 2
       array.each do |entry|

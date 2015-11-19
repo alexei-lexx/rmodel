@@ -26,9 +26,7 @@ module Rmodel
   end
 
   def self.setup(&block)
-    if block
-      Setup.instance.instance_eval &block
-    end
+    Setup.instance.instance_eval(&block) if block
     Setup.instance
   end
 end

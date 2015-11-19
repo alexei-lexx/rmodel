@@ -8,7 +8,9 @@ RSpec.describe Rmodel do
     end
 
     context 'when the block is passed' do
-      let(:clients_config) { Rmodel::Setup.instance.instance_variable_get('@clients_config') }
+      let(:clients_config) do
+        Rmodel::Setup.instance.instance_variable_get('@clients_config')
+      end
 
       it 'returns Rmodel::Setup.instance' do
         expect(Rmodel.setup).to equal Rmodel::Setup.instance
@@ -35,14 +37,14 @@ RSpec.describe Rmodel do
 
     describe '#client(name, config)' do
       it 'makes config available via #clients[name]' do
-        subject.client :default, { host: 'localhost' }
-        expect(clients_config[:default]).to eq( host: 'localhost' )
+        subject.client :default, host: 'localhost'
+        expect(clients_config[:default]).to eq(host: 'localhost')
       end
     end
 
     describe '#clear' do
       context 'when one client is set' do
-        before { subject.client :default, { host: 'localhost' } }
+        before { subject.client :default, host: 'localhost' }
 
         it 'removes all clients' do
           subject.clear
