@@ -17,14 +17,14 @@ RSpec.describe Rmodel::Mongo::Repository do
   end
 
   describe '.client(name)' do
-    after { Rmodel::setup.clear }
+    after { Rmodel.setup.clear }
 
     subject { UserRepository.new(nil, :users, UserMapper.new) }
 
     context 'when it is called with an existent name' do
       before do
         Rmodel.setup do
-          client :mongo, { hosts: [ 'localhost' ] }
+          client :mongo, hosts: ['localhost']
         end
 
         class UserRepository
@@ -53,7 +53,7 @@ RSpec.describe Rmodel::Mongo::Repository do
       context 'when the :default client is set' do
         before do
           Rmodel.setup do
-            client :default, { hosts: [ 'localhost' ] }
+            client :default, hosts: ['localhost']
           end
         end
 
@@ -118,9 +118,9 @@ RSpec.describe Rmodel::Mongo::Repository do
         before { hide_const('UserMapper') }
 
         it 'make #initialize raise an error' do
-          expect {
+          expect do
             UserRepository.new(Object.new, :users)
-          }.to raise_error ArgumentError
+          end.to raise_error ArgumentError
         end
       end
     end
@@ -129,9 +129,9 @@ RSpec.describe Rmodel::Mongo::Repository do
   describe '#initialize(client, collection, mapper)' do
     context 'when all constructor arguments are passed' do
       it 'works!' do
-        expect {
+        expect do
           UserRepository.new(Object.new, :users, UserMapper.new)
-        }.not_to raise_error
+        end.not_to raise_error
       end
     end
   end

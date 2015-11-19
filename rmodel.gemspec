@@ -8,8 +8,10 @@ Gem::Specification.new do |spec|
   spec.version       = Rmodel::VERSION
   spec.authors       = ['Alexei']
   spec.email         = ['alexei.lexx@gmail.com']
-  spec.summary       = %q{Rmodel is an ORM library, which tends to follow the SOLID principles.}
-  spec.description   = %q{Rmodel is an ORM library, which tends to follow the SOLID principles.}
+  spec.summary       = 'Rmodel is an ORM library, which tends to follow the
+    SOLID principles.'
+  spec.description   = 'Rmodel is an ORM library, which tends to follow the
+    SOLID principles.'
   spec.homepage      = 'https://github.com/alexei-lexx/rmodel'
   spec.license       = 'MIT'
 
@@ -27,6 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'rubocop'
 
   spec.required_ruby_version = '>= 2.0.0'
 end

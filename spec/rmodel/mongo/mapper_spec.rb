@@ -34,20 +34,20 @@ RSpec.describe Rmodel::Mongo::Mapper do
     end
 
     it 'sets the attributes correctly' do
-      object = subject.deserialize({ 'name' => 'John', 'age' => 20 })
+      object = subject.deserialize('name' => 'John', 'age' => 20)
 
       expect(object.name).to eq 'John'
       expect(object.age).to eq 20
     end
 
     it 'leaves not specified attributes out' do
-      object = subject.deserialize({ 'name' => 'John' })
+      object = subject.deserialize('name' => 'John')
       expect(object.age).to be_nil
     end
 
     context 'when _id is given' do
       it 'sets the #id correctly' do
-        object = subject.deserialize({ '_id' => 1 })
+        object = subject.deserialize('_id' => 1)
         expect(object.id).to eq 1
       end
     end
@@ -124,7 +124,7 @@ RSpec.describe Rmodel::Mongo::Mapper do
     context 'when id_included = false' do
       it 'doesnt set the _id' do
         hash = subject.serialize(User.new(1), false)
-        expect(hash.has_key?('_id')).to be false
+        expect(hash.key?('_id')).to be false
       end
     end
 
@@ -146,7 +146,7 @@ RSpec.describe Rmodel::Mongo::Mapper do
     context 'when an embedded array of objects is given' do
       let(:object) do
         user = User.new
-        user.phones = [ Phone.new(100, '+1111'), Phone.new(101, '+2222') ]
+        user.phones = [Phone.new(100, '+1111'), Phone.new(101, '+2222')]
         user
       end
       let(:hash) { subject.serialize(object, true) }

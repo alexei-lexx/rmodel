@@ -14,9 +14,7 @@ RSpec.shared_examples 'sugarable repository' do
 
     context 'when a non-existent id is given' do
       it 'raises NotFound' do
-        expect {
-          subject.find!(1)
-        }.to raise_error Rmodel::NotFound
+        expect { subject.find!(1) }.to raise_error Rmodel::NotFound
       end
     end
   end

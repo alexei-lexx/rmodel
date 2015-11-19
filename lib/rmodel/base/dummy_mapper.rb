@@ -1,11 +1,13 @@
-module Rmodel::Base
-  class DummyMapper
-    def serialize(arg, id_included)
-      arg
-    end
+module Rmodel
+  module Base
+    class DummyMapper
+      def serialize(arg, _id_included)
+        arg
+      end
 
-    def deserialize(arg)
-      arg
+      def deserialize(arg)
+        arg
+      end
     end
   end
 end

@@ -17,9 +17,9 @@ RSpec.shared_examples 'base mapper' do
         before { hide_const('User') }
 
         it 'raises an error' do
-          expect {
+          expect do
             subject
-          }.to raise_error ArgumentError
+          end.to raise_error ArgumentError
         end
       end
     end

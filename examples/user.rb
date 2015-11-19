@@ -1,7 +1,7 @@
 require 'rmodel'
 
 Rmodel.setup do
-  client :default, { hosts: [ 'localhost' ], database: 'test' }
+  client :default, hosts: ['localhost'], database: 'test'
 end
 
 class User
@@ -27,24 +27,24 @@ class UserRepository < Rmodel::Mongo::Repository
   end
 end
 
-userRepository = UserRepository.new
-userRepository.query.remove
+user_repository = UserRepository.new
+user_repository.query.remove
 
 john = User.new('John', 'john@example.com')
 bill = User.new('Bill', 'bill@example.com')
 bob = User.new('Bob', 'bob@example.com')
 
-userRepository.insert(john)
-userRepository.insert(bill)
-userRepository.insert(bob)
+user_repository.insert(john)
+user_repository.insert(bill)
+user_repository.insert(bob)
 
 john.name = 'John Smith'
-userRepository.update(john)
+user_repository.update(john)
 
-userRepository.destroy(bob)
+user_repository.destroy(bob)
 
-p userRepository.find(john.id)
-p userRepository.find(bob.id)
+p user_repository.find(john.id)
+p user_repository.find(bob.id)
 
-userRepository.query.have_email.remove
-p userRepository.query.count
+user_repository.query.have_email.remove
+p user_repository.query.count

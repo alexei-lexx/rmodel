@@ -73,9 +73,7 @@ RSpec.describe Rmodel::Sequel::Repository do
 
     context 'when an unknown scope is used' do
       it 'raises the NoMethodError' do
-        expect {
-          subject.query.something
-        }.to raise_error NoMethodError
+        expect { subject.query.something }.to raise_error NoMethodError
       end
     end
   end

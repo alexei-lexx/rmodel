@@ -3,7 +3,7 @@ require 'rmodel'
 Rmodel.setup do
   # see more examples of connection options
   # http://sequel.jeremyevans.net/rdoc/files/doc/opening_databases_rdoc.html#label-Passing+a+block+to+either+method
-  client :default, { adapter: 'sqlite', database: 'rmodel_test.sqlite3' }
+  client :default, adapter: 'sqlite', database: 'rmodel_test.sqlite3'
 end
 
 client = Rmodel.setup.establish_sequel_client(:default)

@@ -17,7 +17,7 @@ RSpec.describe Rmodel::Sequel::Mapper do
     end
 
     it 'sets the attributes correctly' do
-      object = subject.deserialize({ name: 'John', age: 20 })
+      object = subject.deserialize(name: 'John', age: 20)
 
       expect(object.name).to eq 'John'
       expect(object.age).to eq 20
@@ -25,7 +25,7 @@ RSpec.describe Rmodel::Sequel::Mapper do
 
     context 'when _id is given' do
       it 'sets the #id correctly' do
-        object = subject.deserialize({ id: 1 })
+        object = subject.deserialize(id: 1)
         expect(object.id).to eq 1
       end
     end
@@ -54,7 +54,7 @@ RSpec.describe Rmodel::Sequel::Mapper do
     context 'when id_included = false' do
       it 'doesnt set the id' do
         hash = subject.serialize(User.new(1), false)
-        expect(hash.has_key?(:id)).to be false
+        expect(hash.key?(:id)).to be false
       end
     end
   end

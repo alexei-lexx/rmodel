@@ -15,7 +15,7 @@ RSpec.describe Rmodel::Sequel::Repository do
   end
 
   describe '.client(name)' do
-    after { Rmodel::setup.clear }
+    after { Rmodel.setup.clear }
     conn_options = { adapter: 'sqlite', database: 'rmodel_test.sqlite3' }
 
     subject { ThingRepository.new(nil, :things, ThingMapper.new) }
@@ -30,7 +30,6 @@ RSpec.describe Rmodel::Sequel::Repository do
           client :sequel
         end
       end
-
 
       it 'sets the appropriate #client' do
         expect(subject.client).to be_a_kind_of Sequel::Database
@@ -118,9 +117,9 @@ RSpec.describe Rmodel::Sequel::Repository do
         before { hide_const('ThingMapper') }
 
         it 'make #initialize raise an error' do
-          expect {
+          expect do
             ThingRepository.new(Object.new, :users)
-          }.to raise_error ArgumentError
+          end.to raise_error ArgumentError
         end
       end
     end
@@ -129,9 +128,9 @@ RSpec.describe Rmodel::Sequel::Repository do
   describe '#initialize(client, collection, mapper)' do
     context 'when all constructor arguments are passed' do
       it 'works!' do
-        expect {
+        expect do
           ThingRepository.new(Object.new, :users, ThingMapper.new)
-        }.not_to raise_error
+        end.not_to raise_error
       end
     end
   end
