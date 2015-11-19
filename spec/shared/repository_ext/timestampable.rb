@@ -47,6 +47,32 @@ RSpec.shared_examples 'timestampable repository' do
         expect(subject.find(thing.id).updated_at).not_to be_nil
       end
     end
+
+    context 'when the Time.current method exists' do
+      let(:thing) { Thing.new }
+
+      before do
+        stub_const 'Time', Time
+        def Time.current
+          now
+        end
+        allow(Time).to receive(:current)
+
+        subject.insert(thing)
+      end
+
+      it 'uses it on insert' do
+        expect(thing.created_at).not_to be_nil
+        expect(Time).to have_received(:current)
+      end
+
+      it 'uses it on update' do
+        subject.update(thing)
+
+        expect(thing.updated_at).not_to be_nil
+        expect(Time).to have_received(:current).twice
+      end
+    end
   end
 
   context 'when the entity has no attributes :created_at and updated_at' do
