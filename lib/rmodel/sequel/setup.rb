@@ -1,9 +1,9 @@
 module Rmodel
   module Sequel
     module Setup
-      def establish_sequel_client(name)
-        config = @clients_config[name]
-        config && establish_client(name) { ::Sequel.connect(config) }
+      def establish_sequel_connection(name)
+        config = @connections_config[name]
+        config && establish_connection(name) { ::Sequel.connect(config) }
       end
     end
   end

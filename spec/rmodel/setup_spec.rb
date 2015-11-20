@@ -8,8 +8,8 @@ RSpec.describe Rmodel do
     end
 
     context 'when the block is passed' do
-      let(:clients_config) do
-        Rmodel::Setup.instance.instance_variable_get('@clients_config')
+      let(:connections_config) do
+        Rmodel::Setup.instance.instance_variable_get('@connections_config')
       end
 
       it 'returns Rmodel::Setup.instance' do
@@ -18,16 +18,18 @@ RSpec.describe Rmodel do
 
       it 'runs setup methods within the block' do
         Rmodel.setup do
-          client :default, {}
+          connection :default, {}
         end
-        expect(clients_config[:default]).to eq({})
+        expect(connections_config[:default]).to eq({})
       end
     end
   end
 
   describe Rmodel::Setup do
     subject { Rmodel::Setup.instance }
-    let(:clients_config) { subject.instance_variable_get('@clients_config') }
+    let(:connections_config) do
+      subject.instance_variable_get('@connections_config')
+    end
 
     describe '#new' do
       it 'raises the NoMethodError' do
@@ -35,20 +37,20 @@ RSpec.describe Rmodel do
       end
     end
 
-    describe '#client(name, config)' do
-      it 'makes config available via #clients[name]' do
-        subject.client :default, host: 'localhost'
-        expect(clients_config[:default]).to eq(host: 'localhost')
+    describe '#connection(name, config)' do
+      it 'makes config available via #connections[name]' do
+        subject.connection :default, host: 'localhost'
+        expect(connections_config[:default]).to eq(host: 'localhost')
       end
     end
 
     describe '#clear' do
-      context 'when one client is set' do
-        before { subject.client :default, host: 'localhost' }
+      context 'when one connection is set' do
+        before { subject.connection :default, host: 'localhost' }
 
-        it 'removes all clients' do
+        it 'removes all connections' do
           subject.clear
-          expect(clients_config).to be_empty
+          expect(connections_config).to be_empty
         end
       end
     end

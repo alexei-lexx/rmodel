@@ -5,23 +5,23 @@ module Rmodel
     include Singleton
 
     def initialize
-      @clients_config = {}
-      @established_clients = {}
+      @connections_config = {}
+      @established_connections = {}
     end
 
-    def client(name, config)
-      @clients_config[name] = config
+    def connection(name, config)
+      @connections_config[name] = config
     end
 
     def clear
-      @clients_config.clear
-      @established_clients.clear
+      @connections_config.clear
+      @established_connections.clear
     end
 
     private
 
-    def establish_client(name)
-      @established_clients[name] ||= yield
+    def establish_connection(name)
+      @established_connections[name] ||= yield
     end
   end
 

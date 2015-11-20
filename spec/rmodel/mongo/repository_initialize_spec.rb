@@ -14,7 +14,7 @@ RSpec.describe Rmodel::Mongo::Repository do
     class UserRepository
       attr_reader :source, :mapper
 
-      def client
+      def connection
         source.instance_variable_get(:@connection)
       end
 
@@ -24,7 +24,7 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
   end
 
-  describe '.client(name)' do
+  describe '.connection(name)' do
     after { Rmodel.setup.clear }
 
     subject { UserRepository.new(nil, :users, UserMapper.new) }
@@ -32,47 +32,47 @@ RSpec.describe Rmodel::Mongo::Repository do
     context 'when it is called with an existent name' do
       before do
         Rmodel.setup do
-          client :mongo, hosts: ['localhost']
+          connection :mongo, hosts: ['localhost']
         end
 
         class UserRepository
-          client :mongo
+          connection :mongo
         end
       end
 
-      it 'sets the appropriate #client' do
-        expect(subject.client).to be_an_instance_of Mongo::Client
+      it 'sets the appropriate #connection' do
+        expect(subject.connection).to be_an_instance_of Mongo::Client
       end
     end
 
     context 'when it is called with a non-existent name' do
       before do
         class UserRepository
-          client :mongo
+          connection :mongo
         end
       end
 
-      it 'makes #client raise the ArgumentError' do
-        expect { subject.client }.to raise_error ArgumentError
+      it 'makes #connection raise the ArgumentError' do
+        expect { subject.connection }.to raise_error ArgumentError
       end
     end
 
     context 'when it is not called' do
-      context 'when the :default client is set' do
+      context 'when the :default connection is set' do
         before do
           Rmodel.setup do
-            client :default, hosts: ['localhost']
+            connection :default, hosts: ['localhost']
           end
         end
 
-        it 'sets #client to be default' do
-          expect(subject.client).to be_an_instance_of Mongo::Client
+        it 'sets #connection to be default' do
+          expect(subject.connection).to be_an_instance_of Mongo::Client
         end
       end
 
-      context 'when the :default client is not set' do
-        it 'makes #client raise the ArgumentError' do
-          expect { subject.client }.to raise_error ArgumentError
+      context 'when the :default connection is not set' do
+        it 'makes #connection raise the ArgumentError' do
+          expect { subject.connection }.to raise_error ArgumentError
         end
       end
     end
@@ -134,7 +134,7 @@ RSpec.describe Rmodel::Mongo::Repository do
     end
   end
 
-  describe '#initialize(client, collection, mapper)' do
+  describe '#initialize(connection, collection, mapper)' do
     context 'when all constructor arguments are passed' do
       it 'works!' do
         expect do

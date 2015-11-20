@@ -82,17 +82,17 @@ end
 
 user_repository = UserRepository.new
 ```
-The code above raises the exception *Client driver is not setup (ArgumentError)*. UserRepository inherits from Rmodel::Mongo::Repository, which uses the ruby mongo driver to access the database. We must provide the appropriate connection options. To do this we use the following code:
+The code above raises the exception *Connection is not setup (ArgumentError)*. UserRepository inherits from Rmodel::Mongo::Repository, which uses the ruby mongo driver to access the database. We must provide the appropriate connection options. To do this we use the following code:
 
 ```ruby
 require 'rmodel'
 
 Rmodel.setup do
-  client :default, { hosts: [ 'localhost' ], database: 'test' }
+  connection :default, hosts: ['localhost'], database: 'test'
 end
 ```
 
-The `:default` client is used by every repository that doesn't specify it's client explicitly.
+The `:default` connection is used by every repository that doesn't specify it's connection explicitly.
 
 Run the code again and get another error *Mapper can not be guessed (ArgumentError)*. The mapper is used to convert the array of database tuples to the array of User objects and back.
 
@@ -195,7 +195,7 @@ repo.query.start_with('b').have_email
 
 The result of the scope is Enumerable, so you can apply the #each method and others (map, select etc).
 
-Inside the scopes you can use any methods supported by the driver (database client). In our case we use Origin (https://github.com/mongoid/origin) as a query builder for mongo.
+Inside the scopes you can use any methods supported by the driver (database connection). In our case we use Origin (https://github.com/mongoid/origin) as a query builder for mongo.
 
 Also it's possible to use scopes to run the multi-row operations.
 
@@ -272,11 +272,11 @@ end
 class ThingRepository < Rmodel::Mongo::Repository
 end
 
-client = Mongo::Client.new([ 'localhost:27017' ], database: 'test')
+connection = Mongo::Client.new(['localhost:27017'], database: 'test')
 collection = :things
 mapper = ThingMapper.new
 
-repo = ThingRepository.new(client, collection, mapper)
+repo = ThingRepository.new(connection, collection, mapper)
 repo.find(1)
 ```
 
@@ -295,12 +295,12 @@ Below you can the the example how to setup Rmodel for any supported SQL database
 require 'rmodel'
 
 Rmodel.setup do
-  client :default, { adapter: 'sqlite', database: 'rmodel_test.sqlite3' }
+  connection :default, adapter: 'sqlite', database: 'rmodel_test.sqlite3'
 end
 
-client = Rmodel.setup.establish_sequel_client(:default)
-client.drop_table? :things
-client.create_table :things do
+connection = Rmodel.setup.establish_sequel_connection(:default)
+connection.drop_table? :things
+connection.create_table :things do
   primary_key :id
   String :name
   Float :price
@@ -387,7 +387,7 @@ The idea is easy:
 require 'rmodel'
 
 Rmodel.setup do
-  client :default, { hosts: [ 'localhost' ], database: 'test' }
+  connection :default, hosts: ['localhost'], database: 'test'
 end
 
 Owner = Struct.new(:first_name, :last_name)

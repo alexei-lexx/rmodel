@@ -12,7 +12,7 @@ RSpec.describe Rmodel::Sequel::Repository do
     class ThingRepository
       attr_reader :source, :mapper
 
-      def client
+      def connection
         source.instance_variable_get(:@connection)
       end
 
@@ -22,7 +22,7 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
   end
 
-  describe '.client(name)' do
+  describe '.connection(name)' do
     after { Rmodel.setup.clear }
     conn_options = { adapter: 'sqlite', database: 'rmodel_test.sqlite3' }
 
@@ -31,23 +31,23 @@ RSpec.describe Rmodel::Sequel::Repository do
     context 'when it is called with an existent name' do
       before do
         Rmodel.setup do
-          client :sequel, conn_options
+          connection :sequel, conn_options
         end
 
         class ThingRepository
-          client :sequel
+          connection :sequel
         end
       end
 
-      it 'sets the appropriate #client' do
-        expect(subject.client).to be_a_kind_of Sequel::Database
+      it 'sets the appropriate #connection' do
+        expect(subject.connection).to be_a_kind_of Sequel::Database
       end
     end
 
     context 'when it is called with a non-existent name' do
       before do
         class ThingRepository
-          client :sequel
+          connection :sequel
         end
       end
 
@@ -57,19 +57,19 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
 
     context 'when it is not called' do
-      context 'when the :default client is set' do
+      context 'when the :default connection is set' do
         before do
           Rmodel.setup do
-            client :default, conn_options
+            connection :default, conn_options
           end
         end
 
-        it 'sets #client to be default' do
-          expect(subject.client).to be_a_kind_of Sequel::Database
+        it 'sets #connection to be default' do
+          expect(subject.connection).to be_a_kind_of Sequel::Database
         end
       end
 
-      context 'when the :default client is not set' do
+      context 'when the :default connection is not set' do
         it 'makes #initialize raise the ArgumentError' do
           expect { subject }.to raise_error ArgumentError
         end
@@ -133,7 +133,7 @@ RSpec.describe Rmodel::Sequel::Repository do
     end
   end
 
-  describe '#initialize(client, collection, mapper)' do
+  describe '#initialize(connection, collection, mapper)' do
     context 'when all constructor arguments are passed' do
       it 'works!' do
         expect do

@@ -1,12 +1,12 @@
 module Rmodel
   module Mongo
     class Repository < Rmodel::Base::Repository
-      def initialize(client = nil, collection = nil, mapper = nil)
-        client = client || self.class.declared_client_name || :default
-        collection = collection || self.class.declared_collection ||
-                     self.class.collection_by_convention
+      def initialize(connection = nil, collection = nil, mapper = nil)
+        connection ||= self.class.declared_connection_name || :default
+        collection ||= self.class.declared_collection ||
+                       self.class.collection_by_convention
 
-        super Source.new(client, collection), mapper
+        super Source.new(connection, collection), mapper
       end
 
       def find(id)

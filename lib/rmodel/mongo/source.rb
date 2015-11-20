@@ -10,11 +10,11 @@ module Rmodel
 
       def initialize(connection, collection)
         if connection.is_a? Symbol
-          @connection = Rmodel.setup.establish_mongo_client(connection)
+          @connection = Rmodel.setup.establish_mongo_connection(connection)
         else
           @connection = connection
         end
-        fail ArgumentError, 'Client driver is not setup' unless @connection
+        fail ArgumentError, 'Connection is not setup' unless @connection
 
         @collection = collection
         fail ArgumentError, 'Collection can not be guessed' unless @collection

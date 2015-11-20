@@ -3,12 +3,12 @@ require 'rmodel'
 Rmodel.setup do
   # see more examples of connection options
   # http://sequel.jeremyevans.net/rdoc/files/doc/opening_databases_rdoc.html#label-Passing+a+block+to+either+method
-  client :default, adapter: 'sqlite', database: 'rmodel_test.sqlite3'
+  connection :default, adapter: 'sqlite', database: 'rmodel_test.sqlite3'
 end
 
-client = Rmodel.setup.establish_sequel_client(:default)
-client.drop_table? :things
-client.create_table :things do
+connection = Rmodel.setup.establish_sequel_connection(:default)
+connection.drop_table? :things
+connection.create_table :things do
   primary_key :id
   String :name
   Float :price

@@ -5,11 +5,11 @@ module Rmodel
     class Source
       def initialize(connection, table)
         if connection.is_a? Symbol
-          @connection = Rmodel.setup.establish_sequel_client(connection)
+          @connection = Rmodel.setup.establish_sequel_connection(connection)
         else
           @connection = connection
         end
-        fail ArgumentError, 'Client driver is not setup' unless @connection
+        fail ArgumentError, 'Connection is not setup' unless @connection
 
         @table = table
         fail ArgumentError, 'Table can not be guessed' unless @table

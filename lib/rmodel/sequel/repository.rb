@@ -1,12 +1,11 @@
 module Rmodel
   module Sequel
     class Repository < Rmodel::Base::Repository
-      def initialize(client = nil, table = nil, mapper = nil)
-        client = client || self.class.declared_client_name || :default
-        table = table || self.class.declared_table ||
-                self.class.table_by_convention
+      def initialize(connection = nil, table = nil, mapper = nil)
+        connection ||= self.class.declared_connection_name || :default
+        table ||= self.class.declared_table || self.class.table_by_convention
 
-        super Source.new(client, table), mapper
+        super Source.new(connection, table), mapper
       end
 
       def find(id)

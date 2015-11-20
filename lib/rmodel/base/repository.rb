@@ -38,10 +38,10 @@ module Rmodel
       end
 
       class << self
-        attr_reader :declared_client_name, :declared_mapper
+        attr_reader :declared_connection_name, :declared_mapper
 
-        def client(name)
-          @declared_client_name = name
+        def connection(name)
+          @declared_connection_name = name
         end
 
         def mapper(mapper_klass)
