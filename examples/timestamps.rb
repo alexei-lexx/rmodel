@@ -8,8 +8,11 @@ class Thing
   attr_accessor :id, :name, :created_at, :updated_at
 end
 
+class ThingMapper < Rmodel::Mongo::Mapper
+  attributes :name, :created_at, :updated_at
+end
+
 class ThingRepository < Rmodel::Mongo::Repository
-  simple_mapper Thing, :name, :created_at, :updated_at
 end
 repo = ThingRepository.new
 
