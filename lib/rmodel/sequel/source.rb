@@ -23,7 +23,7 @@ module Rmodel
       end
 
       def exec_query(query)
-        @connection[@collection].find(query.selector, query.options)
+        query
       end
     end
   end
