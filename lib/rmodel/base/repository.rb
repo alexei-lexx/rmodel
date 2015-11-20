@@ -28,6 +28,19 @@ module Rmodel
         end
       end
 
+      def insert_one(object)
+        id = @source.insert(@mapper.serialize(object, true))
+        object.id ||= id
+      end
+
+      def update(object)
+        @source.update(object.id, @mapper.serialize(object, false))
+      end
+
+      def destroy(object)
+        @source.delete(object.id)
+      end
+
       private
 
       def initialize_client(type, client)

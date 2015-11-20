@@ -13,6 +13,7 @@ require 'rmodel/mongo/source'
 require 'rmodel/mongo/mapper'
 require 'rmodel/mongo/repository'
 require 'rmodel/sequel/setup'
+require 'rmodel/sequel/source'
 require 'rmodel/sequel/mapper'
 require 'rmodel/sequel/repository'
 

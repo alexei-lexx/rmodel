@@ -6,6 +6,10 @@ module Rmodel
           base.extend ClassMethods
         end
 
+        def query
+          self.class.query_klass.new(self, @source.build_query)
+        end
+
         module ClassMethods
           def query_klass
             @query_klass ||= Class.new(Rmodel::Base::QueryBuilder)

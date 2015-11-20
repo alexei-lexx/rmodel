@@ -19,19 +19,6 @@ module Rmodel
         query.scope { where(_id: id) }.first
       end
 
-      def insert_one(object)
-        id = @source.insert(@mapper.serialize(object, true))
-        object.id ||= id
-      end
-
-      def update(object)
-        @source.update(object.id, @mapper.serialize(object, false))
-      end
-
-      def destroy(object)
-        @source.delete(object.id)
-      end
-
       class << self
         attr_reader :declared_collection
 

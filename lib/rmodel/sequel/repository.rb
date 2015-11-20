@@ -12,24 +12,12 @@ module Rmodel
         @table = table || self.class.declared_table ||
                  self.class.table_by_convention
         fail ArgumentError, 'Table can not be guessed' unless @table
+
+        @source = Source.new(@client, @table)
       end
 
       def find(id)
         query.scope { where(id: id) }.first
-      end
-
-      def insert_one(object)
-        id = @client[@table].insert(@mapper.serialize(object, true))
-        object.id ||= id
-      end
-
-      def update(object)
-        @client[@table].where(id: object.id)
-          .update(@mapper.serialize(object, false))
-      end
-
-      def destroy(object)
-        @client[@table].where(id: object.id).delete
       end
 
       class << self

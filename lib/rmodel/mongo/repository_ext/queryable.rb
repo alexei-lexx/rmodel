@@ -2,10 +2,6 @@ module Rmodel
   module Mongo
     module RepositoryExt
       module Queryable
-        def query
-          self.class.query_klass.new(self, @source.build_query)
-        end
-
         def find_by_query(query)
           execute_query(query).map do |hash|
             @mapper.deserialize(hash)
