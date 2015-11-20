@@ -16,6 +16,10 @@ module Rmodel
           end
         end
 
+        def delete_by_query(query)
+          @source.delete_by_query(query)
+        end
+
         def destroy_by_query(query)
           @source.exec_query(query).map do |hash|
             object = @mapper.deserialize(hash)

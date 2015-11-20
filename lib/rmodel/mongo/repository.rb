@@ -1,10 +1,6 @@
-require 'rmodel/mongo/repository_ext/queryable'
-
 module Rmodel
   module Mongo
     class Repository < Rmodel::Base::Repository
-      include RepositoryExt::Queryable
-
       def initialize(client = nil, collection = nil, mapper = nil)
         super(:mongo, client, mapper)
 

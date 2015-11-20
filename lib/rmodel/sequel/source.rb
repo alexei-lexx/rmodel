@@ -1,3 +1,5 @@
+require 'sequel'
+
 module Rmodel
   module Sequel
     class Source
@@ -24,6 +26,10 @@ module Rmodel
 
       def exec_query(query)
         query
+      end
+
+      def delete_by_query(query)
+        exec_query(query).delete
       end
     end
   end

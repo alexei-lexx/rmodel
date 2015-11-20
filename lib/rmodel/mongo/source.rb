@@ -34,6 +34,10 @@ module Rmodel
       def exec_query(query)
         @connection[@collection].find(query.selector, query.options)
       end
+
+      def delete_by_query(query)
+        exec_query(query).delete_many
+      end
     end
   end
 end

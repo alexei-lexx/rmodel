@@ -1,11 +1,6 @@
-require 'sequel'
-require 'rmodel/sequel/repository_ext/queryable'
-
 module Rmodel
   module Sequel
     class Repository < Rmodel::Base::Repository
-      include RepositoryExt::Queryable
-
       def initialize(client = nil, table = nil, mapper = nil)
         super(:sequel, client, mapper)
 
