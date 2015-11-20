@@ -15,8 +15,7 @@ module Rmodel
       end
 
       def find(id)
-        result = @client[@table].where(id: id).first
-        result && @mapper.deserialize(result)
+        query.scope { where(id: id) }.first
       end
 
       def insert_one(object)
