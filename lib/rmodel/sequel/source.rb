@@ -4,8 +4,15 @@ module Rmodel
   module Sequel
     class Source
       def initialize(connection, table)
-        @connection = connection
+        if connection.is_a? Symbol
+          @connection = Rmodel.setup.establish_sequel_client(connection)
+        else
+          @connection = connection
+        end
+        fail ArgumentError, 'Client driver is not setup' unless @connection
+
         @table = table
+        fail ArgumentError, 'Table can not be guessed' unless @table
       end
 
       def insert(tuple)

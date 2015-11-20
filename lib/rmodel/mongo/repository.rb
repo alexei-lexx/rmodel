@@ -2,13 +2,11 @@ module Rmodel
   module Mongo
     class Repository < Rmodel::Base::Repository
       def initialize(client = nil, collection = nil, mapper = nil)
-        super(:mongo, client, mapper)
+        client = client || self.class.declared_client_name || :default
+        collection = collection || self.class.declared_collection ||
+                     self.class.collection_by_convention
 
-        @collection = collection || self.class.declared_collection ||
-                      self.class.collection_by_convention
-        fail ArgumentError, 'Collection can not be guessed' unless @collection
-
-        @source = Source.new(@client, @collection)
+        super Source.new(client, collection), mapper
       end
 
       def find(id)

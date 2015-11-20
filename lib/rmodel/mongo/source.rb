@@ -9,8 +9,15 @@ module Rmodel
       end
 
       def initialize(connection, collection)
-        @connection = connection
+        if connection.is_a? Symbol
+          @connection = Rmodel.setup.establish_mongo_client(connection)
+        else
+          @connection = connection
+        end
+        fail ArgumentError, 'Client driver is not setup' unless @connection
+
         @collection = collection
+        fail ArgumentError, 'Collection can not be guessed' unless @collection
       end
 
       def insert(doc)

@@ -11,8 +11,8 @@ module Rmodel
         subclass.send :prepend, RepositoryExt::Timestampable
       end
 
-      def initialize(type, client, mapper)
-        initialize_client(type, client)
+      def initialize(source, mapper)
+        @source = source
         initialize_mapper(mapper)
       end
 
@@ -30,17 +30,6 @@ module Rmodel
       end
 
       private
-
-      def initialize_client(type, client)
-        if client
-          @client = client
-        else
-          client_name = self.class.declared_client_name || :default
-          method = "establish_#{type}_client"
-          @client = Rmodel.setup.public_send(method, client_name)
-        end
-        fail ArgumentError, 'Client driver is not setup' unless @client
-      end
 
       def initialize_mapper(mapper)
         @mapper = mapper || self.class.declared_mapper ||

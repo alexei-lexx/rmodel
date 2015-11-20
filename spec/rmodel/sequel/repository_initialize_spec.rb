@@ -10,7 +10,15 @@ RSpec.describe Rmodel::Sequel::Repository do
 
     stub_const 'ThingRepository', Class.new(Rmodel::Sequel::Repository)
     class ThingRepository
-      attr_reader :client, :table, :mapper
+      attr_reader :source, :mapper
+
+      def client
+        source.instance_variable_get(:@connection)
+      end
+
+      def table
+        source.instance_variable_get(:@table)
+      end
     end
   end
 

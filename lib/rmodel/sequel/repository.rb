@@ -2,13 +2,11 @@ module Rmodel
   module Sequel
     class Repository < Rmodel::Base::Repository
       def initialize(client = nil, table = nil, mapper = nil)
-        super(:sequel, client, mapper)
+        client = client || self.class.declared_client_name || :default
+        table = table || self.class.declared_table ||
+                self.class.table_by_convention
 
-        @table = table || self.class.declared_table ||
-                 self.class.table_by_convention
-        fail ArgumentError, 'Table can not be guessed' unless @table
-
-        @source = Source.new(@client, @table)
+        super Source.new(client, table), mapper
       end
 
       def find(id)

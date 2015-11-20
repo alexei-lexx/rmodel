@@ -12,7 +12,15 @@ RSpec.describe Rmodel::Mongo::Repository do
 
     stub_const 'UserRepository', Class.new(Rmodel::Mongo::Repository)
     class UserRepository
-      attr_reader :client, :collection, :mapper
+      attr_reader :source, :mapper
+
+      def client
+        source.instance_variable_get(:@connection)
+      end
+
+      def collection
+        source.instance_variable_get(:@collection)
+      end
     end
   end
 
