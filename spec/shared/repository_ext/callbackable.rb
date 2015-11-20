@@ -35,9 +35,9 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a method name is given' do
         before do
           ThingRepository.class_eval do
-            before_insert :set_name
+            before_insert :assign_new_name
 
-            def set_name(thing)
+            def assign_new_name(thing)
               thing.name = 'set before insert'
             end
           end
@@ -74,9 +74,9 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a method name is given' do
         before do
           ThingRepository.class_eval do
-            after_insert :set_name
+            after_insert :assign_new_name
 
-            def set_name(thing)
+            def assign_new_name(thing)
               thing.name = 'set after insert'
             end
           end
@@ -114,9 +114,9 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a method name is given' do
         before do
           ThingRepository.class_eval do
-            before_update :set_name
+            before_update :assign_new_name
 
-            def set_name(thing)
+            def assign_new_name(thing)
               thing.name = 'set before update'
             end
           end
@@ -154,9 +154,9 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a method name is given' do
         before do
           ThingRepository.class_eval do
-            after_update :set_name
+            after_update :assign_new_name
 
-            def set_name(thing)
+            def assign_new_name(thing)
               thing.name = 'set after update'
             end
           end
@@ -194,9 +194,9 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a method name is given' do
         before do
           ThingRepository.class_eval do
-            before_destroy :set_name
+            before_destroy :assign_new_name
 
-            def set_name(thing)
+            def assign_new_name(thing)
               thing.name = 'set before destroy'
             end
           end
@@ -234,9 +234,9 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a method name is given' do
         before do
           ThingRepository.class_eval do
-            after_destroy :set_name
+            after_destroy :assign_new_name
 
-            def set_name(thing)
+            def assign_new_name(thing)
               thing.name = 'set after destroy'
             end
           end

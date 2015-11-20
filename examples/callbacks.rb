@@ -1,7 +1,7 @@
 require 'rmodel'
 
 Rmodel.setup do
-  client :default, { hosts: [ 'localhost' ], database: 'test' }
+  client :default, hosts: ['localhost'], database: 'test'
 end
 
 class Thing
@@ -12,11 +12,13 @@ class Thing
   end
 end
 
+class ThingMapper < Rmodel::Mongo::Mapper
+  attributes :name
+end
+
 class ThingRepository < Rmodel::Mongo::Repository
   # the module below isn't included by default
   include Rmodel::Base::RepositoryExt::Callbackable
-
-  simple_factory Thing, :name
 
   before_insert do |thing|
     thing.name ||= 'noname'
@@ -24,7 +26,7 @@ class ThingRepository < Rmodel::Mongo::Repository
 
   after_insert :print_something
 
-  def print_something(thing)
+  def print_something(_thing)
     p "I've been just inserted"
   end
 
