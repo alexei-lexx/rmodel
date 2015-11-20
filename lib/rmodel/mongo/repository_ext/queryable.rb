@@ -1,15 +1,9 @@
-require 'origin'
-
 module Rmodel
   module Mongo
     module RepositoryExt
       module Queryable
-        class Query
-          include Origin::Queryable
-        end
-
         def query
-          self.class.query_klass.new(self, Query.new)
+          self.class.query_klass.new(self, @source.build_query)
         end
 
         def find_by_query(query)
@@ -32,7 +26,7 @@ module Rmodel
         private
 
         def execute_query(query)
-          @client[@collection].find(query.selector, query.options)
+          @source.exec_query(query)
         end
       end
     end

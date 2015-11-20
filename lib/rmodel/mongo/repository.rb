@@ -1,4 +1,3 @@
-require 'mongo'
 require 'rmodel/mongo/repository_ext/queryable'
 
 module Rmodel
@@ -12,6 +11,8 @@ module Rmodel
         @collection = collection || self.class.declared_collection ||
                       self.class.collection_by_convention
         fail ArgumentError, 'Collection can not be guessed' unless @collection
+
+        @source = Source.new(@client, @collection)
       end
 
       def find(id)
@@ -19,17 +20,16 @@ module Rmodel
       end
 
       def insert_one(object)
-        object.id ||= BSON::ObjectId.new
-        @client[@collection].insert_one(@mapper.serialize(object, true))
+        id = @source.insert(@mapper.serialize(object, true))
+        object.id ||= id
       end
 
       def update(object)
-        @client[@collection].find(_id: object.id)
-          .update_one(@mapper.serialize(object, false))
+        @source.update(object.id, @mapper.serialize(object, false))
       end
 
       def destroy(object)
-        @client[@collection].find(_id: object.id).delete_one
+        @source.delete(object.id)
       end
 
       class << self
