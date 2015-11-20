@@ -23,50 +23,37 @@ RSpec.shared_examples 'repository crud' do
     end
   end
 
-  describe '#insert' do
+  describe '#insert_one(object)' do
     context 'when the id is not provided' do
       let(:thing) { Thing.new(nil, 'chair') }
+      before { subject.insert_one(thing) }
 
       it 'sets the id before insert' do
-        subject.insert(thing)
         expect(thing.id).not_to be_nil
       end
 
       it 'persists the object' do
-        subject.insert(thing)
         expect(subject.find(thing.id).name).to eq 'chair'
       end
     end
 
     context 'when the id is provided' do
-      let(:thing) { Thing.new(1000, 'chair') }
+      let(:thing) { Thing.new(1000) }
 
       it 'uses the existent id' do
-        subject.insert(thing)
+        subject.insert_one(thing)
         expect(thing.id).to eq 1000
       end
     end
 
     context 'when the given id already exists' do
       let(:thing) { Thing.new }
-      before { subject.insert(thing) }
+      before { subject.insert_one(thing) }
 
       it 'raises the error' do
-        expect { subject.insert(thing) }.to raise_error unique_constraint_error
-      end
-    end
-
-    context 'when an array of objects is provided' do
-      it 'inserts all objects' do
-        subject.insert([Thing.new, Thing.new])
-        expect(subject.query.count).to eq 2
-      end
-    end
-
-    context 'when objects are provided as many arguments' do
-      it 'inserts all objects' do
-        subject.insert(Thing.new, Thing.new)
-        expect(subject.query.count).to eq 2
+        expect do
+          subject.insert_one(thing)
+        end.to raise_error unique_constraint_error
       end
     end
   end

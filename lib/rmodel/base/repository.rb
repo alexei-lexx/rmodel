@@ -16,18 +16,6 @@ module Rmodel
         initialize_mapper(mapper)
       end
 
-      def insert(*args)
-        if args.length == 1
-          if args.first.is_a?(Array)
-            insert_array(args.first)
-          else
-            insert_one(args.first)
-          end
-        else
-          insert_array(args)
-        end
-      end
-
       def insert_one(object)
         id = @source.insert(@mapper.serialize(object, true))
         object.id ||= id
@@ -58,10 +46,6 @@ module Rmodel
         @mapper = mapper || self.class.declared_mapper ||
                   self.class.mapper_by_convention
         fail ArgumentError, 'Mapper can not be guessed' unless @mapper
-      end
-
-      def insert_array(array)
-        array.each { |object| insert_one(object) }
       end
 
       class << self
