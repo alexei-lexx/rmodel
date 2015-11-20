@@ -1,7 +1,12 @@
 RSpec.shared_examples 'callbackable repository' do
   describe Rmodel::Base::RepositoryExt::Callbackable do
     before do
-      stub_const('Thing', Struct.new(:id, :name))
+      stub_const 'Thing', Struct.new(:id, :name)
+      stub_const 'ThingMapper', Class.new(Rmodel::Mongo::Mapper)
+      class ThingMapper
+        attributes :name
+      end
+
       ThingRepository.class_eval do
         include Rmodel::Base::RepositoryExt::Callbackable
       end
@@ -165,7 +170,7 @@ RSpec.shared_examples 'callbackable repository' do
       end
     end
 
-    describe '.before_remove' do
+    describe '.before_destroy' do
       let(:thing) { Thing.new }
       before { subject.insert(thing) }
       let(:total_count) { subject.query.count }
@@ -173,15 +178,15 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a block is given' do
         before do
           ThingRepository.class_eval do
-            before_remove do |thing|
-              thing.name = 'set before remove'
+            before_destroy do |thing|
+              thing.name = 'set before destroy'
             end
           end
-          subject.remove(thing)
+          subject.destroy(thing)
         end
 
         it 'works' do
-          expect(thing.name).to eq 'set before remove'
+          expect(thing.name).to eq 'set before destroy'
           expect(total_count).to eq 0
         end
       end
@@ -189,23 +194,23 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a method name is given' do
         before do
           ThingRepository.class_eval do
-            before_remove :set_name
+            before_destroy :set_name
 
             def set_name(thing)
-              thing.name = 'set before remove'
+              thing.name = 'set before destroy'
             end
           end
-          subject.remove(thing)
+          subject.destroy(thing)
         end
 
         it 'works' do
-          expect(thing.name).to eq 'set before remove'
+          expect(thing.name).to eq 'set before destroy'
           expect(total_count).to eq 0
         end
       end
     end
 
-    describe '.after_remove' do
+    describe '.after_destroy' do
       let(:thing) { Thing.new }
       before { subject.insert(thing) }
       let(:total_count) { subject.query.count }
@@ -213,15 +218,15 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a block is given' do
         before do
           ThingRepository.class_eval do
-            after_remove do |thing|
-              thing.name = 'set after remove'
+            after_destroy do |thing|
+              thing.name = 'set after destroy'
             end
           end
-          subject.remove(thing)
+          subject.destroy(thing)
         end
 
         it 'works' do
-          expect(thing.name).to eq 'set after remove'
+          expect(thing.name).to eq 'set after destroy'
           expect(total_count).to eq 0
         end
       end
@@ -229,17 +234,17 @@ RSpec.shared_examples 'callbackable repository' do
       context 'when a method name is given' do
         before do
           ThingRepository.class_eval do
-            after_remove :set_name
+            after_destroy :set_name
 
             def set_name(thing)
-              thing.name = 'set after remove'
+              thing.name = 'set after destroy'
             end
           end
-          subject.remove(thing)
+          subject.destroy(thing)
         end
 
         it 'works' do
-          expect(thing.name).to eq 'set after remove'
+          expect(thing.name).to eq 'set after destroy'
           expect(total_count).to eq 0
         end
       end

@@ -22,10 +22,10 @@ module Rmodel::Base
         run_callbacks :after_update, object
       end
 
-      def remove(object)
-        run_callbacks :before_remove, object
+      def destroy(object)
+        run_callbacks :before_destroy, object
         super
-        run_callbacks :after_remove, object
+        run_callbacks :after_destroy, object
       end
 
       private
@@ -47,7 +47,7 @@ module Rmodel::Base
         [
           :before_insert, :after_insert,
           :before_update, :after_update,
-          :before_remove, :after_remove
+          :before_destroy, :after_destroy
         ].each do |chain_name|
           define_method chain_name do |method_name = nil, &block|
             add_to_callbacks_chain(chain_name, method_name || block)
