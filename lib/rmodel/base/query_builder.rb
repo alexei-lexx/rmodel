@@ -14,7 +14,7 @@ module Rmodel
       end
 
       def remove
-        @repo.remove_by_query(@query)
+        @repo.delete_by_query(@query)
       end
 
       def destroy
