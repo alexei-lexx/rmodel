@@ -9,10 +9,6 @@ module Rmodel
         super Source.new(connection, collection), mapper
       end
 
-      def find(id)
-        query.scope { where(_id: id) }.first
-      end
-
       class << self
         attr_reader :declared_collection
 

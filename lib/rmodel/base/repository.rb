@@ -16,6 +16,10 @@ module Rmodel
         initialize_mapper(mapper)
       end
 
+      def find(id)
+        @mapper.deserialize(@source.find(id))
+      end
+
       def insert_one(object)
         id = @source.insert(@mapper.serialize(object, true))
         object.id ||= id

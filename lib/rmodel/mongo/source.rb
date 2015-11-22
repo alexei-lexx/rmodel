@@ -20,6 +20,10 @@ module Rmodel
         fail ArgumentError, 'Collection can not be guessed' unless @collection
       end
 
+      def find(id)
+        @connection[@collection].find('_id' => id).first
+      end
+
       def insert(doc)
         doc = doc.merge('_id' => BSON::ObjectId.new) if doc['_id'].nil?
         @connection[@collection].insert_one(doc)
