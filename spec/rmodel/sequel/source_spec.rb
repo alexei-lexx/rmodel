@@ -39,7 +39,6 @@ RSpec.describe Rmodel::Sequel::Source do
       end
     end
 
-
     context 'when the id is set' do
       context 'when the id is already occupied' do
         before do
