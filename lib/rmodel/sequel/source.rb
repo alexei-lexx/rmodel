@@ -15,6 +15,10 @@ module Rmodel
         fail ArgumentError, 'Table can not be guessed' unless @table
       end
 
+      def find(id)
+        @connection[@table].where(id: id).first
+      end
+
       def insert(tuple)
         @connection[@table].insert(tuple)
       end

@@ -8,10 +8,6 @@ module Rmodel
         super Source.new(connection, table), mapper
       end
 
-      def find(id)
-        query.scope { where(id: id) }.first
-      end
-
       class << self
         attr_reader :declared_table
 
