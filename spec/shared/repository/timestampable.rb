@@ -1,10 +1,20 @@
 RSpec.shared_examples 'timestampable repository' do
+  before do
+    stub_const('ThingRepository', Class.new(Rmodel::Base::Repository))
+  end
+
+  subject { ThingRepository.new(source, ThingMapper.new) }
+
   context 'when the entity object has attributes created_at and updated_at' do
     before do
       stub_const('Thing', Struct.new(:id, :name, :created_at, :updated_at))
-    end
 
-    subject { repo_w_timestamps }
+      stub_const 'ThingMapper', Class.new(base_mapper_klass)
+      class ThingMapper
+        model Thing
+        attributes :name, :created_at, :updated_at
+      end
+    end
 
     context 'when we insert(object)' do
       context 'and the object.created_at is already set' do
@@ -78,10 +88,15 @@ RSpec.shared_examples 'timestampable repository' do
   context 'when the entity has no attributes :created_at and updated_at' do
     before do
       stub_const('Thing', Struct.new(:id, :name))
+
+      stub_const 'ThingMapper', Class.new(base_mapper_klass)
+      class ThingMapper
+        model Thing
+        attributes :name
+      end
     end
 
     let(:thing) { Thing.new(nil, 'chair') }
-    subject { repo_wo_timestamps }
 
     context 'when we insert(object)' do
       it 'does nothing special' do

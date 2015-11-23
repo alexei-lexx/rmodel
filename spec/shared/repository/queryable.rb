@@ -1,23 +1,20 @@
-RSpec.describe 'Repository with MongoDB' do
-  include_context 'clean mongo database'
-
+RSpec.shared_examples 'queryable repository' do
   before do
-    stub_const('Thing', Struct.new(:id, :a, :b))
-    stub_const 'ThingMapper', Class.new(Rmodel::Mongo::Mapper)
+    stub_const 'Thing', Struct.new(:id, :a, :b)
+
+    stub_const 'ThingMapper', Class.new(base_mapper_klass)
     class ThingMapper
       model Thing
       attributes :a, :b
     end
-    stub_const('ThingRepository', Class.new(Rmodel::Base::Repository))
-  end
 
-  let(:source) do
-    Rmodel::Mongo::Source.new(mongo_session, :things)
+    stub_const 'ThingRepository', Class.new(Rmodel::Base::Repository)
   end
 
   subject { ThingRepository.new(source, ThingMapper.new) }
 
   before do
+    create_database
     subject.insert(Thing.new(nil, 2, 3))
     subject.insert(Thing.new(nil, 2, 4))
     subject.insert(Thing.new(nil, 5, 6))
@@ -25,14 +22,6 @@ RSpec.describe 'Repository with MongoDB' do
 
   describe '.scope' do
     context 'when a scope w/o arguments is defined' do
-      before do
-        ThingRepository.class_eval do
-          scope :a_equals_2 do
-            where(a: 2)
-          end
-        end
-      end
-
       it 'works!' do
         expect(subject.query.a_equals_2.count).to eq 2
       end
@@ -43,32 +32,12 @@ RSpec.describe 'Repository with MongoDB' do
     end
 
     context 'when a scope w/ arguments is defined' do
-      before do
-        ThingRepository.class_eval do
-          scope :a_equals do |n|
-            where(a: n)
-          end
-        end
-      end
-
       it 'works!' do
         expect(subject.query.a_equals(2).count).to eq 2
       end
     end
 
     context 'when two scopes are defined and chained' do
-      before do
-        ThingRepository.class_eval do
-          scope :a_equals do |n|
-            where(a: n)
-          end
-
-          scope :b_equals do |n|
-            where(b: n)
-          end
-        end
-      end
-
       it 'works!' do
         expect(subject.query.a_equals(2).b_equals(4).count).to eq 1
       end
@@ -76,9 +45,7 @@ RSpec.describe 'Repository with MongoDB' do
 
     context 'when an unknown scope is used' do
       it 'raises the NoMethodError' do
-        expect do
-          subject.query.something
-        end.to raise_error NoMethodError
+        expect { subject.query.something }.to raise_error NoMethodError
       end
     end
   end
@@ -100,14 +67,6 @@ RSpec.describe 'Repository with MongoDB' do
       end
 
       context 'when the scope filters 2 objects from 3' do
-        before do
-          ThingRepository.class_eval do
-            scope :a_equals_2 do
-              where(a: 2)
-            end
-          end
-        end
-
         it 'removes 2 objects' do
           subject.query.a_equals_2.remove
           expect(subject.query.count).to eq 1
@@ -129,14 +88,6 @@ RSpec.describe 'Repository with MongoDB' do
       end
 
       context 'when the scope filters 2 objects from 3' do
-        before do
-          ThingRepository.class_eval do
-            scope :a_equals_2 do
-              where(a: 2)
-            end
-          end
-        end
-
         it 'destroys 2 objects' do
           subject.query.a_equals_2.destroy
           expect(subject.query.count).to eq 1

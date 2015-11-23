@@ -1,10 +1,22 @@
 RSpec.shared_examples 'repository crud' do
   before do
     stub_const('Thing', Struct.new(:id, :name))
+
+    stub_const 'ThingRepository', Class.new(Rmodel::Base::Repository)
+
+    stub_const 'ThingMapper', Class.new(base_mapper_klass)
+    class ThingMapper
+      model Thing
+      attributes :name
+    end
   end
 
+  subject { ThingRepository.new(source, ThingMapper.new) }
+
   describe '#find' do
-    before { insert_record(1, name: 'chair') }
+    before do
+      subject.insert_one(Thing.new(1, 'chair'))
+    end
 
     context 'when an existent id is given' do
       it 'returns the instance of correct type' do

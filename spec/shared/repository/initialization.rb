@@ -2,11 +2,13 @@ RSpec.shared_examples 'initialization' do
   before do
     stub_const 'Thing', Struct.new(:id, :name)
 
+    stub_const 'ThingMapper', Class.new(base_mapper_klass)
     class ThingMapper
       model Thing
       attributes :name
     end
 
+    stub_const 'ThingRepository', Class.new(Rmodel::Base::Repository)
     class ThingRepository
       attr_reader :source, :mapper
     end
