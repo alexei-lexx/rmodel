@@ -1,6 +1,10 @@
 RSpec.describe Rmodel::Sequel::Repository do
   include_examples 'clean sequel database'
 
+  let(:source) do
+    Rmodel::Sequel::Source.new(sequel_conn, :things)
+  end
+
   shared_examples 'definitions' do
     before do
       stub_const 'ThingRepository', Class.new(Rmodel::Sequel::Repository)
@@ -10,7 +14,7 @@ RSpec.describe Rmodel::Sequel::Repository do
         attributes :name
       end
     end
-    subject { ThingRepository.new(sequel_conn, :things, ThingMapper.new) }
+    subject { ThingRepository.new(source, ThingMapper.new) }
   end
 
   it_behaves_like 'repository crud' do
@@ -41,7 +45,7 @@ RSpec.describe Rmodel::Sequel::Repository do
         attributes :name, :created_at, :updated_at
       end
 
-      ThingRepository.new(sequel_conn, :things, MapperWithTimestamps.new)
+      ThingRepository.new(source, MapperWithTimestamps.new)
     end
 
     let(:repo_wo_timestamps) do
@@ -51,7 +55,7 @@ RSpec.describe Rmodel::Sequel::Repository do
         attributes :name
       end
 
-      ThingRepository.new(sequel_conn, :things, MapperWithOutTimestamps.new)
+      ThingRepository.new(source, MapperWithOutTimestamps.new)
     end
   end
 

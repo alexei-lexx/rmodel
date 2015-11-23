@@ -1,4 +1,7 @@
 RSpec.describe Rmodel::Sequel::Repository do
+  let(:connection) { Object.new }
+  let(:mapper) { ThingMapper.new }
+
   before do
     stub_const 'Thing', Struct.new(:id, :name)
 
@@ -11,96 +14,37 @@ RSpec.describe Rmodel::Sequel::Repository do
     stub_const 'ThingRepository', Class.new(Rmodel::Sequel::Repository)
     class ThingRepository
       attr_reader :source, :mapper
-
-      def connection
-        source.instance_variable_get(:@connection)
-      end
-
-      def table
-        source.instance_variable_get(:@table)
-      end
     end
   end
 
-  describe '.connection(name)' do
-    after { Rmodel.setup.clear }
-    conn_options = { adapter: 'sqlite', database: 'rmodel_test.sqlite3' }
-
-    subject { ThingRepository.new(nil, :things, ThingMapper.new) }
-
-    context 'when it is called with an existent name' do
-      before do
-        Rmodel.setup do
-          connection(:sequel) { Sequel.connect(conn_options) }
-        end
-
-        class ThingRepository
-          connection :sequel
-        end
-      end
-
-      it 'sets the appropriate #connection' do
-        expect(subject.connection).to be_a_kind_of Sequel::Database
-      end
+  describe '.source(&block)' do
+    subject { ThingRepository.new(nil, ThingMapper.new) }
+    let(:source) do
+      Rmodel::Sequel::Source.new(connection, :things)
     end
 
-    context 'when it is called with a non-existent name' do
+    context 'when it is called' do
       before do
-        class ThingRepository
-          connection :sequel
+        source_instance = source
+        ThingRepository.class_eval do
+          source { source_instance }
         end
       end
 
-      it 'makes #initialize raise the ArgumentError' do
-        expect { subject }.to raise_error ArgumentError
+      it 'sets the appropriate #source' do
+        expect(subject.source).to be_an_instance_of Rmodel::Sequel::Source
       end
     end
 
     context 'when it is not called' do
-      context 'when the :default connection is set' do
-        before do
-          Rmodel.setup do
-            connection(:default) { Sequel.connect(conn_options) }
-          end
-        end
-
-        it 'sets #connection to be default' do
-          expect(subject.connection).to be_a_kind_of Sequel::Database
-        end
-      end
-
-      context 'when the :default connection is not set' do
-        it 'makes #initialize raise the ArgumentError' do
-          expect { subject }.to raise_error ArgumentError
-        end
-      end
-    end
-  end
-
-  describe '.table(name)' do
-    subject { ThingRepository.new(Object.new, nil, ThingMapper.new) }
-
-    context 'when the :people table is given' do
-      before do
-        class ThingRepository
-          table :people
-        end
-      end
-
-      it 'uses the :people' do
-        expect(subject.table).to eq :people
-      end
-    end
-
-    context 'when no table is given' do
-      it 'gets the right name by convention' do
-        expect(subject.table).to eq :things
+      it 'make #initialize raise an error' do
+        expect { subject }.to raise_error ArgumentError
       end
     end
   end
 
   describe '.mapper(mapper_klass)' do
-    subject { ThingRepository.new(Object.new, :things, nil) }
+    subject { ThingRepository.new(connection, nil) }
 
     context 'when it is called' do
       before do
@@ -126,7 +70,7 @@ RSpec.describe Rmodel::Sequel::Repository do
 
         it 'make #initialize raise an error' do
           expect do
-            ThingRepository.new(Object.new, :users)
+            ThingRepository.new(connection, nil)
           end.to raise_error ArgumentError
         end
       end
@@ -137,7 +81,7 @@ RSpec.describe Rmodel::Sequel::Repository do
     context 'when all constructor arguments are passed' do
       it 'works!' do
         expect do
-          ThingRepository.new(Object.new, :users, ThingMapper.new)
+          ThingRepository.new(connection, mapper)
         end.not_to raise_error
       end
     end

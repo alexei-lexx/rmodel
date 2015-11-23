@@ -12,7 +12,11 @@ RSpec.describe Rmodel::Sequel::Repository do
     stub_const 'ThingRepository', Class.new(Rmodel::Sequel::Repository)
   end
 
-  subject { ThingRepository.new(sequel_conn, :things, ThingMapper.new) }
+  let(:source) do
+    Rmodel::Sequel::Source.new(sequel_conn, :things)
+  end
+
+  subject { ThingRepository.new(source, ThingMapper.new) }
 
   before do
     subject.insert(Thing.new(nil, 2, 3))

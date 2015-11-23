@@ -12,7 +12,7 @@ module Rmodel
       end
 
       def initialize(source, mapper)
-        @source = source
+        initialize_source(source)
         initialize_mapper(mapper)
       end
 
@@ -35,6 +35,11 @@ module Rmodel
 
       private
 
+      def initialize_source(source)
+        @source = source || self.class.declared_source.try(:call)
+        fail ArgumentError, 'Source can not be guessed' unless @source
+      end
+
       def initialize_mapper(mapper)
         @mapper = mapper || self.class.declared_mapper ||
                   self.class.mapper_by_convention
@@ -42,7 +47,12 @@ module Rmodel
       end
 
       class << self
+        attr_reader :declared_source
         attr_reader :declared_connection_name, :declared_mapper
+
+        def source(&block)
+          @declared_source = block
+        end
 
         def connection(name)
           @declared_connection_name = name

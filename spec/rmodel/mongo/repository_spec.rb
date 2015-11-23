@@ -1,6 +1,10 @@
 RSpec.describe Rmodel::Mongo::Repository do
   include_context 'clean mongo database'
 
+  let(:source) do
+    Rmodel::Mongo::Source.new(mongo_session, :things)
+  end
+
   shared_examples 'definitions' do
     before do
       stub_const 'ThingRepository', Class.new(Rmodel::Mongo::Repository)
@@ -11,7 +15,7 @@ RSpec.describe Rmodel::Mongo::Repository do
       end
     end
 
-    subject { ThingRepository.new(mongo_session, :things, ThingMapper.new) }
+    subject { ThingRepository.new(source, ThingMapper.new) }
   end
 
   it_behaves_like 'repository crud' do
@@ -39,7 +43,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         attributes :name, :created_at, :updated_at
       end
 
-      ThingRepository.new(mongo_session, :things, MapperWithTimestamps.new)
+      ThingRepository.new(source, MapperWithTimestamps.new)
     end
 
     let(:repo_wo_timestamps) do
@@ -49,7 +53,7 @@ RSpec.describe Rmodel::Mongo::Repository do
         attributes :name
       end
 
-      ThingRepository.new(mongo_session, :things, MapperWithOutTimestamps.new)
+      ThingRepository.new(source, MapperWithOutTimestamps.new)
     end
   end
 end
