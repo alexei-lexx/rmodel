@@ -1,4 +1,4 @@
-RSpec.describe Rmodel::Sequel::Repository do
+RSpec.describe 'Repository with Sequel' do
   include_context 'clean sequel database'
 
   before do
@@ -9,7 +9,7 @@ RSpec.describe Rmodel::Sequel::Repository do
       model Thing
       attributes :a, :b
     end
-    stub_const 'ThingRepository', Class.new(Rmodel::Sequel::Repository)
+    stub_const 'ThingRepository', Class.new(Rmodel::Base::Repository)
   end
 
   let(:source) do

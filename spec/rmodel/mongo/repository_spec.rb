@@ -1,4 +1,4 @@
-RSpec.describe Rmodel::Mongo::Repository do
+RSpec.describe 'Repository with MongoDB' do
   include_context 'clean mongo database'
 
   let(:source) do
@@ -7,7 +7,7 @@ RSpec.describe Rmodel::Mongo::Repository do
 
   shared_examples 'definitions' do
     before do
-      stub_const 'ThingRepository', Class.new(Rmodel::Mongo::Repository)
+      stub_const 'ThingRepository', Class.new(Rmodel::Base::Repository)
       stub_const 'ThingMapper', Class.new(Rmodel::Mongo::Mapper)
       class ThingMapper
         model Thing
@@ -33,7 +33,7 @@ RSpec.describe Rmodel::Mongo::Repository do
 
   it_behaves_like 'timestampable repository' do
     before do
-      stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
+      stub_const('ThingRepository', Class.new(Rmodel::Base::Repository))
     end
 
     let(:repo_w_timestamps) do

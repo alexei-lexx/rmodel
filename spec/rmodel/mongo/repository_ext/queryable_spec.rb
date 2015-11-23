@@ -1,4 +1,4 @@
-RSpec.describe Rmodel::Mongo::Repository do
+RSpec.describe 'Repository with MongoDB' do
   include_context 'clean mongo database'
 
   before do
@@ -8,7 +8,7 @@ RSpec.describe Rmodel::Mongo::Repository do
       model Thing
       attributes :a, :b
     end
-    stub_const('ThingRepository', Class.new(Rmodel::Mongo::Repository))
+    stub_const('ThingRepository', Class.new(Rmodel::Base::Repository))
   end
 
   let(:source) do

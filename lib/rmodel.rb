@@ -10,10 +10,8 @@ require 'rmodel/base/array_mapper'
 require 'rmodel/base/dummy_mapper'
 require 'rmodel/mongo/source'
 require 'rmodel/mongo/mapper'
-require 'rmodel/mongo/repository'
 require 'rmodel/sequel/source'
 require 'rmodel/sequel/mapper'
-require 'rmodel/sequel/repository'
 
 module Rmodel
 end

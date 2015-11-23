@@ -1,4 +1,4 @@
-RSpec.describe Rmodel::Sequel::Repository do
+RSpec.describe 'Repository with Sequel' do
   include_examples 'clean sequel database'
 
   let(:source) do
@@ -7,7 +7,7 @@ RSpec.describe Rmodel::Sequel::Repository do
 
   shared_examples 'definitions' do
     before do
-      stub_const 'ThingRepository', Class.new(Rmodel::Sequel::Repository)
+      stub_const 'ThingRepository', Class.new(Rmodel::Base::Repository)
       stub_const 'ThingMapper', Class.new(Rmodel::Sequel::Mapper)
       class ThingMapper
         model Thing
@@ -35,7 +35,7 @@ RSpec.describe Rmodel::Sequel::Repository do
   it_behaves_like 'timestampable repository' do
     before { create_database(true) }
     before do
-      stub_const('ThingRepository', Class.new(Rmodel::Sequel::Repository))
+      stub_const('ThingRepository', Class.new(Rmodel::Base::Repository))
     end
 
     let(:repo_w_timestamps) do
