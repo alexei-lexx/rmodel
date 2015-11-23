@@ -19,7 +19,7 @@ class UserMapper < Rmodel::Mongo::Mapper
   attributes :name, :email
 end
 
-class UserRepository < Rmodel::Mongo::Repository
+class UserRepository < Rmodel::Base::Repository
   source do
     Rmodel::Mongo::Source.new(Rmodel.setup.connection(:default), :users)
   end
