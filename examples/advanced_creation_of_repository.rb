@@ -14,7 +14,8 @@ end
 
 connection = Mongo::Client.new(['localhost:27017'], database: 'test')
 collection = :things
+source = Rmodel::Mongo::Source.new(connection, collection)
 mapper = ThingMapper.new
 
-repo = ThingRepository.new(connection, collection, mapper)
+repo = ThingRepository.new(source, mapper)
 p repo.find(1)

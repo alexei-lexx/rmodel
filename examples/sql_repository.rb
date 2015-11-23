@@ -30,6 +30,10 @@ class ThingMapper < Rmodel::Sequel::Mapper
 end
 
 class ThingRepository < Rmodel::Sequel::Repository
+  source do
+    Rmodel::Sequel::Source.new(Rmodel.setup.connection(:default), :things)
+  end
+
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
     where { price >= amount }

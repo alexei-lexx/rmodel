@@ -35,6 +35,9 @@ class FlatMapper < Rmodel::Mongo::Mapper
 end
 
 class FlatRepository < Rmodel::Mongo::Repository
+  source do
+    Rmodel::Mongo::Source.new(Rmodel.setup.connection(:default), :flats)
+  end
   mapper FlatMapper
 end
 

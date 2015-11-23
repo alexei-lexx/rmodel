@@ -20,6 +20,10 @@ class UserMapper < Rmodel::Mongo::Mapper
 end
 
 class UserRepository < Rmodel::Mongo::Repository
+  source do
+    Rmodel::Mongo::Source.new(Rmodel.setup.connection(:default), :users)
+  end
+
   scope :have_email do
     where(email: { '$exists' => true })
   end

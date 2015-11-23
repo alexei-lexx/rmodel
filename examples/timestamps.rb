@@ -15,6 +15,9 @@ class ThingMapper < Rmodel::Mongo::Mapper
 end
 
 class ThingRepository < Rmodel::Mongo::Repository
+  source do
+    Rmodel::Mongo::Source.new(Rmodel.setup.connection(:default), :things)
+  end
 end
 repo = ThingRepository.new
 

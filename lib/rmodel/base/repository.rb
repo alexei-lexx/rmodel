@@ -11,7 +11,7 @@ module Rmodel
         subclass.send :prepend, RepositoryExt::Timestampable
       end
 
-      def initialize(source, mapper)
+      def initialize(source = nil, mapper = nil)
         initialize_source(source)
         initialize_mapper(mapper)
       end
