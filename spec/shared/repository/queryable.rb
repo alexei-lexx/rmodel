@@ -8,7 +8,7 @@ RSpec.shared_examples 'queryable repository' do
       attributes :a, :b
     end
 
-    stub_const 'ThingRepository', Class.new(Rmodel::Base::Repository)
+    stub_const 'ThingRepository', Class.new(Rmodel::Repository)
   end
 
   subject { ThingRepository.new(source, ThingMapper.new) }

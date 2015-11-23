@@ -9,7 +9,7 @@ class ThingMapper < Rmodel::Mongo::Mapper
   attributes :name
 end
 
-class ThingRepository < Rmodel::Base::Repository
+class ThingRepository < Rmodel::Repository
 end
 
 connection = Mongo::Client.new(['localhost:27017'], database: 'test')

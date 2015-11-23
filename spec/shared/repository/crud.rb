@@ -2,7 +2,7 @@ RSpec.shared_examples 'repository crud' do
   before do
     stub_const('Thing', Struct.new(:id, :name))
 
-    stub_const 'ThingRepository', Class.new(Rmodel::Base::Repository)
+    stub_const 'ThingRepository', Class.new(Rmodel::Repository)
 
     stub_const 'ThingMapper', Class.new(base_mapper_klass)
     class ThingMapper

@@ -1,6 +1,6 @@
 RSpec.shared_examples 'timestampable repository' do
   before do
-    stub_const('ThingRepository', Class.new(Rmodel::Base::Repository))
+    stub_const('ThingRepository', Class.new(Rmodel::Repository))
   end
 
   subject { ThingRepository.new(source, ThingMapper.new) }

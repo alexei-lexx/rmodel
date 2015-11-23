@@ -34,7 +34,7 @@ class FlatMapper < Rmodel::Mongo::Mapper
   attribute :owner, OwnerMapper.new
 end
 
-class FlatRepository < Rmodel::Base::Repository
+class FlatRepository < Rmodel::Repository
   source do
     Rmodel::Mongo::Source.new(Rmodel.setup.connection(:default), :flats)
   end

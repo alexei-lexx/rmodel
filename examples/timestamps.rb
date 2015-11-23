@@ -14,7 +14,7 @@ class ThingMapper < Rmodel::Mongo::Mapper
   attributes :name, :created_at, :updated_at
 end
 
-class ThingRepository < Rmodel::Base::Repository
+class ThingRepository < Rmodel::Repository
   source do
     Rmodel::Mongo::Source.new(Rmodel.setup.connection(:default), :things)
   end

@@ -8,7 +8,7 @@ RSpec.shared_examples 'initialization' do
       attributes :name
     end
 
-    stub_const 'ThingRepository', Class.new(Rmodel::Base::Repository)
+    stub_const 'ThingRepository', Class.new(Rmodel::Repository)
     class ThingRepository
       attr_reader :source, :mapper
     end

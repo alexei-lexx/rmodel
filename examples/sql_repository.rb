@@ -29,7 +29,7 @@ class ThingMapper < Rmodel::Sequel::Mapper
   attributes :name, :price
 end
 
-class ThingRepository < Rmodel::Base::Repository
+class ThingRepository < Rmodel::Repository
   source do
     Rmodel::Sequel::Source.new(Rmodel.setup.connection(:default), :things)
   end
