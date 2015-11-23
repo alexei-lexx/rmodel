@@ -2,7 +2,8 @@ module Rmodel
   module Mongo
     class Repository < Rmodel::Base::Repository
       def initialize(connection = nil, collection = nil, mapper = nil)
-        connection ||= self.class.declared_connection_name || :default
+        connection_name = self.class.declared_connection_name || :default
+        connection ||= Rmodel.setup.connection(connection_name)
         collection ||= self.class.declared_collection ||
                        self.class.collection_by_convention
 

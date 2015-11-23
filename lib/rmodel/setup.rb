@@ -9,8 +9,12 @@ module Rmodel
       @established_connections = {}
     end
 
-    def connection(name, config)
-      @connections_config[name] = config
+    def connection(name, &block)
+      if block_given?
+        @connections_config[name] = block
+      else
+        establish_connection(name)
+      end
     end
 
     def clear
@@ -21,7 +25,8 @@ module Rmodel
     private
 
     def establish_connection(name)
-      @established_connections[name] ||= yield
+      return nil unless @connections_config[name]
+      @established_connections[name] ||= @connections_config[name].call
     end
   end
 

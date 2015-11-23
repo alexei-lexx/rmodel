@@ -9,11 +9,7 @@ module Rmodel
       end
 
       def initialize(connection, collection)
-        if connection.is_a? Symbol
-          @connection = Rmodel.setup.establish_mongo_connection(connection)
-        else
-          @connection = connection
-        end
+        @connection = connection
         fail ArgumentError, 'Connection is not setup' unless @connection
 
         @collection = collection

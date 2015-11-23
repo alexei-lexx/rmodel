@@ -32,7 +32,7 @@ RSpec.describe Rmodel::Mongo::Repository do
     context 'when it is called with an existent name' do
       before do
         Rmodel.setup do
-          connection :mongo, hosts: ['localhost']
+          connection(:mongo) { Mongo::Client.new(['localhost']) }
         end
 
         class UserRepository
@@ -61,7 +61,7 @@ RSpec.describe Rmodel::Mongo::Repository do
       context 'when the :default connection is set' do
         before do
           Rmodel.setup do
-            connection :default, hosts: ['localhost']
+            connection(:default) { Mongo::Client.new(['localhost']) }
           end
         end
 

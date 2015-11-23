@@ -88,7 +88,9 @@ The code above raises the exception *Connection is not setup (ArgumentError)*. U
 require 'rmodel'
 
 Rmodel.setup do
-  connection :default, hosts: ['localhost'], database: 'test'
+  connection :default do
+    Mongo::Client.new(['localhost'], database: 'test')
+  end
 end
 ```
 
@@ -265,7 +267,7 @@ class Thing
   attr_accessor :id, :name
 end
 
-class ThingMapper << Rmodel::Mongo::Mapper
+class ThingMapper < Rmodel::Mongo::Mapper
   attributes :name
 end
 
@@ -295,10 +297,12 @@ Below you can the the example how to setup Rmodel for any supported SQL database
 require 'rmodel'
 
 Rmodel.setup do
-  connection :default, adapter: 'sqlite', database: 'rmodel_test.sqlite3'
+  connection :default do
+    Sequel.connect(adapter: 'sqlite', database: 'rmodel_test.sqlite3')
+  end
 end
 
-connection = Rmodel.setup.establish_sequel_connection(:default)
+connection = Rmodel.setup.connection(:default)
 connection.drop_table? :things
 connection.create_table :things do
   primary_key :id
@@ -387,7 +391,9 @@ The idea is easy:
 require 'rmodel'
 
 Rmodel.setup do
-  connection :default, hosts: ['localhost'], database: 'test'
+  connection :default do
+    Mongo::Client.new(['localhost'], database: 'test')
+  end
 end
 
 Owner = Struct.new(:first_name, :last_name)

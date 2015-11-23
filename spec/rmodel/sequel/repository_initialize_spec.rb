@@ -31,7 +31,7 @@ RSpec.describe Rmodel::Sequel::Repository do
     context 'when it is called with an existent name' do
       before do
         Rmodel.setup do
-          connection :sequel, conn_options
+          connection(:sequel) { Sequel.connect(conn_options) }
         end
 
         class ThingRepository
@@ -60,7 +60,7 @@ RSpec.describe Rmodel::Sequel::Repository do
       context 'when the :default connection is set' do
         before do
           Rmodel.setup do
-            connection :default, conn_options
+            connection(:default) { Sequel.connect(conn_options) }
           end
         end
 

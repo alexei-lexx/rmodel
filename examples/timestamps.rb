@@ -1,7 +1,9 @@
 require 'rmodel'
 
 Rmodel.setup do
-  connection :default, hosts: ['localhost'], database: 'test'
+  connection :default do
+    Mongo::Client.new(['localhost'], database: 'test')
+  end
 end
 
 class Thing

@@ -4,11 +4,7 @@ module Rmodel
   module Sequel
     class Source
       def initialize(connection, table)
-        if connection.is_a? Symbol
-          @connection = Rmodel.setup.establish_sequel_connection(connection)
-        else
-          @connection = connection
-        end
+        @connection = connection
         fail ArgumentError, 'Connection is not setup' unless @connection
 
         @table = table
