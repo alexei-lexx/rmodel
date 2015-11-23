@@ -1,89 +1,11 @@
 RSpec.describe Rmodel::Sequel::Repository do
-  let(:connection) { Object.new }
-  let(:mapper) { ThingMapper.new }
-
+  let(:source) do
+    Rmodel::Sequel::Source.new(connection, :things)
+  end
   before do
-    stub_const 'Thing', Struct.new(:id, :name)
-
     stub_const 'ThingMapper', Class.new(Rmodel::Sequel::Mapper)
-    class ThingMapper
-      model Thing
-      attributes :name
-    end
-
     stub_const 'ThingRepository', Class.new(Rmodel::Sequel::Repository)
-    class ThingRepository
-      attr_reader :source, :mapper
-    end
   end
 
-  describe '.source(&block)' do
-    subject { ThingRepository.new(nil, ThingMapper.new) }
-    let(:source) do
-      Rmodel::Sequel::Source.new(connection, :things)
-    end
-
-    context 'when it is called' do
-      before do
-        source_instance = source
-        ThingRepository.class_eval do
-          source { source_instance }
-        end
-      end
-
-      it 'sets the appropriate #source' do
-        expect(subject.source).to be_an_instance_of Rmodel::Sequel::Source
-      end
-    end
-
-    context 'when it is not called' do
-      it 'make #initialize raise an error' do
-        expect { subject }.to raise_error ArgumentError
-      end
-    end
-  end
-
-  describe '.mapper(mapper_klass)' do
-    subject { ThingRepository.new(connection, nil) }
-
-    context 'when it is called' do
-      before do
-        class ThingRepository
-          mapper ThingMapper
-        end
-      end
-
-      it 'sets the appropriate #mapper' do
-        expect(subject.mapper).to be_an_instance_of ThingMapper
-      end
-    end
-
-    context 'when it is not called' do
-      context 'and the mapper class is defined' do
-        it 'gets the right class by convention' do
-          expect(subject.mapper).to be_an_instance_of ThingMapper
-        end
-      end
-
-      context 'and the mapper class is not defined' do
-        before { hide_const('ThingMapper') }
-
-        it 'make #initialize raise an error' do
-          expect do
-            ThingRepository.new(connection, nil)
-          end.to raise_error ArgumentError
-        end
-      end
-    end
-  end
-
-  describe '#initialize(connection, collection, mapper)' do
-    context 'when all constructor arguments are passed' do
-      it 'works!' do
-        expect do
-          ThingRepository.new(connection, mapper)
-        end.not_to raise_error
-      end
-    end
-  end
+  it_behaves_like 'initialization'
 end
