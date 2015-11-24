@@ -36,7 +36,7 @@ module Rmodel
 
     def initialize_source(source)
       @source = source || self.class.declared_source.try(:call)
-      fail ArgumentError, 'Source can not be guessed' unless @source
+      fail ArgumentError, 'Source is not setup' unless @source
     end
 
     def initialize_mapper(mapper)
