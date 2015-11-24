@@ -22,7 +22,7 @@ RSpec.describe Rmodel::Mongo::Mapper do
       attribute :name
       attribute :age
       attribute :address, AddressMapper.new
-      attribute :phones, Rmodel::Base::ArrayMapper.new(PhoneMapper.new)
+      attribute :phones, Rmodel::ArrayMapper.new(PhoneMapper.new)
     end
   end
 

@@ -1,6 +1,6 @@
 module Rmodel
   module Sequel
-    class Mapper < Rmodel::Base::Mapper
+    class Mapper < Rmodel::BaseMapper
     end
   end
 end

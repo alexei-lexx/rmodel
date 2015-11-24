@@ -30,7 +30,7 @@ end
 class FlatMapper < Rmodel::Mongo::Mapper
   model Flat
   attributes :address
-  attribute :rooms, Rmodel::Base::ArrayMapper.new(RoomMapper.new)
+  attribute :rooms, Rmodel::ArrayMapper.new(RoomMapper.new)
   attribute :owner, OwnerMapper.new
 end
 

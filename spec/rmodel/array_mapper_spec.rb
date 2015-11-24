@@ -1,4 +1,4 @@
-RSpec.describe Rmodel::Base::ArrayMapper do
+RSpec.describe Rmodel::ArrayMapper do
   before do
     stub_const 'Thing', Struct.new(:id, :name)
     stub_const 'ThingMapper', Class.new(Rmodel::Mongo::Mapper)
