@@ -28,7 +28,7 @@ module Rmodel
 
       module ClassMethods
         def query_klass
-          @query_klass ||= Class.new(Rmodel::Base::QueryBuilder)
+          @query_klass ||= Class.new(Rmodel::QueryBuilder)
         end
 
         def scope(name, &block)
