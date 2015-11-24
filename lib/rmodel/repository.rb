@@ -46,15 +46,10 @@ module Rmodel
     end
 
     class << self
-      attr_reader :declared_source
-      attr_reader :declared_connection_name, :declared_mapper
+      attr_reader :declared_source, :declared_mapper
 
       def source(&block)
         @declared_source = block
-      end
-
-      def connection(name)
-        @declared_connection_name = name
       end
 
       def mapper(mapper_klass)
