@@ -1,10 +1,6 @@
 require 'rmodel'
 
-Rmodel.setup do
-  connection :default do
-    Mongo::Client.new(['localhost'], database: 'test')
-  end
-end
+DB = Mongo::Client.new(['localhost'], database: 'test')
 
 class User
   attr_accessor :id, :name, :email
@@ -21,7 +17,7 @@ end
 
 class UserRepository < Rmodel::Repository
   source do
-    Rmodel::Mongo::Source.new(Rmodel.setup.connection(:default), :users)
+    Rmodel::Mongo::Source.new(DB, :users)
   end
 
   scope :have_email do

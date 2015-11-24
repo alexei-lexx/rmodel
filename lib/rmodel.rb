@@ -1,6 +1,5 @@
 require 'active_support/inflector'
 require 'rmodel/version'
-require 'rmodel/setup'
 require 'rmodel/errors'
 require 'rmodel/query_builder'
 require 'rmodel/repository'

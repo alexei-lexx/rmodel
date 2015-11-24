@@ -1,10 +1,6 @@
 require 'rmodel'
 
-Rmodel.setup do
-  connection :default do
-    Mongo::Client.new(['localhost'], database: 'test')
-  end
-end
+DB = Mongo::Client.new(['localhost'], database: 'test')
 
 class Thing
   attr_accessor :id, :name, :created_at, :updated_at
@@ -16,7 +12,7 @@ end
 
 class ThingRepository < Rmodel::Repository
   source do
-    Rmodel::Mongo::Source.new(Rmodel.setup.connection(:default), :things)
+    Rmodel::Mongo::Source.new(DB, :things)
   end
 end
 repo = ThingRepository.new

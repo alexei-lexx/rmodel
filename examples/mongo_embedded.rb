@@ -1,10 +1,6 @@
 require 'rmodel'
 
-Rmodel.setup do
-  connection :default do
-    Mongo::Client.new(['localhost'], database: 'test')
-  end
-end
+DB = Mongo::Client.new(['localhost'], database: 'test')
 
 Owner = Struct.new(:first_name, :last_name)
 Bed = Struct.new(:type)
@@ -36,7 +32,7 @@ end
 
 class FlatRepository < Rmodel::Repository
   source do
-    Rmodel::Mongo::Source.new(Rmodel.setup.connection(:default), :flats)
+    Rmodel::Mongo::Source.new(DB, :flats)
   end
   mapper FlatMapper
 end

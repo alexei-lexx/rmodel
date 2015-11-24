@@ -1,16 +1,9 @@
 require 'rmodel'
 
-Rmodel.setup do
-  # see more examples of connection options
-  # http://sequel.jeremyevans.net/rdoc/files/doc/opening_databases_rdoc.html#label-Passing+a+block+to+either+method
-  connection :default do
-    Sequel.connect(adapter: 'sqlite', database: 'rmodel_test.sqlite3')
-  end
-end
+DB = Sequel.connect(adapter: 'sqlite', database: 'rmodel_test.sqlite3')
 
-connection = Rmodel.setup.connection(:default)
-connection.drop_table? :things
-connection.create_table :things do
+DB.drop_table? :things
+DB.create_table :things do
   primary_key :id
   String :name
   Float :price
@@ -31,7 +24,7 @@ end
 
 class ThingRepository < Rmodel::Repository
   source do
-    Rmodel::Sequel::Source.new(Rmodel.setup.connection(:default), :things)
+    Rmodel::Sequel::Source.new(DB, :things)
   end
 
   scope :worth_more_than do |amount|
