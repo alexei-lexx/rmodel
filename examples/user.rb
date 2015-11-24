@@ -1,8 +1,6 @@
 require 'rmodel'
 
-Rmodel.setup do
-  client :default, hosts: ['localhost'], database: 'test'
-end
+DB = Mongo::Client.new(['localhost'], database: 'test')
 
 class User
   attr_accessor :id, :name, :email
@@ -17,7 +15,11 @@ class UserMapper < Rmodel::Mongo::Mapper
   attributes :name, :email
 end
 
-class UserRepository < Rmodel::Mongo::Repository
+class UserRepository < Rmodel::Repository
+  source do
+    Rmodel::Mongo::Source.new(DB, :users)
+  end
+
   scope :have_email do
     where(email: { '$exists' => true })
   end

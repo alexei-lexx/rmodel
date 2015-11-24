@@ -1,8 +1,6 @@
 require 'rmodel'
 
-Rmodel.setup do
-  client :default, hosts: ['localhost'], database: 'test'
-end
+DB = Mongo::Client.new(['localhost'], database: 'test')
 
 Owner = Struct.new(:first_name, :last_name)
 Bed = Struct.new(:type)
@@ -28,11 +26,14 @@ end
 class FlatMapper < Rmodel::Mongo::Mapper
   model Flat
   attributes :address
-  attribute :rooms, Rmodel::Base::ArrayMapper.new(RoomMapper.new)
+  attribute :rooms, Rmodel::ArrayMapper.new(RoomMapper.new)
   attribute :owner, OwnerMapper.new
 end
 
-class FlatRepository < Rmodel::Mongo::Repository
+class FlatRepository < Rmodel::Repository
+  source do
+    Rmodel::Mongo::Source.new(DB, :flats)
+  end
   mapper FlatMapper
 end
 

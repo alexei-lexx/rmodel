@@ -77,22 +77,22 @@ class User
   end
 end
 
-class UserRepository < Rmodel::Mongo::Repository
+class UserRepository < Rmodel::Repository
 end
 
 user_repository = UserRepository.new
 ```
-The code above raises the exception *Client driver is not setup (ArgumentError)*. UserRepository inherits from Rmodel::Mongo::Repository, which uses the ruby mongo driver to access the database. We must provide the appropriate connection options. To do this we use the following code:
+The code above raises the exception *Source is not setup (ArgumentError)*. UserRepository inherits from Rmodel::Mongo::Repository, which uses the ruby mongo driver to access the database. We must provide the appropriate connection options. To do this we use the following code:
 
 ```ruby
-require 'rmodel'
+DB = Mongo::Client.new(['localhost'], database: 'test')
 
-Rmodel.setup do
-  client :default, { hosts: [ 'localhost' ], database: 'test' }
+class UserRepository < Rmodel::Repository
+  source do
+    Rmodel::Mongo::Source.new(DB, :users)
+  end
 end
 ```
-
-The `:default` client is used by every repository that doesn't specify it's client explicitly.
 
 Run the code again and get another error *Mapper can not be guessed (ArgumentError)*. The mapper is used to convert the array of database tuples to the array of User objects and back.
 
@@ -102,7 +102,10 @@ class UserMapper < Rmodel::Mongo::Mapper
   attributes :name, :email
 end
 
-class UserRepository < Rmodel::Mongo::Repository
+class UserRepository < Rmodel::Repository
+  source do
+    Rmodel::Mongo::Source.new(DB, :users)
+  end
   mapper UserMapper
 end
 ```
@@ -174,7 +177,11 @@ repo.insert(object1, object2, object3)
 Scopes are defined inside the repository.
 
 ```ruby
-class UserRepository < Rmodel::Mongo::Repository
+class UserRepository < Rmodel::Repository
+  source do
+    Rmodel::Mongo::Source.new(DB, :users)
+  end
+
   scope :have_email do
     where(email: { '$exists' => true })
   end
@@ -184,18 +191,20 @@ class UserRepository < Rmodel::Mongo::Repository
   end
 end
 
-repo.query.start_with('b').to_a
+repo = UserRepository.new
+
+p repo.query.start_with('b').to_a
 ```
 
 Of course you can chain scopes.
 
 ```ruby
-repo.query.start_with('b').have_email
+p repo.query.start_with('b').have_email.to_a
 ```
 
 The result of the scope is Enumerable, so you can apply the #each method and others (map, select etc).
 
-Inside the scopes you can use any methods supported by the driver (database client). In our case we use Origin (https://github.com/mongoid/origin) as a query builder for mongo.
+Inside the scopes you can use any methods supported by the driver (database connection). In our case we use Origin (https://github.com/mongoid/origin) as a query builder for mongo.
 
 Also it's possible to use scopes to run the multi-row operations.
 
@@ -217,6 +226,10 @@ repo.query.scope { where(age: { '$gte' => 20 }) }.count
 Here is an example how to track the time, when the entity was created and updated.
 
 ```ruby
+require 'rmodel'
+
+DB = Mongo::Client.new(['localhost'], database: 'test')
+
 class Thing
   attr_accessor :id, :name, :created_at, :updated_at
 end
@@ -225,7 +238,10 @@ class ThingMapper < Rmodel::Mongo::Mapper
   attributes :name, :created_at, :updated_at
 end
 
-class ThingRepository < Rmodel::Mongo::Repository
+class ThingRepository < Rmodel::Repository
+  source do
+    Rmodel::Mongo::Source.new(DB, :things)
+  end
 end
 repo = ThingRepository.new
 
@@ -265,19 +281,21 @@ class Thing
   attr_accessor :id, :name
 end
 
-class ThingMapper << Rmodel::Mongo::Mapper
+class ThingMapper < Rmodel::Mongo::Mapper
+  model Thing
   attributes :name
 end
 
-class ThingRepository < Rmodel::Mongo::Repository
+class ThingRepository < Rmodel::Repository
 end
 
-client = Mongo::Client.new([ 'localhost:27017' ], database: 'test')
+connection = Mongo::Client.new(['localhost:27017'], database: 'test')
 collection = :things
+source = Rmodel::Mongo::Source.new(connection, collection)
 mapper = ThingMapper.new
 
-repo = ThingRepository.new(client, collection, mapper)
-repo.find(1)
+repo = ThingRepository.new(source, mapper)
+p repo.find(1)
 ```
 
 The `mapper` is an object, which has 2 methods: `#deserialize(hash)` and `#serialize(object)`.
@@ -294,13 +312,10 @@ Below you can the the example how to setup Rmodel for any supported SQL database
 ```ruby
 require 'rmodel'
 
-Rmodel.setup do
-  client :default, { adapter: 'sqlite', database: 'rmodel_test.sqlite3' }
-end
+DB = Sequel.connect(adapter: 'sqlite', database: 'rmodel_test.sqlite3')
 
-client = Rmodel.setup.establish_sequel_client(:default)
-client.drop_table? :things
-client.create_table :things do
+DB.drop_table? :things
+DB.create_table :things do
   primary_key :id
   String :name
   Float :price
@@ -319,7 +334,11 @@ class ThingMapper < Rmodel::Sequel::Mapper
   attributes :name, :price
 end
 
-class ThingRepository < Rmodel::Sequel::Repository
+class ThingRepository < Rmodel::Repository
+  source do
+    Rmodel::Sequel::Source.new(DB, :things)
+  end
+
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
     where { price >= amount }
@@ -386,9 +405,7 @@ The idea is easy:
 ```ruby
 require 'rmodel'
 
-Rmodel.setup do
-  client :default, { hosts: [ 'localhost' ], database: 'test' }
-end
+DB = Mongo::Client.new(['localhost'], database: 'test')
 
 Owner = Struct.new(:first_name, :last_name)
 Bed = Struct.new(:type)
@@ -410,11 +427,14 @@ end
 
 class FlatMapper < Rmodel::Mongo::Mapper
   attributes :address
-  attribute :rooms, Rmodel::Base::ArrayMapper.new(RoomMapper.new)
+  attribute :rooms, Rmodel::ArrayMapper.new(RoomMapper.new)
   attribute :owner, OwnerMapper.new
 end
 
-class FlatRepository < Rmodel::Mongo::Repository
+class FlatRepository < Rmodel::Repository
+  source do
+    Rmodel::Mongo::Source.new(DB, :flats)
+  end
 end
 
 repo = FlatRepository.new

@@ -1,8 +1,6 @@
 require 'rmodel'
 
-Rmodel.setup do
-  client :default, hosts: ['localhost'], database: 'test'
-end
+DB = Mongo::Client.new(['localhost'], database: 'test')
 
 class Thing
   attr_accessor :id, :name, :created_at, :updated_at
@@ -12,7 +10,10 @@ class ThingMapper < Rmodel::Mongo::Mapper
   attributes :name, :created_at, :updated_at
 end
 
-class ThingRepository < Rmodel::Mongo::Repository
+class ThingRepository < Rmodel::Repository
+  source do
+    Rmodel::Mongo::Source.new(DB, :things)
+  end
 end
 repo = ThingRepository.new
 

@@ -1,14 +1,9 @@
 require 'rmodel'
 
-Rmodel.setup do
-  # see more examples of connection options
-  # http://sequel.jeremyevans.net/rdoc/files/doc/opening_databases_rdoc.html#label-Passing+a+block+to+either+method
-  client :default, adapter: 'sqlite', database: 'rmodel_test.sqlite3'
-end
+DB = Sequel.connect(adapter: 'sqlite', database: 'rmodel_test.sqlite3')
 
-client = Rmodel.setup.establish_sequel_client(:default)
-client.drop_table? :things
-client.create_table :things do
+DB.drop_table? :things
+DB.create_table :things do
   primary_key :id
   String :name
   Float :price
@@ -27,7 +22,11 @@ class ThingMapper < Rmodel::Sequel::Mapper
   attributes :name, :price
 end
 
-class ThingRepository < Rmodel::Sequel::Repository
+class ThingRepository < Rmodel::Repository
+  source do
+    Rmodel::Sequel::Source.new(DB, :things)
+  end
+
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
     where { price >= amount }

@@ -1,9 +1,19 @@
 RSpec.shared_examples 'sugarable repository' do
   before do
     stub_const('Thing', Struct.new(:id, :name))
+
+    stub_const 'ThingRepository', Class.new(Rmodel::Repository)
+
+    stub_const 'ThingMapper', Class.new(base_mapper_klass)
+    class ThingMapper
+      model Thing
+      attributes :name
+    end
   end
 
-  describe '#find!' do
+  subject { ThingRepository.new(source, ThingMapper.new) }
+
+  describe '#find!(id)' do
     context 'when an existent id is given' do
       before { subject.insert(Thing.new(1)) }
 
@@ -15,6 +25,29 @@ RSpec.shared_examples 'sugarable repository' do
     context 'when a non-existent id is given' do
       it 'raises NotFound' do
         expect { subject.find!(1) }.to raise_error Rmodel::NotFound
+      end
+    end
+  end
+
+  describe '#insert(object1, object2, ...)' do
+    context 'when one object is provided' do
+      it 'inserts one object' do
+        subject.insert(Thing.new)
+        expect(subject.query.count).to eq 1
+      end
+    end
+
+    context 'when an array of objects is provided' do
+      it 'inserts all objects' do
+        subject.insert([Thing.new, Thing.new])
+        expect(subject.query.count).to eq 2
+      end
+    end
+
+    context 'when objects are provided as many arguments' do
+      it 'inserts all objects' do
+        subject.insert(Thing.new, Thing.new)
+        expect(subject.query.count).to eq 2
       end
     end
   end
