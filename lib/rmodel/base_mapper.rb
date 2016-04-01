@@ -39,7 +39,7 @@ module Rmodel
     attr_accessor :primary_key, :key_op
 
     def model
-      self.class.declared_model || self.class.model_by_convention
+      self.class.declared_model
     end
 
     def attributes
@@ -51,15 +51,6 @@ module Rmodel
 
       def model(klass)
         @declared_model = klass
-      end
-
-      def model_by_convention
-        if name =~ /(.*)Mapper$/
-          model_name = Regexp.last_match(1)
-          ActiveSupport::Inflector.constantize(model_name)
-        end
-      rescue NameError
-        nil
       end
 
       attr_reader :declared_attributes

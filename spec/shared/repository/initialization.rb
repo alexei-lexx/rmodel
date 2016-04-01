@@ -54,24 +54,6 @@ RSpec.shared_examples 'initialization' do
         expect(subject.mapper).to be_an_instance_of ThingMapper
       end
     end
-
-    context 'when it is not called' do
-      context 'and the mapper class is defined' do
-        it 'gets the right class by convention' do
-          expect(subject.mapper).to be_an_instance_of ThingMapper
-        end
-      end
-
-      context 'and the mapper class is not defined' do
-        before { hide_const('ThingMapper') }
-
-        it 'make #initialize raise an error' do
-          expect do
-            ThingRepository.new(connection, nil)
-          end.to raise_error ArgumentError
-        end
-      end
-    end
   end
 
   describe '#initialize(connection, collection, mapper)' do

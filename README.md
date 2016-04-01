@@ -115,22 +115,6 @@ It's macroses such as `model` and `attributes` are used to declare the mapping r
 
 It's a rather easy mapper. Every database tuple is straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id.
 
-You can omit the `model` if the mapper follows the name convention:
-User -> UserMapper, Order -> OrderMapper.
-
-The same you can omit `mapper` inside the repository class if it follows the same name convention.
-
-```ruby
-class UserMapper < Rmodel::Mongo::Mapper
-  # model User
-  attributes :name, :email
-end
-
-class UserRepository < Rmodel::Mongo::Repository
-  # mapper UserMapper
-end
-```
-
 ### CRUD
 
 Let's create and insert several users.
@@ -181,6 +165,8 @@ class UserRepository < Rmodel::Repository
   source do
     Rmodel::Mongo::Source.new(DB, :users)
   end
+
+  mapper UserMapper
 
   scope :have_email do
     where(email: { '$exists' => true })
@@ -235,6 +221,7 @@ class Thing
 end
 
 class ThingMapper < Rmodel::Mongo::Mapper
+  model Thing
   attributes :name, :created_at, :updated_at
 end
 
@@ -242,6 +229,8 @@ class ThingRepository < Rmodel::Repository
   source do
     Rmodel::Mongo::Source.new(DB, :things)
   end
+
+  mapper ThingMapper
 end
 repo = ThingRepository.new
 
@@ -331,6 +320,7 @@ class Thing
 end
 
 class ThingMapper < Rmodel::Sequel::Mapper
+  model Thing
   attributes :name, :price
 end
 
@@ -338,6 +328,8 @@ class ThingRepository < Rmodel::Repository
   source do
     Rmodel::Sequel::Source.new(DB, :things)
   end
+
+  mapper ThingMapper
 
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
@@ -413,19 +405,23 @@ Room = Struct.new(:name, :square, :bed)
 Flat = Struct.new(:id, :address, :rooms, :owner)
 
 class OwnerMapper < Rmodel::Mongo::Mapper
+  model Owner
   attributes :first_name, :last_name
 end
 
 class BedMapper < Rmodel::Mongo::Mapper
+  model Bed
   attributes :type
 end
 
 class RoomMapper < Rmodel::Mongo::Mapper
+  model Room
   attributes :name, :square
   attribute :bed, BedMapper.new
 end
 
 class FlatMapper < Rmodel::Mongo::Mapper
+  model Flat
   attributes :address
   attribute :rooms, Rmodel::ArrayMapper.new(RoomMapper.new)
   attribute :owner, OwnerMapper.new
@@ -435,6 +431,8 @@ class FlatRepository < Rmodel::Repository
   source do
     Rmodel::Mongo::Source.new(DB, :flats)
   end
+
+  mapper FlatMapper
 end
 
 repo = FlatRepository.new

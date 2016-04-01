@@ -40,8 +40,7 @@ module Rmodel
     end
 
     def initialize_mapper(mapper)
-      @mapper = mapper || self.class.declared_mapper ||
-                self.class.mapper_by_convention
+      @mapper = mapper || self.class.declared_mapper
       fail ArgumentError, 'Mapper can not be guessed' unless @mapper
     end
 
@@ -54,15 +53,6 @@ module Rmodel
 
       def mapper(mapper_klass)
         @declared_mapper = mapper_klass.new
-      end
-
-      def mapper_by_convention
-        if name =~ /(.*)Repository$/
-          mapper_name = Regexp.last_match(1) + 'Mapper'
-          ActiveSupport::Inflector.constantize(mapper_name).new
-        end
-      rescue NameError
-        nil
       end
     end
   end
