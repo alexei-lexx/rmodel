@@ -25,6 +25,14 @@ module Rmodel
         end
       end
 
+      def remove_all
+        query.remove
+      end
+
+      def destroy_all
+        query.destroy
+      end
+
       private
 
       def insert_array(array)

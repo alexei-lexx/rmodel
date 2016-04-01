@@ -50,7 +50,7 @@ RSpec.shared_examples 'queryable repository' do
     end
   end
 
-  describe '.query' do
+  describe '#query' do
     describe '#scope(&block)' do
       it 'creates an inline scope and returns a new query' do
         count = subject.query.scope { where(a: 2) }.count

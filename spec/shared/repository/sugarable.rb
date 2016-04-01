@@ -72,4 +72,31 @@ RSpec.shared_examples 'sugarable repository' do
       end
     end
   end
+
+  describe '#remove_all' do
+    before do
+      3.times { subject.insert(Thing.new) }
+    end
+
+    it 'removes all objects' do
+      subject.remove_all
+      expect(subject.query.count).to eq 0
+    end
+  end
+
+  describe '#destroy_all' do
+    before do
+      3.times { subject.insert(Thing.new) }
+    end
+
+    it 'removes all objects' do
+      subject.destroy_all
+      expect(subject.query.count).to eq 0
+    end
+
+    it 'calls #destroy for each object' do
+      expect(subject).to receive(:destroy).exactly(3).times
+      subject.destroy_all
+    end
+  end
 end
