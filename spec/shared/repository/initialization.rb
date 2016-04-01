@@ -14,54 +14,31 @@ RSpec.shared_examples 'initialization' do
     end
   end
 
-  let(:connection) { Object.new }
+  let(:source) { Object.new }
   let(:mapper) { ThingMapper.new }
 
-  describe '.source(&block)' do
-    subject { ThingRepository.new(nil, ThingMapper.new) }
-
-    context 'when it is called' do
-      before do
-        source_instance = source
-        ThingRepository.class_eval do
-          source { source_instance }
-        end
-      end
-
-      it 'sets the appropriate #source' do
-        expect(subject.source).not_to be_nil
-      end
-    end
-
-    context 'when it is not called' do
-      it 'make #initialize raise an error' do
-        expect { subject }.to raise_error ArgumentError
-      end
-    end
-  end
-
-  describe '.mapper(mapper_klass)' do
-    subject { ThingRepository.new(connection, nil) }
-
-    context 'when it is called' do
-      before do
-        class ThingRepository
-          mapper ThingMapper
-        end
-      end
-
-      it 'sets the appropriate #mapper' do
-        expect(subject.mapper).to be_an_instance_of ThingMapper
-      end
-    end
-  end
-
-  describe '#initialize(connection, collection, mapper)' do
+  describe '#initialize(source, collection, mapper)' do
     context 'when all constructor arguments are passed' do
       it 'works!' do
         expect do
-          ThingRepository.new(connection, mapper)
+          ThingRepository.new(source, mapper)
         end.not_to raise_error
+      end
+    end
+
+    context 'when source is nil' do
+      it 'raises the error' do
+        expect do
+          ThingRepository.new(nil, mapper)
+        end.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'when mapper is nil' do
+      it 'raises the error' do
+        expect do
+          ThingRepository.new(source, nil)
+        end.to raise_error(ArgumentError)
       end
     end
   end

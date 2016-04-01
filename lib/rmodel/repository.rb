@@ -6,13 +6,14 @@ module Rmodel
   class Repository
     include RepositoryExt::Sugarable
     include RepositoryExt::Queryable
+
     def self.inherited(subclass)
       subclass.send :prepend, RepositoryExt::Timestampable
     end
 
-    def initialize(source = nil, mapper = nil)
-      initialize_source(source)
-      initialize_mapper(mapper)
+    def initialize(source, mapper)
+      @source = source or fail ArgumentError, 'Source is not setup'
+      @mapper = mapper or fail ArgumentError, 'Mapper can not be guessed'
     end
 
     def find(id)
@@ -30,30 +31,6 @@ module Rmodel
 
     def destroy(object)
       @source.delete(object.id)
-    end
-
-    private
-
-    def initialize_source(source)
-      @source = source || self.class.declared_source.try(:call)
-      fail ArgumentError, 'Source is not setup' unless @source
-    end
-
-    def initialize_mapper(mapper)
-      @mapper = mapper || self.class.declared_mapper
-      fail ArgumentError, 'Mapper can not be guessed' unless @mapper
-    end
-
-    class << self
-      attr_reader :declared_source, :declared_mapper
-
-      def source(&block)
-        @declared_source = block
-      end
-
-      def mapper(mapper_klass)
-        @declared_mapper = mapper_klass.new
-      end
     end
   end
 end

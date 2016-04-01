@@ -77,43 +77,24 @@ class User
   end
 end
 
-class UserRepository < Rmodel::Repository
-end
-
-user_repository = UserRepository.new
-```
-The code above raises the exception *Source is not setup (ArgumentError)*. UserRepository inherits from Rmodel::Mongo::Repository, which uses the ruby mongo driver to access the database. We must provide the appropriate connection options. To do this we use the following code:
-
-```ruby
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :users)
 
-class UserRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :users)
-  end
-end
-```
-
-Run the code again and get another error *Mapper can not be guessed (ArgumentError)*. The mapper is used to convert the array of database tuples to the array of User objects and back.
-
-```ruby
 class UserMapper < Rmodel::Mongo::Mapper
   model User
   attributes :name, :email
 end
 
-class UserRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :users)
-  end
-  mapper UserMapper
-end
+mapper = UserMapper.new
+
+user_repository = Rmodel::Repository.new(source, mapper)
 ```
 
-The UserMapper class is an example of mappers.
-It's macroses such as `model` and `attributes` are used to declare the mapping rules (User -> Hash and Hash -> User).
-
-It's a rather easy mapper. Every database tuple is straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id.
+Here 3 main components of Rmodel are described:
+1. `source` points to the `users` collection withing MongoDB.
+2. The `UserMapper` class is an example of mappers.
+It's macroses such as `model` and `attributes` are used to declare the mapping rules (User -> Hash and Hash -> User). It's a rather easy mapper. Every database tuple is straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id.
+3. Finally, `user_repository` takes `source` and `mapper` and makes all magic about fetching and saving users from/to the database.
 
 ### CRUD
 
@@ -162,11 +143,11 @@ Scopes are defined inside the repository.
 
 ```ruby
 class UserRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :users)
+  def initialize
+    source = Rmodel::Mongo::Source.new(DB, :users)
+    mapper = UserMapper.new
+    super(source, mapper)
   end
-
-  mapper UserMapper
 
   scope :have_email do
     where(email: { '$exists' => true })
@@ -225,14 +206,9 @@ class ThingMapper < Rmodel::Mongo::Mapper
   attributes :name, :created_at, :updated_at
 end
 
-class ThingRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :things)
-  end
-
-  mapper ThingMapper
-end
-repo = ThingRepository.new
+source = Rmodel::Mongo::Source.new(DB, :things)
+mapper = ThingMapper.new
+repo = Rmodel::Repository.new(source, mapper)
 
 thing = Thing.new
 thing.name = 'chair'
@@ -260,34 +236,6 @@ If the object has no not-nil id then it gets inserted. Otherwise it gets updated
 
 The `find!` method works like the simple `find`
 , but instead of nil it raises the Rmodel::NotFound error.
-
-### Advanced creation of repository
-
-```ruby
-require 'rmodel'
-
-class Thing
-  attr_accessor :id, :name
-end
-
-class ThingMapper < Rmodel::Mongo::Mapper
-  model Thing
-  attributes :name
-end
-
-class ThingRepository < Rmodel::Repository
-end
-
-connection = Mongo::Client.new(['localhost:27017'], database: 'test')
-collection = :things
-source = Rmodel::Mongo::Source.new(connection, collection)
-mapper = ThingMapper.new
-
-repo = ThingRepository.new(source, mapper)
-p repo.find(1)
-```
-
-The `mapper` is an object, which has 2 methods: `#deserialize(hash)` and `#serialize(object)`.
 
 ### SQL repository
 
@@ -325,11 +273,11 @@ class ThingMapper < Rmodel::Sequel::Mapper
 end
 
 class ThingRepository < Rmodel::Repository
-  source do
-    Rmodel::Sequel::Source.new(DB, :things)
+  def initialize
+    source = Rmodel::Sequel::Source.new(DB, :things)
+    mapper = ThingMapper.new
+    super(source, mapper)
   end
-
-  mapper ThingMapper
 
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
@@ -427,15 +375,10 @@ class FlatMapper < Rmodel::Mongo::Mapper
   attribute :owner, OwnerMapper.new
 end
 
-class FlatRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :flats)
-  end
+source = Rmodel::Mongo::Source.new(DB, :flats)
+mapper = FlatMapper.new
 
-  mapper FlatMapper
-end
-
-repo = FlatRepository.new
+repo = Rmodel::Repository.new(source, mapper)
 repo.query.remove
 
 flat = Flat.new

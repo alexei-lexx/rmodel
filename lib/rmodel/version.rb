@@ -1,3 +1,3 @@
 module Rmodel
-  VERSION = '0.4.0.dev'
+  VERSION = '0.4.0.dev'.freeze
 end
