@@ -17,16 +17,19 @@ module Rmodel
     end
 
     def find(id)
-      @mapper.deserialize(@source.find(id))
+      record = @source.find(id)
+      @mapper.deserialize(record)
     end
 
     def insert_one(object)
-      id = @source.insert(@mapper.serialize(object, true))
+      record = @mapper.serialize(object, true)
+      id = @source.insert(record)
       object.id ||= id
     end
 
     def update(object)
-      @source.update(object.id, @mapper.serialize(object, false))
+      record = @mapper.serialize(object, false)
+      @source.update(object.id, record)
     end
 
     def destroy(object)
