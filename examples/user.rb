@@ -1,13 +1,10 @@
 require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :users)
 
 User = Struct.new(:id, :name, :email)
-
-class UserMapper < Rmodel::Mongo::Mapper
-  model User
-  attributes :name, :email
-end
+mapper = Rmodel::Mongo::Mapper.new(User).define_attributes(:name, :email)
 
 class UserRepository < Rmodel::Repository
   scope :have_email do
@@ -19,8 +16,7 @@ class UserRepository < Rmodel::Repository
   end
 end
 
-source = Rmodel::Mongo::Source.new(DB, :users)
-user_repository = UserRepository.new(source, UserMapper.new)
+user_repository = UserRepository.new(source, mapper)
 user_repository.query.remove
 
 john = User.new(nil, 'John', 'john@example.com')
