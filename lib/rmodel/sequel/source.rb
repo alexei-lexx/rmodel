@@ -5,10 +5,10 @@ module Rmodel
     class Source
       def initialize(connection, table)
         @connection = connection
-        fail ArgumentError, 'Connection is not setup' unless @connection
+        raise ArgumentError, 'Connection is not setup' unless @connection
 
         @table = table
-        fail ArgumentError, 'Table can not be guessed' unless @table
+        raise ArgumentError, 'Table can not be guessed' unless @table
       end
 
       def find(id)

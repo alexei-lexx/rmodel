@@ -10,10 +10,10 @@ module Rmodel
 
       def initialize(connection, collection)
         @connection = connection
-        fail ArgumentError, 'Connection is not setup' unless @connection
+        raise ArgumentError, 'Connection is not setup' unless @connection
 
         @collection = collection
-        fail ArgumentError, 'Collection can not be guessed' unless @collection
+        raise ArgumentError, 'Collection can not be guessed' unless @collection
       end
 
       def find(id)

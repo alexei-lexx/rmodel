@@ -1,7 +1,7 @@
 module Rmodel
   class BaseMapper
     def initialize
-      fail ArgumentError, 'Model was not declared' if model.nil?
+      raise ArgumentError, 'Model was not declared' if model.nil?
       self.primary_key = :id
       self.key_op = :to_sym
     end

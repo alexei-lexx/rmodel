@@ -2,7 +2,7 @@ module Rmodel
   module RepositoryExt
     module Sugarable
       def find!(id)
-        find(id) or fail(Rmodel::NotFound.new(self, id: id))
+        find(id) or raise(Rmodel::NotFound.new(self, id: id))
       end
 
       def insert(*args)
