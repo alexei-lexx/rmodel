@@ -12,14 +12,11 @@ class User
 end
 
 class UserMapper < Rmodel::Mongo::Mapper
+  model User
   attributes :name, :email
 end
 
 class UserRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :users)
-  end
-
   scope :have_email do
     where(email: { '$exists' => true })
   end
@@ -29,7 +26,8 @@ class UserRepository < Rmodel::Repository
   end
 end
 
-user_repository = UserRepository.new
+source = Rmodel::Mongo::Source.new(DB, :users)
+user_repository = UserRepository.new(source, UserMapper.new)
 user_repository.query.remove
 
 john = User.new('John', 'john@example.com')

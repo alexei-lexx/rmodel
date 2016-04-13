@@ -7,15 +7,12 @@ class Thing
 end
 
 class ThingMapper < Rmodel::Mongo::Mapper
+  model Thing
   attributes :name, :created_at, :updated_at
 end
 
-class ThingRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :things)
-  end
-end
-repo = ThingRepository.new
+source = Rmodel::Mongo::Source.new(DB, :things)
+repo = Rmodel::Repository.new(source, ThingMapper.new)
 
 thing = Thing.new
 thing.name = 'chair'

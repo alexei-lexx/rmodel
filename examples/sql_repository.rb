@@ -19,21 +19,20 @@ class Thing
 end
 
 class ThingMapper < Rmodel::Sequel::Mapper
+  model Thing
   attributes :name, :price
 end
 
-class ThingRepository < Rmodel::Repository
-  source do
-    Rmodel::Sequel::Source.new(DB, :things)
-  end
+source = Rmodel::Sequel::Source.new(DB, :things)
 
+class ThingRepository < Rmodel::Repository
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
     where { price >= amount }
   end
 end
 
-repo = ThingRepository.new
+repo = ThingRepository.new(source, ThingMapper.new)
 repo.insert Thing.new('iPod', 200)
 repo.insert Thing.new('iPhone', 300)
 repo.insert Thing.new('iPad', 500)

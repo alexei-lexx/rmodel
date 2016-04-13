@@ -30,14 +30,8 @@ class FlatMapper < Rmodel::Mongo::Mapper
   attribute :owner, OwnerMapper.new
 end
 
-class FlatRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :flats)
-  end
-  mapper FlatMapper
-end
-
-repo = FlatRepository.new
+source = Rmodel::Mongo::Source.new(DB, :flats)
+repo = Rmodel::Repository.new(source, FlatMapper.new)
 repo.query.remove
 
 flat = Flat.new
