@@ -2,14 +2,7 @@ require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
 
-class User
-  attr_accessor :id, :name, :email
-
-  def initialize(name = nil, email = nil)
-    self.name = name
-    self.email = email
-  end
-end
+User = Struct.new(:id, :name, :email)
 
 class UserMapper < Rmodel::Mongo::Mapper
   model User
@@ -30,9 +23,9 @@ source = Rmodel::Mongo::Source.new(DB, :users)
 user_repository = UserRepository.new(source, UserMapper.new)
 user_repository.query.remove
 
-john = User.new('John', 'john@example.com')
-bill = User.new('Bill', 'bill@example.com')
-bob = User.new('Bob', 'bob@example.com')
+john = User.new(nil, 'John', 'john@example.com')
+bill = User.new(nil, 'Bill', 'bill@example.com')
+bob = User.new(nil, 'Bob', 'bob@example.com')
 
 user_repository.insert(john)
 user_repository.insert(bill)

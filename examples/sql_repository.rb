@@ -9,14 +9,7 @@ DB.create_table :things do
   Float :price
 end
 
-class Thing
-  attr_accessor :id, :name, :price
-
-  def initialize(name = nil, price = nil)
-    self.name = name
-    self.price = price
-  end
-end
+Thing = Struct.new(:id, :name, :price)
 
 class ThingMapper < Rmodel::Sequel::Mapper
   model Thing
@@ -33,9 +26,9 @@ class ThingRepository < Rmodel::Repository
 end
 
 repo = ThingRepository.new(source, ThingMapper.new)
-repo.insert Thing.new('iPod', 200)
-repo.insert Thing.new('iPhone', 300)
-repo.insert Thing.new('iPad', 500)
+repo.insert Thing.new(nil, 'iPod', 200)
+repo.insert Thing.new(nil, 'iPhone', 300)
+repo.insert Thing.new(nil, 'iPad', 500)
 
 p repo.query.count # 3
 p repo.query.worth_more_than(400).count # 1

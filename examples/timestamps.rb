@@ -2,9 +2,7 @@ require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
 
-class Thing
-  attr_accessor :id, :name, :created_at, :updated_at
-end
+Thing = Struct.new(:id, :name, :created_at, :updated_at)
 
 class ThingMapper < Rmodel::Mongo::Mapper
   model Thing
