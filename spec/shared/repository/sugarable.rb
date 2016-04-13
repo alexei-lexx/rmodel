@@ -6,12 +6,11 @@ RSpec.shared_examples 'sugarable repository' do
 
     stub_const 'ThingMapper', Class.new(base_mapper_klass)
     class ThingMapper
-      model Thing
       attributes :name
     end
   end
 
-  subject { ThingRepository.new(source, ThingMapper.new) }
+  subject { ThingRepository.new(source, ThingMapper.new(Thing)) }
 
   describe '#find!(id)' do
     context 'when an existent id is given' do

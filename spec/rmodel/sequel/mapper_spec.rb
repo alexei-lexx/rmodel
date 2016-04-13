@@ -4,12 +4,11 @@ RSpec.describe Rmodel::Sequel::Mapper do
 
     stub_const 'UserMapper', Class.new(described_class)
     class UserMapper
-      model User
       attributes :name, :age
     end
   end
 
-  subject { UserMapper.new }
+  subject { UserMapper.new(User) }
 
   describe '#deserialize(hash)' do
     it 'returns an instance of the appropriate class' do

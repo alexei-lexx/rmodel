@@ -4,7 +4,6 @@ RSpec.shared_examples 'initialization' do
 
     stub_const 'ThingMapper', Class.new(base_mapper_klass)
     class ThingMapper
-      model Thing
       attributes :name
     end
 
@@ -15,7 +14,7 @@ RSpec.shared_examples 'initialization' do
   end
 
   let(:source) { Object.new }
-  let(:mapper) { ThingMapper.new }
+  let(:mapper) { ThingMapper.new(Thing) }
 
   describe '#initialize(source, collection, mapper)' do
     context 'when all constructor arguments are passed' do

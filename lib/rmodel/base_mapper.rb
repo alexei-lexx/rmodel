@@ -1,7 +1,7 @@
 module Rmodel
   class BaseMapper
-    def initialize
-      raise ArgumentError, 'Model was not declared' if model.nil?
+    def initialize(model)
+      @model = model
       self.primary_key = :id
       self.key_op = :to_sym
     end
@@ -11,7 +11,7 @@ module Rmodel
 
       uni_hash = UniHash.new(hash, key_op)
 
-      object = model.new
+      object = @model.new
       object.id = uni_hash[primary_key] if object.respond_to?(:id)
       attributes.each do |attr, mapper|
         deserialized = mapper.deserialize(uni_hash[attr])
@@ -38,21 +38,11 @@ module Rmodel
 
     attr_accessor :primary_key, :key_op
 
-    def model
-      self.class.declared_model
-    end
-
     def attributes
       self.class.declared_attributes || {}
     end
 
     class << self
-      attr_reader :declared_model
-
-      def model(klass)
-        @declared_model = klass
-      end
-
       attr_reader :declared_attributes
 
       def attribute(attr, mapper = nil)

@@ -3,7 +3,7 @@ RSpec.shared_examples 'timestampable repository' do
     stub_const('ThingRepository', Class.new(Rmodel::Repository))
   end
 
-  subject { ThingRepository.new(source, ThingMapper.new) }
+  subject { ThingRepository.new(source, ThingMapper.new(Thing)) }
 
   context 'when the entity object has attributes created_at and updated_at' do
     before do
@@ -11,7 +11,6 @@ RSpec.shared_examples 'timestampable repository' do
 
       stub_const 'ThingMapper', Class.new(base_mapper_klass)
       class ThingMapper
-        model Thing
         attributes :name, :created_at, :updated_at
       end
     end
@@ -91,7 +90,6 @@ RSpec.shared_examples 'timestampable repository' do
 
       stub_const 'ThingMapper', Class.new(base_mapper_klass)
       class ThingMapper
-        model Thing
         attributes :name
       end
     end
