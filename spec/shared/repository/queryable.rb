@@ -1,16 +1,12 @@
 RSpec.shared_examples 'queryable repository' do
   before do
     stub_const 'Thing', Struct.new(:id, :a, :b)
-
-    stub_const 'ThingMapper', Class.new(base_mapper_klass)
-    class ThingMapper
-      attributes :a, :b
-    end
-
     stub_const 'ThingRepository', Class.new(Rmodel::Repository)
   end
 
-  subject { ThingRepository.new(source, ThingMapper.new(Thing)) }
+  let(:mapper) { mapper_klass.new(Thing).define_attributes(:a, :b) }
+
+  subject { ThingRepository.new(source, mapper) }
 
   before do
     create_database

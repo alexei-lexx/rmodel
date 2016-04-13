@@ -3,16 +3,14 @@ RSpec.shared_examples 'timestampable repository' do
     stub_const('ThingRepository', Class.new(Rmodel::Repository))
   end
 
-  subject { ThingRepository.new(source, ThingMapper.new(Thing)) }
+  let(:mapper) { mapper_klass.new(Thing).define_attribute(:name) }
+
+  subject { ThingRepository.new(source, mapper) }
 
   context 'when the entity object has attributes created_at and updated_at' do
     before do
       stub_const('Thing', Struct.new(:id, :name, :created_at, :updated_at))
-
-      stub_const 'ThingMapper', Class.new(base_mapper_klass)
-      class ThingMapper
-        attributes :name, :created_at, :updated_at
-      end
+      mapper.define_attributes(:created_at, :updated_at)
     end
 
     context 'when we insert(object)' do
@@ -28,6 +26,7 @@ RSpec.shared_examples 'timestampable repository' do
 
       context 'and the object.created_at is not set yet' do
         let(:thing) { Thing.new(nil, 'chair') }
+
         before { subject.insert(thing) }
 
         it 'sets the value of created_at' do
@@ -42,6 +41,7 @@ RSpec.shared_examples 'timestampable repository' do
 
     context 'when we update(object)' do
       let(:thing) { Thing.new(nil, 'chair') }
+
       before do
         subject.insert(thing)
         thing.name = 'table'
@@ -87,11 +87,6 @@ RSpec.shared_examples 'timestampable repository' do
   context 'when the entity has no attributes :created_at and updated_at' do
     before do
       stub_const('Thing', Struct.new(:id, :name))
-
-      stub_const 'ThingMapper', Class.new(base_mapper_klass)
-      class ThingMapper
-        attributes :name
-      end
     end
 
     let(:thing) { Thing.new(nil, 'chair') }

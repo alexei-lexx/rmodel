@@ -1,16 +1,9 @@
 RSpec.shared_examples 'sugarable repository' do
-  before do
-    stub_const('Thing', Struct.new(:id, :name))
+  before { stub_const('Thing', Struct.new(:id, :name)) }
 
-    stub_const 'ThingRepository', Class.new(Rmodel::Repository)
+  let(:mapper) { mapper_klass.new(Thing).define_attributes(:name) }
 
-    stub_const 'ThingMapper', Class.new(base_mapper_klass)
-    class ThingMapper
-      attributes :name
-    end
-  end
-
-  subject { ThingRepository.new(source, ThingMapper.new(Thing)) }
+  subject { Rmodel::Repository.new(source, mapper) }
 
   describe '#find!(id)' do
     context 'when an existent id is given' do

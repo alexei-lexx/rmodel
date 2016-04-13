@@ -4,6 +4,17 @@ module Rmodel
       @model = model
       self.primary_key = :id
       self.key_op = :to_sym
+      @attributes = {}
+    end
+
+    def define_attribute(attr, mapper = DummyMapper.new)
+      @attributes[attr] = mapper
+      self
+    end
+
+    def define_attributes(*attributes)
+      attributes.each { |attr| define_attribute(attr) }
+      self
     end
 
     def deserialize(hash)
@@ -13,7 +24,7 @@ module Rmodel
 
       object = @model.new
       object.id = uni_hash[primary_key] if object.respond_to?(:id)
-      attributes.each do |attr, mapper|
+      @attributes.each do |attr, mapper|
         deserialized = mapper.deserialize(uni_hash[attr])
         object.public_send "#{attr}=", deserialized
       end
@@ -24,7 +35,7 @@ module Rmodel
       return nil if object.nil?
 
       uni_hash = UniHash.new({}, key_op)
-      attributes.each do |attr, mapper|
+      @attributes.each do |attr, mapper|
         serialized = mapper.serialize(object.public_send(attr), id_included)
         uni_hash[attr] = serialized
       end
@@ -37,25 +48,5 @@ module Rmodel
     private
 
     attr_accessor :primary_key, :key_op
-
-    def attributes
-      self.class.declared_attributes || {}
-    end
-
-    class << self
-      attr_reader :declared_attributes
-
-      def attribute(attr, mapper = nil)
-        @dummy_mapper ||= DummyMapper.new
-        @declared_attributes ||= {}
-        @declared_attributes[attr] = mapper || @dummy_mapper
-      end
-
-      def attributes(*attributes)
-        attributes.each do |attr|
-          attribute(attr, nil)
-        end
-      end
-    end
   end
 end
