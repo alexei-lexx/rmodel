@@ -14,9 +14,7 @@ module Rmodel
       private
 
       def able_to_set_created_at?(object)
-        object.respond_to?(:created_at=) &&
-          object.respond_to?(:created_at) &&
-          object.created_at.nil?
+        object.respond_to?(:created_at=) && object.created_at.nil?
       end
 
       def able_to_set_updated_at?(object)

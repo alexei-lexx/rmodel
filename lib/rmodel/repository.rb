@@ -12,8 +12,8 @@ module Rmodel
     end
 
     def initialize(source, mapper)
-      @source = source or raise ArgumentError, 'Source is not setup'
-      @mapper = mapper or raise ArgumentError, 'Mapper can not be guessed'
+      @source = source or raise ArgumentError, 'Source is not set up'
+      @mapper = mapper or raise ArgumentError, 'Mapper is not set up'
     end
 
     def find(id)
