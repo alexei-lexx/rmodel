@@ -171,13 +171,6 @@ repo.query.have_email.destroy # extract users and run repo.destroy for the each 
 p repo.query.count # 0
 ```
 
-It's possible to use so-called **inline** scopes. They aren't defined within
-the repository, but are written directly in the query.
-
-```ruby
-repo.query.scope { where(age: { '$gte' => 20 }) }.count
-```
-
 ### Timestamps
 
 Here is an example how to track the time, when the entity was created and updated.
