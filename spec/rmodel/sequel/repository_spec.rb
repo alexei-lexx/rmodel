@@ -2,10 +2,8 @@ RSpec.describe 'Repository with Sequel' do
   include_examples 'clean sequel database'
 
   shared_examples 'definitions' do
-    let(:source) do
-      Rmodel::Sequel::Source.new(sequel_conn, :things)
-    end
-    let(:base_mapper_klass) { Rmodel::Sequel::Mapper }
+    let(:source) { Rmodel::Sequel::Source.new(sequel_conn, :things) }
+    let(:mapper_klass) { Rmodel::Sequel::Mapper }
   end
 
   it_behaves_like 'repository crud' do

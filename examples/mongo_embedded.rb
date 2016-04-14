@@ -1,43 +1,29 @@
 require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :flats)
 
 Owner = Struct.new(:first_name, :last_name)
 Bed = Struct.new(:type)
 Room = Struct.new(:name, :square, :bed)
 Flat = Struct.new(:id, :address, :rooms, :owner)
 
-class OwnerMapper < Rmodel::Mongo::Mapper
-  model Owner
-  attributes :first_name, :last_name
-end
+owner_mapper = Rmodel::Mongo::Mapper.new(Owner)
+                                    .define_attributes(:first_name, :last_name)
 
-class BedMapper < Rmodel::Mongo::Mapper
-  model Bed
-  attributes :type
-end
+bed_mapper = Rmodel::Mongo::Mapper.new(Bed).define_attribute(:type)
 
-class RoomMapper < Rmodel::Mongo::Mapper
-  model Room
-  attributes :name, :square
-  attribute :bed, BedMapper.new
-end
+room_mapper = Rmodel::Mongo::Mapper.new(Room)
+                                   .define_attributes(:name, :square)
+                                   .define_attribute(:bed, bed_mapper)
 
-class FlatMapper < Rmodel::Mongo::Mapper
-  model Flat
-  attributes :address
-  attribute :rooms, Rmodel::ArrayMapper.new(RoomMapper.new)
-  attribute :owner, OwnerMapper.new
-end
+rooms_mapper = Rmodel::ArrayMapper.new(room_mapper)
+flat_mapper =  Rmodel::Mongo::Mapper.new(Flat)
+                                    .define_attribute(:address)
+                                    .define_attribute(:rooms, rooms_mapper)
+                                    .define_attribute(:owner, owner_mapper)
 
-class FlatRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :flats)
-  end
-  mapper FlatMapper
-end
-
-repo = FlatRepository.new
+repo = Rmodel::Repository.new(source, flat_mapper)
 repo.query.remove
 
 flat = Flat.new

@@ -1,15 +1,9 @@
 RSpec.describe Rmodel::ArrayMapper do
-  before do
-    stub_const 'Thing', Struct.new(:id, :name)
-    stub_const 'ThingMapper', Class.new(Rmodel::Mongo::Mapper)
+  before { stub_const 'Thing', Struct.new(:id, :name) }
 
-    class ThingMapper
-      model Thing
-      attributes :name
-    end
-  end
+  let(:mapper) { Rmodel::Mongo::Mapper.new(Thing).define_attributes(:name) }
 
-  subject { described_class.new(ThingMapper.new) }
+  subject { described_class.new(mapper) }
 
   describe '#deserialize(array)' do
     it 'returns an array of instances of the appropriate class' do

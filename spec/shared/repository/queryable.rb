@@ -1,17 +1,12 @@
 RSpec.shared_examples 'queryable repository' do
   before do
     stub_const 'Thing', Struct.new(:id, :a, :b)
-
-    stub_const 'ThingMapper', Class.new(base_mapper_klass)
-    class ThingMapper
-      model Thing
-      attributes :a, :b
-    end
-
     stub_const 'ThingRepository', Class.new(Rmodel::Repository)
   end
 
-  subject { ThingRepository.new(source, ThingMapper.new) }
+  let(:mapper) { mapper_klass.new(Thing).define_attributes(:a, :b) }
+
+  subject { ThingRepository.new(source, mapper) }
 
   before do
     create_database
@@ -50,7 +45,7 @@ RSpec.shared_examples 'queryable repository' do
     end
   end
 
-  describe '.query' do
+  describe '#query' do
     describe '#scope(&block)' do
       it 'creates an inline scope and returns a new query' do
         count = subject.query.scope { where(a: 2) }.count

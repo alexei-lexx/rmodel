@@ -1,7 +1,7 @@
 module Rmodel
   module Mongo
     class Mapper < Rmodel::BaseMapper
-      def initialize
+      def initialize(model)
         super
         self.primary_key = '_id'
         self.key_op = :to_s

@@ -1,25 +1,12 @@
 require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :users)
 
-class User
-  attr_accessor :id, :name, :email
-
-  def initialize(name = nil, email = nil)
-    self.name = name
-    self.email = email
-  end
-end
-
-class UserMapper < Rmodel::Mongo::Mapper
-  attributes :name, :email
-end
+User = Struct.new(:id, :name, :email)
+mapper = Rmodel::Mongo::Mapper.new(User).define_attributes(:name, :email)
 
 class UserRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :users)
-  end
-
   scope :have_email do
     where(email: { '$exists' => true })
   end
@@ -29,12 +16,12 @@ class UserRepository < Rmodel::Repository
   end
 end
 
-user_repository = UserRepository.new
+user_repository = UserRepository.new(source, mapper)
 user_repository.query.remove
 
-john = User.new('John', 'john@example.com')
-bill = User.new('Bill', 'bill@example.com')
-bob = User.new('Bob', 'bob@example.com')
+john = User.new(nil, 'John', 'john@example.com')
+bill = User.new(nil, 'Bill', 'bill@example.com')
+bob = User.new(nil, 'Bob', 'bob@example.com')
 
 user_repository.insert(john)
 user_repository.insert(bill)

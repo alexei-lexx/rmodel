@@ -1,21 +1,14 @@
 require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :things)
 
-class Thing
-  attr_accessor :id, :name, :created_at, :updated_at
-end
+Thing = Struct.new(:id, :name, :created_at, :updated_at)
+mapper = Rmodel::Mongo::Mapper.new(Thing)
+                              .define_attributes(:name, :created_at,
+                                                 :updated_at)
 
-class ThingMapper < Rmodel::Mongo::Mapper
-  attributes :name, :created_at, :updated_at
-end
-
-class ThingRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :things)
-  end
-end
-repo = ThingRepository.new
+repo = Rmodel::Repository.new(source, mapper)
 
 thing = Thing.new
 thing.name = 'chair'

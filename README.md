@@ -68,88 +68,46 @@ Of course we need a repository to save users.
 ```ruby
 require 'rmodel' # dont forget to require the gem
 
-class User
-  attr_accessor :id, :name, :email
+User = Struct.new(:id, :name, :email)
 
-  def initialize(name = nil, email = nil)
-    @name = name
-    @email = email
-  end
-end
-
-class UserRepository < Rmodel::Repository
-end
-
-user_repository = UserRepository.new
-```
-The code above raises the exception *Source is not setup (ArgumentError)*. UserRepository inherits from Rmodel::Mongo::Repository, which uses the ruby mongo driver to access the database. We must provide the appropriate connection options. To do this we use the following code:
-
-```ruby
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :users)
 
-class UserRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :users)
-  end
-end
+mapper = Rmodel::Mongo::Mapper.new(User).define_attributes(:name, :email)
+
+user_repository = Rmodel::Repository.new(source, mapper)
 ```
 
-Run the code again and get another error *Mapper can not be guessed (ArgumentError)*. The mapper is used to convert the array of database tuples to the array of User objects and back.
-
-```ruby
-class UserMapper < Rmodel::Mongo::Mapper
-  model User
-  attributes :name, :email
-end
-
-class UserRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :users)
-  end
-  mapper UserMapper
-end
-```
-
-The UserMapper class is an example of mappers.
-It's macroses such as `model` and `attributes` are used to declare the mapping rules (User -> Hash and Hash -> User).
-
-It's a rather easy mapper. Every database tuple is straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id.
-
-You can omit the `model` if the mapper follows the name convention:
-User -> UserMapper, Order -> OrderMapper.
-
-The same you can omit `mapper` inside the repository class if it follows the same name convention.
-
-```ruby
-class UserMapper < Rmodel::Mongo::Mapper
-  # model User
-  attributes :name, :email
-end
-
-class UserRepository < Rmodel::Mongo::Repository
-  # mapper UserMapper
-end
-```
+Here 3 main components of Rmodel are described:
+1. `source` points to the `users` collection withing MongoDB.
+2. `mapper` is an example of a mapper class instance. It's methods
+`#initialize` and `define_attributes` are used to declare the mapping rules
+(User -> Hash and Hash -> User). It's a rather easy mapper. Every database
+tuple is straightforwardly converted to an instance of User with  attributes
+:id, :name and :email. There is no need to specify :id.
+3. Finally, `user_repository` takes `source` and `mapper` and makes all magic
+about fetching and saving users from/to the database.
 
 ### CRUD
 
 Let's create and insert several users.
 
 ```ruby
-john = User.new('John', 'john@example.com')
-bill = User.new('Bill', 'bill@example.com')
-bob = User.new('Bob', 'bob@example.com')
+john = User.new(nil, 'John', 'john@example.com')
+bill = User.new(nil, 'Bill', 'bill@example.com')
+bob = User.new(nil, 'Bob', 'bob@example.com')
 
 user_repository.insert(john)
 user_repository.insert(bill)
 user_repository.insert(bob)
 ```
 
-Now you can check you `test` database. There must be 3 new users there. Print the `john`. As you can see it's got the `@id`.
+Now you can check you `test` database. There must be 3 new users there. Print
+the `john`. As you can see it's got the `@id`.
 
 ```ruby
 p john
-#<User:0x00... @name="John", @email="john@example.com", @id=BSON::ObjectId('562a...')>
+#<struct User id=BSON::ObjectId('...'), name="John", email="john@example.com">
 ```
 
 Let's update John and destroy Bob.
@@ -160,7 +118,7 @@ user_repository.update(john)
 
 user_repository.destroy(bob)
 
-p user_repository.find(john.id) # #<User:0x000000037237d0 @name="John Smith" ... >
+p user_repository.find(john.id) # <struct User id=BSON::ObjectId('...'), ...>
 p user_repository.find(bob.id) # nil
 ```
 
@@ -178,10 +136,6 @@ Scopes are defined inside the repository.
 
 ```ruby
 class UserRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :users)
-  end
-
   scope :have_email do
     where(email: { '$exists' => true })
   end
@@ -191,7 +145,7 @@ class UserRepository < Rmodel::Repository
   end
 end
 
-repo = UserRepository.new
+repo = UserRepository.new(source, mapper)
 
 p repo.query.start_with('b').to_a
 ```
@@ -202,9 +156,12 @@ Of course you can chain scopes.
 p repo.query.start_with('b').have_email.to_a
 ```
 
-The result of the scope is Enumerable, so you can apply the #each method and others (map, select etc).
+The result of the scope is Enumerable, so you can apply the #each method and
+others (map, select etc).
 
-Inside the scopes you can use any methods supported by the driver (database connection). In our case we use Origin (https://github.com/mongoid/origin) as a query builder for mongo.
+Inside the scopes you can use any methods supported by the driver (database
+connection). In our case we use Origin (https://github.com/mongoid/origin) as
+a query builder for mongo.
 
 Also it's possible to use scopes to run the multi-row operations.
 
@@ -229,21 +186,17 @@ Here is an example how to track the time, when the entity was created and update
 require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :things)
 
 class Thing
   attr_accessor :id, :name, :created_at, :updated_at
 end
 
-class ThingMapper < Rmodel::Mongo::Mapper
-  attributes :name, :created_at, :updated_at
-end
+mapper = Rmodel::Mongo::Mapper.new(Thing)
+                              .define_attribute(:name)
+                              .define_attributes(:created_at, :updated_at)
 
-class ThingRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :things)
-  end
-end
-repo = ThingRepository.new
+repo = Rmodel::Repository.new(source, mapper)
 
 thing = Thing.new
 thing.name = 'chair'
@@ -264,6 +217,8 @@ To enable time tracking  just add attributes `created_at` and `updated_at` or on
 ```ruby
 repo.save(thing)
 repo.find!(1)
+repo.remove_all
+repo.destroy_all
 ```
 
 The `save` method can be used instead of `insert` and `update`.
@@ -272,33 +227,8 @@ If the object has no not-nil id then it gets inserted. Otherwise it gets updated
 The `find!` method works like the simple `find`
 , but instead of nil it raises the Rmodel::NotFound error.
 
-### Advanced creation of repository
-
-```ruby
-require 'rmodel'
-
-class Thing
-  attr_accessor :id, :name
-end
-
-class ThingMapper < Rmodel::Mongo::Mapper
-  model Thing
-  attributes :name
-end
-
-class ThingRepository < Rmodel::Repository
-end
-
-connection = Mongo::Client.new(['localhost:27017'], database: 'test')
-collection = :things
-source = Rmodel::Mongo::Source.new(connection, collection)
-mapper = ThingMapper.new
-
-repo = ThingRepository.new(source, mapper)
-p repo.find(1)
-```
-
-The `mapper` is an object, which has 2 methods: `#deserialize(hash)` and `#serialize(object)`.
+The `remove_all` and `destroy_all` methods clean up the table/collection
+within the database. The last one calls `destroy` for each object.
 
 ### SQL repository
 
@@ -313,6 +243,7 @@ Below you can the the example how to setup Rmodel for any supported SQL database
 require 'rmodel'
 
 DB = Sequel.connect(adapter: 'sqlite', database: 'rmodel_test.sqlite3')
+source = Rmodel::Sequel::Source.new(DB, :things)
 
 DB.drop_table? :things
 DB.create_table :things do
@@ -321,34 +252,20 @@ DB.create_table :things do
   Float :price
 end
 
-class Thing
-  attr_accessor :id, :name, :price
-
-  def initialize(name = nil, price = nil)
-    self.name = name
-    self.price = price
-  end
-end
-
-class ThingMapper < Rmodel::Sequel::Mapper
-  attributes :name, :price
-end
+Thing = Struct.new :id, :name, :price
+mapper = Rmodel::Sequel::Mapper.new(Thing).define_attributes(:name, :price)
 
 class ThingRepository < Rmodel::Repository
-  source do
-    Rmodel::Sequel::Source.new(DB, :things)
-  end
-
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
     where { price >= amount }
   end
 end
 
-repo = ThingRepository.new
-repo.insert Thing.new('iPod', 200)
-repo.insert Thing.new('iPhone', 300)
-repo.insert Thing.new('iPad', 500)
+repo = ThingRepository.new(source, mapper)
+repo.insert Thing.new(nil, 'iPod', 200)
+repo.insert Thing.new(nil, 'iPhone', 300)
+repo.insert Thing.new(nil, 'iPad', 500)
 
 p repo.query.count # 3
 p repo.query.worth_more_than(400).count # 1
@@ -406,38 +323,29 @@ The idea is easy:
 require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :flats)
 
 Owner = Struct.new(:first_name, :last_name)
 Bed = Struct.new(:type)
 Room = Struct.new(:name, :square, :bed)
 Flat = Struct.new(:id, :address, :rooms, :owner)
 
-class OwnerMapper < Rmodel::Mongo::Mapper
-  attributes :first_name, :last_name
-end
+owner_mapper = Rmodel::Mongo::Mapper.new(Owner)
+                                    .define_attributes(:first_name, :last_name)
 
-class BedMapper < Rmodel::Mongo::Mapper
-  attributes :type
-end
+bed_mapper = Rmodel::Mongo::Mapper.new(Bed).define_attribute(:type)
 
-class RoomMapper < Rmodel::Mongo::Mapper
-  attributes :name, :square
-  attribute :bed, BedMapper.new
-end
+room_mapper = Rmodel::Mongo::Mapper.new(Room)
+                                   .define_attributes(:name, :square)
+                                   .define_attribute(:bed, bed_mapper)
 
-class FlatMapper < Rmodel::Mongo::Mapper
-  attributes :address
-  attribute :rooms, Rmodel::ArrayMapper.new(RoomMapper.new)
-  attribute :owner, OwnerMapper.new
-end
+rooms_mapper = Rmodel::ArrayMapper.new(room_mapper)
+flat_mapper =  Rmodel::Mongo::Mapper.new(Flat)
+                                    .define_attribute(:address)
+                                    .define_attribute(:rooms, rooms_mapper)
+                                    .define_attribute(:owner, owner_mapper)
 
-class FlatRepository < Rmodel::Repository
-  source do
-    Rmodel::Mongo::Source.new(DB, :flats)
-  end
-end
-
-repo = FlatRepository.new
+repo = Rmodel::Repository.new(source, flat_mapper)
 repo.query.remove
 
 flat = Flat.new

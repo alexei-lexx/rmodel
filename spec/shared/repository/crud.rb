@@ -1,22 +1,12 @@
 RSpec.shared_examples 'repository crud' do
-  before do
-    stub_const('Thing', Struct.new(:id, :name))
+  before { stub_const('Thing', Struct.new(:id, :name)) }
 
-    stub_const 'ThingRepository', Class.new(Rmodel::Repository)
+  let(:mapper) { mapper_klass.new(Thing).define_attributes(:name) }
 
-    stub_const 'ThingMapper', Class.new(base_mapper_klass)
-    class ThingMapper
-      model Thing
-      attributes :name
-    end
-  end
-
-  subject { ThingRepository.new(source, ThingMapper.new) }
+  subject { Rmodel::Repository.new(source, mapper) }
 
   describe '#find' do
-    before do
-      subject.insert_one(Thing.new(1, 'chair'))
-    end
+    before { subject.insert_one(Thing.new(1, 'chair')) }
 
     context 'when an existent id is given' do
       it 'returns the instance of correct type' do
@@ -38,6 +28,7 @@ RSpec.shared_examples 'repository crud' do
   describe '#insert_one(object)' do
     context 'when the id is not provided' do
       let(:thing) { Thing.new(nil, 'chair') }
+
       before { subject.insert_one(thing) }
 
       it 'sets the id before insert' do
@@ -60,6 +51,7 @@ RSpec.shared_examples 'repository crud' do
 
     context 'when the given id already exists' do
       let(:thing) { Thing.new }
+
       before { subject.insert_one(thing) }
 
       it 'raises the error' do
@@ -86,6 +78,7 @@ RSpec.shared_examples 'repository crud' do
 
   describe '#destroy' do
     let(:thing) { Thing.new }
+
     before { subject.insert(thing) }
 
     it 'destroys the record' do

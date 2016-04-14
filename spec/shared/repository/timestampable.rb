@@ -1,51 +1,46 @@
 RSpec.shared_examples 'timestampable repository' do
-  before do
-    stub_const('ThingRepository', Class.new(Rmodel::Repository))
-  end
+  let(:mapper) { mapper_klass.new(Thing).define_attribute(:name) }
 
-  subject { ThingRepository.new(source, ThingMapper.new) }
+  subject { Rmodel::Repository.new(source, mapper) }
 
-  context 'when the entity object has attributes created_at and updated_at' do
+  context 'when the entity object has timestamp attributes' do
     before do
       stub_const('Thing', Struct.new(:id, :name, :created_at, :updated_at))
-
-      stub_const 'ThingMapper', Class.new(base_mapper_klass)
-      class ThingMapper
-        model Thing
-        attributes :name, :created_at, :updated_at
-      end
+      mapper.define_attributes(:created_at, :updated_at)
     end
 
     context 'when we insert(object)' do
-      context 'and the object.created_at is already set' do
+      context 'and created_at is already set' do
         let(:thing) { Thing.new(nil, 'chair', Time.now) }
 
-        it 'doesnt change the value of created_at' do
+        it "doesn't change the value of created_at" do
           set_created_at = thing.created_at
           subject.insert(thing)
           expect(thing.created_at).to eq set_created_at
         end
       end
 
-      context 'and the object.created_at is not set yet' do
-        let(:thing) { Thing.new(nil, 'chair') }
+      context 'and created_at is not set yet' do
+        let(:thing) { Thing.new }
+
         before { subject.insert(thing) }
 
         it 'sets the value of created_at' do
           expect(thing.created_at).not_to be_nil
         end
 
-        it 'saves the created_at in a database' do
+        it 'saves created_at in the database' do
           expect(subject.find(thing.id).created_at).not_to be_nil
         end
       end
     end
 
     context 'when we update(object)' do
-      let(:thing) { Thing.new(nil, 'chair') }
+      let(:thing) { Thing.new }
+
       before do
         subject.insert(thing)
-        thing.name = 'table'
+        thing.name = 'chair'
         subject.update(thing)
       end
 
@@ -67,51 +62,75 @@ RSpec.shared_examples 'timestampable repository' do
           now
         end
         allow(Time).to receive(:current)
-
-        subject.insert(thing)
       end
 
-      it 'uses it on insert' do
-        expect(thing.created_at).not_to be_nil
-        expect(Time).to have_received(:current)
+      context 'on insert' do
+        before { subject.insert(thing) }
+
+        it 'calls Time.current' do
+          expect(Time).to have_received(:current)
+        end
       end
 
-      it 'uses it on update' do
-        subject.update(thing)
+      context 'on update' do
+        before do
+          subject.insert(thing)
+          subject.update(thing)
+        end
 
-        expect(thing.updated_at).not_to be_nil
-        expect(Time).to have_received(:current).twice
+        it 'calls Time.current' do
+          expect(Time).to have_received(:current).twice
+        end
       end
     end
   end
 
   context 'when the entity has no attributes :created_at and updated_at' do
-    before do
-      stub_const('Thing', Struct.new(:id, :name))
+    before { stub_const 'Thing', Struct.new(:id, :name) }
 
-      stub_const 'ThingMapper', Class.new(base_mapper_klass)
-      class ThingMapper
-        model Thing
-        attributes :name
-      end
-    end
+    let(:thing) { Thing.new }
 
-    let(:thing) { Thing.new(nil, 'chair') }
-
-    context 'when we insert(object)' do
-      it 'does nothing special' do
+    it "doesn't raise errors" do
+      expect do
         subject.insert(thing)
-        expect(thing.respond_to?(:created_at)).to be false
-      end
+        thing.name = 'chair'
+        subject.update(thing)
+      end.not_to raise_error
+    end
+  end
+
+  context 'when the repo class is inherited' do
+    before do
+      stub_const('Thing', Struct.new(:id, :name, :created_at, :updated_at))
+      mapper.define_attributes(:created_at, :updated_at)
+      stub_const 'ThingRepository', Class.new(Rmodel::Repository)
     end
 
-    context 'when we update(object)' do
+    subject { ThingRepository.new(source, mapper) }
+
+    context 'on insert' do
+      let(:thing) { Thing.new }
+
       before { subject.insert(thing) }
 
-      it 'does nothing special' do
-        thing.name = 'table'
+      it 'sets the created_at' do
+        found = subject.find(thing.id)
+        expect(found.created_at).not_to be_nil
+      end
+    end
+
+    context 'on update' do
+      let(:thing) { Thing.new }
+
+      before do
+        subject.insert(thing)
+        thing.name = 'chair'
         subject.update(thing)
-        expect(thing.respond_to?(:updated_at)).to be false
+      end
+
+      it 'sets the updated_at' do
+        found = subject.find(thing.id)
+        expect(found.updated_at).not_to be_nil
       end
     end
   end

@@ -3,30 +3,23 @@ RSpec.describe Rmodel::Mongo::Mapper do
     stub_const 'User', Struct.new(:id, :name, :age, :address, :phones)
     stub_const 'Address', Struct.new(:id, :city, :street)
     stub_const 'Phone', Struct.new(:id, :number)
-
-    stub_const 'AddressMapper', Class.new(described_class)
-    class AddressMapper
-      model Address
-      attributes :city, :street
-    end
-
-    stub_const 'PhoneMapper', Class.new(described_class)
-    class PhoneMapper
-      model Phone
-      attributes :number
-    end
-
-    stub_const 'UserMapper', Class.new(described_class)
-    class UserMapper
-      model User
-      attribute :name
-      attribute :age
-      attribute :address, AddressMapper.new
-      attribute :phones, Rmodel::ArrayMapper.new(PhoneMapper.new)
-    end
   end
 
-  subject { UserMapper.new }
+  let(:address_mapper) do
+    described_class.new(Address).define_attributes(:city, :street)
+  end
+
+  let(:phone_mapper) do
+    described_class.new(Phone).define_attributes(:number)
+  end
+
+  subject do
+    phones_mapper = Rmodel::ArrayMapper.new(phone_mapper)
+    described_class.new(User)
+                   .define_attributes(:name, :age)
+                   .define_attribute(:address, address_mapper)
+                   .define_attribute(:phones, phones_mapper)
+  end
 
   describe '#deserialize(hash)' do
     it 'returns an instance of the appropriate class' do

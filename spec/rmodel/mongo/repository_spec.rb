@@ -2,10 +2,8 @@ RSpec.describe 'Repository with MongoDB' do
   include_context 'clean mongo database'
 
   shared_examples 'definitions' do
-    let(:source) do
-      Rmodel::Mongo::Source.new(mongo_session, :things)
-    end
-    let(:base_mapper_klass) { Rmodel::Mongo::Mapper }
+    let(:source) { Rmodel::Mongo::Source.new(mongo_session, :things) }
+    let(:mapper_klass) { Rmodel::Mongo::Mapper }
   end
 
   it_behaves_like 'repository crud' do

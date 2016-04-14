@@ -2,7 +2,7 @@ module Rmodel
   module RepositoryExt
     module Sugarable
       def find!(id)
-        find(id) or fail(Rmodel::NotFound.new(self, id: id))
+        find(id) or raise(Rmodel::NotFound.new(self, id: id))
       end
 
       def insert(*args)
@@ -23,6 +23,14 @@ module Rmodel
         else
           update(object)
         end
+      end
+
+      def remove_all
+        query.remove
+      end
+
+      def destroy_all
+        query.destroy
       end
 
       private
