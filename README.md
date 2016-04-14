@@ -68,53 +68,46 @@ Of course we need a repository to save users.
 ```ruby
 require 'rmodel' # dont forget to require the gem
 
-class User
-  attr_accessor :id, :name, :email
-
-  def initialize(name = nil, email = nil)
-    @name = name
-    @email = email
-  end
-end
+User = Struct.new(:id, :name, :email)
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
 source = Rmodel::Mongo::Source.new(DB, :users)
 
-class UserMapper < Rmodel::Mongo::Mapper
-  model User
-  attributes :name, :email
-end
-
-mapper = UserMapper.new
+mapper = Rmodel::Mongo::Mapper.new(User).define_attributes(:name, :email)
 
 user_repository = Rmodel::Repository.new(source, mapper)
 ```
 
 Here 3 main components of Rmodel are described:
 1. `source` points to the `users` collection withing MongoDB.
-2. The `UserMapper` class is an example of mappers.
-It's macroses such as `model` and `attributes` are used to declare the mapping rules (User -> Hash and Hash -> User). It's a rather easy mapper. Every database tuple is straightforwardly converted to an instance of User with  attributes :id, :name and :email. There is no need to specify :id.
-3. Finally, `user_repository` takes `source` and `mapper` and makes all magic about fetching and saving users from/to the database.
+2. `mapper` is an example of a mapper class instance. It's methods
+`#initialize` and `define_attributes` are used to declare the mapping rules
+(User -> Hash and Hash -> User). It's a rather easy mapper. Every database
+tuple is straightforwardly converted to an instance of User with  attributes
+:id, :name and :email. There is no need to specify :id.
+3. Finally, `user_repository` takes `source` and `mapper` and makes all magic
+about fetching and saving users from/to the database.
 
 ### CRUD
 
 Let's create and insert several users.
 
 ```ruby
-john = User.new('John', 'john@example.com')
-bill = User.new('Bill', 'bill@example.com')
-bob = User.new('Bob', 'bob@example.com')
+john = User.new(nil, 'John', 'john@example.com')
+bill = User.new(nil, 'Bill', 'bill@example.com')
+bob = User.new(nil, 'Bob', 'bob@example.com')
 
 user_repository.insert(john)
 user_repository.insert(bill)
 user_repository.insert(bob)
 ```
 
-Now you can check you `test` database. There must be 3 new users there. Print the `john`. As you can see it's got the `@id`.
+Now you can check you `test` database. There must be 3 new users there. Print
+the `john`. As you can see it's got the `@id`.
 
 ```ruby
 p john
-#<User:0x00... @name="John", @email="john@example.com", @id=BSON::ObjectId('562a...')>
+#<struct User id=BSON::ObjectId('...'), name="John", email="john@example.com">
 ```
 
 Let's update John and destroy Bob.
@@ -125,7 +118,7 @@ user_repository.update(john)
 
 user_repository.destroy(bob)
 
-p user_repository.find(john.id) # #<User:0x000000037237d0 @name="John Smith" ... >
+p user_repository.find(john.id) # <struct User id=BSON::ObjectId('...'), ...>
 p user_repository.find(bob.id) # nil
 ```
 
@@ -143,12 +136,6 @@ Scopes are defined inside the repository.
 
 ```ruby
 class UserRepository < Rmodel::Repository
-  def initialize
-    source = Rmodel::Mongo::Source.new(DB, :users)
-    mapper = UserMapper.new
-    super(source, mapper)
-  end
-
   scope :have_email do
     where(email: { '$exists' => true })
   end
@@ -158,7 +145,7 @@ class UserRepository < Rmodel::Repository
   end
 end
 
-repo = UserRepository.new
+repo = UserRepository.new(source, mapper)
 
 p repo.query.start_with('b').to_a
 ```
@@ -169,9 +156,12 @@ Of course you can chain scopes.
 p repo.query.start_with('b').have_email.to_a
 ```
 
-The result of the scope is Enumerable, so you can apply the #each method and others (map, select etc).
+The result of the scope is Enumerable, so you can apply the #each method and
+others (map, select etc).
 
-Inside the scopes you can use any methods supported by the driver (database connection). In our case we use Origin (https://github.com/mongoid/origin) as a query builder for mongo.
+Inside the scopes you can use any methods supported by the driver (database
+connection). In our case we use Origin (https://github.com/mongoid/origin) as
+a query builder for mongo.
 
 Also it's possible to use scopes to run the multi-row operations.
 
@@ -196,18 +186,16 @@ Here is an example how to track the time, when the entity was created and update
 require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :things)
 
 class Thing
   attr_accessor :id, :name, :created_at, :updated_at
 end
 
-class ThingMapper < Rmodel::Mongo::Mapper
-  model Thing
-  attributes :name, :created_at, :updated_at
-end
+mapper = Rmodel::Mongo::Mapper.new(Thing)
+                              .define_attribute(:name)
+                              .define_attributes(:created_at, :updated_at)
 
-source = Rmodel::Mongo::Source.new(DB, :things)
-mapper = ThingMapper.new
 repo = Rmodel::Repository.new(source, mapper)
 
 thing = Thing.new
@@ -255,6 +243,7 @@ Below you can the the example how to setup Rmodel for any supported SQL database
 require 'rmodel'
 
 DB = Sequel.connect(adapter: 'sqlite', database: 'rmodel_test.sqlite3')
+source = Rmodel::Sequel::Source.new(DB, :things)
 
 DB.drop_table? :things
 DB.create_table :things do
@@ -263,37 +252,20 @@ DB.create_table :things do
   Float :price
 end
 
-class Thing
-  attr_accessor :id, :name, :price
-
-  def initialize(name = nil, price = nil)
-    self.name = name
-    self.price = price
-  end
-end
-
-class ThingMapper < Rmodel::Sequel::Mapper
-  model Thing
-  attributes :name, :price
-end
+Thing = Struct.new :id, :name, :price
+mapper = Rmodel::Sequel::Mapper.new(Thing).define_attributes(:name, :price)
 
 class ThingRepository < Rmodel::Repository
-  def initialize
-    source = Rmodel::Sequel::Source.new(DB, :things)
-    mapper = ThingMapper.new
-    super(source, mapper)
-  end
-
   scope :worth_more_than do |amount|
     # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
     where { price >= amount }
   end
 end
 
-repo = ThingRepository.new
-repo.insert Thing.new('iPod', 200)
-repo.insert Thing.new('iPhone', 300)
-repo.insert Thing.new('iPad', 500)
+repo = ThingRepository.new(source, mapper)
+repo.insert Thing.new(nil, 'iPod', 200)
+repo.insert Thing.new(nil, 'iPhone', 300)
+repo.insert Thing.new(nil, 'iPad', 500)
 
 p repo.query.count # 3
 p repo.query.worth_more_than(400).count # 1
@@ -351,40 +323,30 @@ The idea is easy:
 require 'rmodel'
 
 DB = Mongo::Client.new(['localhost'], database: 'test')
+source = Rmodel::Mongo::Source.new(DB, :flats)
 
 Owner = Struct.new(:first_name, :last_name)
 Bed = Struct.new(:type)
 Room = Struct.new(:name, :square, :bed)
 Flat = Struct.new(:id, :address, :rooms, :owner)
 
-class OwnerMapper < Rmodel::Mongo::Mapper
-  model Owner
-  attributes :first_name, :last_name
-end
+owner_mapper = Rmodel::Mongo::Mapper.new(Owner)
+                                    .define_attributes(:first_name, :last_name)
 
-class BedMapper < Rmodel::Mongo::Mapper
-  model Bed
-  attributes :type
-end
+bed_mapper = Rmodel::Mongo::Mapper.new(Bed).define_attribute(:type)
 
-class RoomMapper < Rmodel::Mongo::Mapper
-  model Room
-  attributes :name, :square
-  attribute :bed, BedMapper.new
-end
+room_mapper = Rmodel::Mongo::Mapper.new(Room)
+                                   .define_attributes(:name, :square)
+                                   .define_attribute(:bed, bed_mapper)
 
-class FlatMapper < Rmodel::Mongo::Mapper
-  model Flat
-  attributes :address
-  attribute :rooms, Rmodel::ArrayMapper.new(RoomMapper.new)
-  attribute :owner, OwnerMapper.new
-end
+rooms_mapper = Rmodel::ArrayMapper.new(room_mapper)
+flat_mapper =  Rmodel::Mongo::Mapper.new(Flat)
+                                    .define_attribute(:address)
+                                    .define_attribute(:rooms, rooms_mapper)
+                                    .define_attribute(:owner, owner_mapper)
 
-source = Rmodel::Mongo::Source.new(DB, :flats)
-mapper = FlatMapper.new
-
-repo = Rmodel::Repository.new(source, mapper)
-repo.remove_all
+repo = Rmodel::Repository.new(source, flat_mapper)
+repo.query.remove
 
 flat = Flat.new
 flat.address = 'Googleplex, Mountain View, California, U.S'
