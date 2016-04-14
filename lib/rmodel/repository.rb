@@ -6,10 +6,7 @@ module Rmodel
   class Repository
     include RepositoryExt::Sugarable
     include RepositoryExt::Queryable
-
-    def self.inherited(subclass)
-      subclass.send :prepend, RepositoryExt::Timestampable
-    end
+    prepend RepositoryExt::Timestampable
 
     def initialize(source, mapper)
       @source = source or raise ArgumentError, 'Source is not set up'
