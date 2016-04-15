@@ -55,9 +55,7 @@ Or install it yourself as:
 Let's define an entity
 
 ```ruby
-class User
-  attr_accessor :id, :name, :email
-end
+User = Struct.new(:id, :name, :email)
 ```
 
 As you see it's a PORO (Plain Old Ruby Objects), a class which inherits from nothing.
@@ -79,6 +77,7 @@ user_repository = Rmodel::Repository.new(source, mapper)
 ```
 
 Here 3 main components of Rmodel are described:
+
 1. `source` points to the `users` collection withing MongoDB.
 2. `mapper` is an example of a mapper class instance. It's methods
 `#initialize` and `define_attributes` are used to declare the mapping rules
