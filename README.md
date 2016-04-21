@@ -207,8 +207,6 @@ To enable time tracking  just add attributes `created_at` and `updated_at` or on
 ```ruby
 repo.save(thing)
 repo.find!(1)
-repo.remove_all
-repo.destroy_all
 ```
 
 The `save` method can be used instead of `insert` and `update`.
@@ -216,9 +214,6 @@ If the object has no not-nil id then it gets inserted. Otherwise it gets updated
 
 The `find!` method works like the simple `find`
 , but instead of nil it raises the Rmodel::NotFound error.
-
-The `remove_all` and `destroy_all` methods clean up the table/collection
-within the database. The last one calls `destroy` for each object.
 
 ### SQL repository
 
