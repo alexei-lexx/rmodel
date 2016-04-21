@@ -5,8 +5,8 @@ source = Rmodel::Mongo::Source.new(DB, :things)
 
 Thing = Struct.new(:id, :name, :created_at, :updated_at)
 mapper = Rmodel::Mongo::Mapper.new(Thing)
-                              .define_attributes(:name, :created_at,
-                                                 :updated_at)
+                              .define_attribute(:name)
+                              .define_timestamps
 
 repo = Rmodel::Repository.new(source, mapper)
 
