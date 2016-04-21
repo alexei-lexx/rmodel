@@ -17,6 +17,10 @@ module Rmodel
       self
     end
 
+    def define_timestamps
+      define_attributes :created_at, :updated_at
+    end
+
     def deserialize(hash)
       return nil if hash.nil?
 

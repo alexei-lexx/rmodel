@@ -186,7 +186,7 @@ end
 
 mapper = Rmodel::Mongo::Mapper.new(Thing)
                               .define_attribute(:name)
-                              .define_attributes(:created_at, :updated_at)
+                              .define_timestamps
 
 repo = Rmodel::Repository.new(source, mapper)
 
