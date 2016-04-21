@@ -131,20 +131,18 @@ repo.insert(object1, object2, object3)
 
 ### Scopes
 
-Scopes are defined inside the repository.
+Scopes are defined in the repository.
 
 ```ruby
-class UserRepository < Rmodel::Repository
-  scope :have_email do
-    where(email: { '$exists' => true })
-  end
+repo = Rmodel::Repository.new(source, mapper)
 
-  scope :start_with do |letter|
-    where(name: { '$regex' => "^#{letter}", '$options' => 'i' })
-  end
+repo.define_scope :have_email do
+  where(email: { '$exists' => true })
 end
 
-repo = UserRepository.new(source, mapper)
+repo.define_scope :start_with do |letter|
+  where(name: { '$regex' => "^#{letter}", '$options' => 'i' })
+end
 
 p repo.query.start_with('b').to_a
 ```
@@ -247,14 +245,13 @@ end
 Thing = Struct.new :id, :name, :price
 mapper = Rmodel::Sequel::Mapper.new(Thing).define_attributes(:name, :price)
 
-class ThingRepository < Rmodel::Repository
-  scope :worth_more_than do |amount|
-    # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
-    where { price >= amount }
-  end
+repo = Rmodel::Repository.new(source, mapper)
+
+repo.define_scope :worth_more_than do |amount|
+  # use Sequel dataset filtering http://sequel.jeremyevans.net/rdoc/files/doc/dataset_filtering_rdoc.html
+  where { price >= amount }
 end
 
-repo = ThingRepository.new(source, mapper)
 repo.insert Thing.new(nil, 'iPod', 200)
 repo.insert Thing.new(nil, 'iPhone', 300)
 repo.insert Thing.new(nil, 'iPad', 500)
