@@ -1,12 +1,8 @@
 module Rmodel
   module RepositoryExt
     module Queryable
-      def self.included(base)
-        base.extend ClassMethods
-      end
-
       def query
-        self.class.query_klass.new(self, @source.build_query)
+        query_klass.new(self, @source.build_query)
       end
 
       def find_by_query(query)
@@ -26,14 +22,15 @@ module Rmodel
         end
       end
 
-      module ClassMethods
-        def query_klass
-          @query_klass ||= Class.new(Rmodel::QueryBuilder)
-        end
+      def define_scope(name, &block)
+        query_klass.define_scope(name, &block)
+        self
+      end
 
-        def scope(name, &block)
-          query_klass.define_scope(name, &block)
-        end
+      private
+
+      def query_klass
+        @query_klass ||= Class.new(Rmodel::QueryBuilder)
       end
     end
   end
