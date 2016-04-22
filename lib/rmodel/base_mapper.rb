@@ -7,7 +7,7 @@ module Rmodel
       @attributes = {}
     end
 
-    def define_attribute(attr, mapper = DummyMapper.new)
+    def define_attribute(attr, mapper = DummyMapper.instance)
       @attributes[attr] = mapper
       self
     end
