@@ -173,6 +173,7 @@ p repo.fetch.count # 0
 If you have no scopes then just call
 
 ```ruby
+repo.all
 repo.delete_all
 repo.destroy_all
 ```
