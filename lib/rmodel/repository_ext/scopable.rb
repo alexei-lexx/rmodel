@@ -1,6 +1,6 @@
 module Rmodel
   module RepositoryExt
-    module Queryable
+    module Scopable
       def self.included(base)
         base.extend ClassMethods
       end

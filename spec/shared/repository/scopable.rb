@@ -1,4 +1,4 @@
-RSpec.shared_examples 'queryable repository' do
+RSpec.shared_examples 'scopable repository' do
   before do
     stub_const 'Thing', Struct.new(:id, :a, :b)
     stub_const 'ThingRepository', Class.new(Rmodel::Repository)
