@@ -26,6 +26,10 @@ module Rmodel
         find_all(scope).each { |object| destroy(object) }
       end
 
+      def all
+        fetch.to_a
+      end
+
       module ClassMethods
         def scope_class
           @scope_class ||= Class.new(Rmodel::Scope)
