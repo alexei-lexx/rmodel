@@ -1,7 +1,7 @@
 require 'active_support/inflector'
 require 'rmodel/version'
 require 'rmodel/errors'
-require 'rmodel/query_builder'
+require 'rmodel/scope'
 require 'rmodel/repository'
 require 'rmodel/uni_hash'
 require 'rmodel/base_mapper'

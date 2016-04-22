@@ -6,33 +6,29 @@ module Rmodel
       end
 
       def query
-        self.class.query_klass.new(self, @source.build_query)
+        self.class.scope_class.new(self, @source.build_query)
       end
 
-      def find_by_query(query)
-        @source.exec_query(query).map do |hash|
+      def find_by_scope(scope)
+        raw_query = scope.raw_query
+
+        @source.exec_query(raw_query).map do |hash|
           @mapper.deserialize(hash)
         end
       end
 
-      def delete_by_query(query)
-        @source.delete_by_query(query)
-      end
-
-      def destroy_by_query(query)
-        @source.exec_query(query).map do |hash|
-          object = @mapper.deserialize(hash)
-          destroy(object)
-        end
+      def delete_by_scope(scope)
+        raw_query = scope.raw_query
+        @source.delete_by_query(raw_query)
       end
 
       module ClassMethods
-        def query_klass
-          @query_klass ||= Class.new(Rmodel::QueryBuilder)
+        def scope_class
+          @scope_class ||= Class.new(Rmodel::Scope)
         end
 
         def scope(name, &block)
-          query_klass.define_scope(name, &block)
+          scope_class.define_scope(name, &block)
         end
       end
     end
