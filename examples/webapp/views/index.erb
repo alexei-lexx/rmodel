@@ -1,0 +1,20 @@
+<div>
+  sort by
+  <a href="/?sort_by=title">title</a>
+  <a href="/?sort_by=recency">recency</a>
+</div>
+
+<ol>
+  <% tasks.each do |task| %>
+    <li>
+      <%= task.title %>
+      (created at <%= task.created_at %>)
+    </li>
+  <% end %>
+</ol>
+
+<form action="/" method="post">
+  <input type="hidden" name="sort_by" value="<%= params[:sort_by] %>" />
+  <input type="text" placeholder="New Task" name="title" />
+  <input type="submit" />
+</form>
