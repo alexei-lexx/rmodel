@@ -85,7 +85,7 @@ RSpec.shared_examples 'timestampable repository' do
     end
   end
 
-  context 'when the entity has no attributes :created_at and updated_at' do
+  context 'when the entity has no attributes created_at and updated_at' do
     before { stub_const 'Thing', Struct.new(:id, :name) }
 
     let(:thing) { Thing.new }

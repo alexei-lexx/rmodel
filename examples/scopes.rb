@@ -17,12 +17,12 @@ class UserRepository < Rmodel::Repository
 end
 
 repo = UserRepository.new(source, mapper)
-repo.query.remove
+repo.delete_all
 
 repo.insert(User.new(nil, 'John', 'john@example.com'))
 repo.insert(User.new(nil, 'Bill', 'bill@example.com'))
 repo.insert(User.new(nil, 'Bob'))
 
-p repo.query.start_with('b').to_a
-p repo.query.start_with('b').have_email.to_a
-p repo.query.count
+p repo.fetch.start_with('b').to_a
+p repo.fetch.start_with('b').have_email.to_a
+p repo.fetch.count

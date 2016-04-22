@@ -5,21 +5,25 @@ module Rmodel
         base.extend ClassMethods
       end
 
-      def query
+      def fetch
         self.class.scope_class.new(self, @source.build_query)
       end
 
-      def find_by_scope(scope)
-        raw_query = scope.raw_query
+      def find_all(scope = nil)
+        raw_query = (scope || fetch).raw_query
 
         @source.exec_query(raw_query).map do |hash|
           @mapper.deserialize(hash)
         end
       end
 
-      def delete_by_scope(scope)
-        raw_query = scope.raw_query
+      def delete_all(scope = nil)
+        raw_query = (scope || fetch).raw_query
         @source.delete_by_query(raw_query)
+      end
+
+      def destroy_all(scope = nil)
+        find_all(scope).each { |object| destroy(object) }
       end
 
       module ClassMethods

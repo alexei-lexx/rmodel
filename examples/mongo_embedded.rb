@@ -24,7 +24,7 @@ flat_mapper =  Rmodel::Mongo::Mapper.new(Flat)
                                     .define_attribute(:owner, owner_mapper)
 
 repo = Rmodel::Repository.new(source, flat_mapper)
-repo.query.remove
+repo.delete_all
 
 flat = Flat.new
 flat.address = 'Googleplex, Mountain View, California, U.S'
