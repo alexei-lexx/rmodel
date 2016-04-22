@@ -44,7 +44,7 @@ RSpec.shared_examples 'sugarable repository' do
     end
   end
 
-  describe '#save' do
+  describe 'save' do
     let(:thing) { Thing.new }
 
     context 'when a new object is given' do

@@ -38,6 +38,22 @@ RSpec.describe 'Repository with Sequel' do
         Integer :b
       end
     end
+
+    before do
+      class ThingRepository
+        scope :a_equals_2 do
+          where(a: 2)
+        end
+
+        scope :a_equals do |n|
+          where(a: n)
+        end
+
+        scope :b_equals do |n|
+          where(b: n)
+        end
+      end
+    end
   end
 
   def create_database(timestamps = false)
