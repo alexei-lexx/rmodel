@@ -1,39 +1,37 @@
-RSpec.shared_examples 'queryable repository' do
-  before { stub_const 'Thing', Struct.new(:id, :a, :b) }
+RSpec.shared_examples 'scopable repository' do
+  before do
+    stub_const 'Thing', Struct.new(:id, :a, :b)
+    stub_const 'ThingRepository', Class.new(Rmodel::Repository)
 
-  subject do
-    # Mongo and Sequel have very similar query interfaces
-    # That's why we use the same syntax scopes
+    # Use the same scope syntax for Mongo and Sequel
+    class ThingRepository
+      scope :a_equals_2 do
+        where(a: 2)
+      end
 
-    mapper = mapper_klass.new(Thing).define_attributes(:a, :b)
-    repo = Rmodel::Repository.new(source, mapper)
+      scope :a_equals do |n|
+        where(a: n)
+      end
 
-    repo.define_scope :a_equals_2 do
-      where(a: 2)
-    end
-
-    repo.define_scope :a_equals do |n|
-      where(a: n)
-    end
-
-    repo.define_scope :b_equals do |n|
-      where(b: n)
+      scope :b_equals do |n|
+        where(b: n)
+      end
     end
   end
+
+  let(:mapper) { mapper_klass.new(Thing).define_attributes(:a, :b) }
+
+  subject { ThingRepository.new(source, mapper) }
 
   before do
     create_database if defined?(create_database)
 
-    subject.insert(Thing.new(nil, 2, 3), Thing.new(nil, 2, 4),
-                   Thing.new(nil, 5, 6))
+    subject.insert(Thing.new(nil, 2, 3))
+    subject.insert(Thing.new(nil, 2, 4))
+    subject.insert(Thing.new(nil, 5, 6))
   end
 
-  describe '#define_scope' do
-    it 'returns the self repository' do
-      result = subject.define_scope(:new_scope) {}
-      expect(result).to equal subject
-    end
-
+  describe '.scope' do
     context 'when a scope w/o arguments is defined' do
       it 'works!' do
         expect(subject.query.a_equals_2.count).to eq 2

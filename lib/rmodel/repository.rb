@@ -1,11 +1,11 @@
 require 'rmodel/repository_ext/sugarable'
 require 'rmodel/repository_ext/timestampable'
-require 'rmodel/repository_ext/queryable'
+require 'rmodel/repository_ext/scopable'
 
 module Rmodel
   class Repository
     include RepositoryExt::Sugarable
-    include RepositoryExt::Queryable
+    include RepositoryExt::Scopable
     prepend RepositoryExt::Timestampable
 
     def initialize(source, mapper)

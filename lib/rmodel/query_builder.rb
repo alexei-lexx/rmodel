@@ -9,7 +9,6 @@ module Rmodel
 
     def each(&block)
       @repo.find_by_query(@query).each(&block)
-      self
     end
 
     def remove
