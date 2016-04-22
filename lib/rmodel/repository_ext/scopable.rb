@@ -6,7 +6,7 @@ module Rmodel
       end
 
       def query
-        self.class.query_klass.new(self, @source.build_query)
+        self.class.scope_class.new(self, @source.build_query)
       end
 
       def find_by_query(query)
@@ -27,12 +27,12 @@ module Rmodel
       end
 
       module ClassMethods
-        def query_klass
-          @query_klass ||= Class.new(Rmodel::QueryBuilder)
+        def scope_class
+          @scope_class ||= Class.new(Rmodel::Scope)
         end
 
         def scope(name, &block)
-          query_klass.define_scope(name, &block)
+          scope_class.define_scope(name, &block)
         end
       end
     end

@@ -1,5 +1,5 @@
 module Rmodel
-  class QueryBuilder
+  class Scope
     include Enumerable
 
     def initialize(repo, query)
