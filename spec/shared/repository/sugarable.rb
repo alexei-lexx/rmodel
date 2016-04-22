@@ -25,21 +25,21 @@ RSpec.shared_examples 'sugarable repository' do
     context 'when one object is provided' do
       it 'inserts one object' do
         subject.insert(Thing.new)
-        expect(subject.query.count).to eq 1
+        expect(subject.fetch.count).to eq 1
       end
     end
 
     context 'when an array of objects is provided' do
       it 'inserts all objects' do
         subject.insert([Thing.new, Thing.new])
-        expect(subject.query.count).to eq 2
+        expect(subject.fetch.count).to eq 2
       end
     end
 
     context 'when objects are provided as many arguments' do
       it 'inserts all objects' do
         subject.insert(Thing.new, Thing.new)
-        expect(subject.query.count).to eq 2
+        expect(subject.fetch.count).to eq 2
       end
     end
   end

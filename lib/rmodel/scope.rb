@@ -10,15 +10,15 @@ module Rmodel
     end
 
     def each(&block)
-      @repo.find_by_scope(self).each(&block)
+      @repo.find_all(self).each(&block)
     end
 
-    def remove
-      @repo.delete_by_scope(self)
+    def delete_all
+      @repo.delete_all(self)
     end
 
-    def destroy
-      each { |object| @repo.destroy(object) }
+    def destroy_all
+      @repo.destroy_all(self)
     end
 
     def self.define_scope(name, &block)

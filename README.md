@@ -33,8 +33,8 @@ It consists of 3 major components:
 Basic implemented features:
 
 1. CRUD operations: `find`, `insert`, `update`, `destroy`;
-2. Scopes: `userRepository.query.recent.sorted`;
-3. Query-based operations: `userRepository.query.recent.remove`.
+2. Scopes: `repo.fetch.recent.sorted`;
+3. Query-based operations: `repo.fetch.recent.delete_all`.
 
 ## Installation
 
@@ -146,13 +146,13 @@ end
 
 repo = UserRepository.new(source, mapper)
 
-p repo.query.start_with('b').to_a
+p repo.fetch.start_with('b').to_a
 ```
 
 Of course you can chain scopes.
 
 ```ruby
-p repo.query.start_with('b').have_email.to_a
+p repo.fetch.start_with('b').have_email.to_a
 ```
 
 The result of the scope is Enumerable, so you can apply the #each method and
@@ -165,9 +165,16 @@ a query builder for mongo.
 Also it's possible to use scopes to run the multi-row operations.
 
 ```ruby
-repo.query.have_email.remove # simply run the operation against the database
-repo.query.have_email.destroy # extract users and run repo.destroy for the each one
-p repo.query.count # 0
+repo.fetch.have_email.delete_all # simply run the operation against the database
+repo.fetch.have_email.destroy_all # extract users and run repo.destroy for the each one
+p repo.fetch.count # 0
+```
+
+If you have no scopes then just call
+
+```ruby
+repo.delete_all
+repo.destroy_all
 ```
 
 ### Timestamps
@@ -254,8 +261,8 @@ repo.insert Thing.new(nil, 'iPod', 200)
 repo.insert Thing.new(nil, 'iPhone', 300)
 repo.insert Thing.new(nil, 'iPad', 500)
 
-p repo.query.count # 3
-p repo.query.worth_more_than(400).count # 1
+p repo.fetch.count # 3
+p repo.fetch.worth_more_than(400).count # 1
 ```
 
 ### Embedded documents in MongoDB
@@ -333,7 +340,7 @@ flat_mapper =  Rmodel::Mongo::Mapper.new(Flat)
                                     .define_attribute(:owner, owner_mapper)
 
 repo = Rmodel::Repository.new(source, flat_mapper)
-repo.query.remove
+repo.delete_all
 
 flat = Flat.new
 flat.address = 'Googleplex, Mountain View, California, U.S'
