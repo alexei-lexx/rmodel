@@ -2,27 +2,29 @@ module Rmodel
   class Scope
     include Enumerable
 
-    def initialize(repo, query)
+    attr_reader :raw_query
+
+    def initialize(repo, raw_query)
       @repo = repo
-      @query = query
+      @raw_query = raw_query
     end
 
     def each(&block)
-      @repo.find_by_query(@query).each(&block)
+      @repo.find_by_scope(self).each(&block)
     end
 
     def remove
-      @repo.delete_by_query(@query)
+      @repo.delete_by_scope(self)
     end
 
     def destroy
-      @repo.destroy_by_query(@query)
+      each { |object| @repo.destroy(object) }
     end
 
     def self.define_scope(name, &block)
       define_method name do |*args|
-        new_query = @query.instance_exec(*args, &block)
-        self.class.new(@repo, new_query)
+        new_raw_query = @raw_query.instance_exec(*args, &block)
+        self.class.new(@repo, new_raw_query)
       end
     end
   end
