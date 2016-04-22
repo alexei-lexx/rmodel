@@ -2,6 +2,21 @@ RSpec.shared_examples 'queryable repository' do
   before do
     stub_const 'Thing', Struct.new(:id, :a, :b)
     stub_const 'ThingRepository', Class.new(Rmodel::Repository)
+
+    # Use the same scope syntax for Mongo and Sequel
+    class ThingRepository
+      scope :a_equals_2 do
+        where(a: 2)
+      end
+
+      scope :a_equals do |n|
+        where(a: n)
+      end
+
+      scope :b_equals do |n|
+        where(b: n)
+      end
+    end
   end
 
   let(:mapper) { mapper_klass.new(Thing).define_attributes(:a, :b) }
@@ -9,7 +24,8 @@ RSpec.shared_examples 'queryable repository' do
   subject { ThingRepository.new(source, mapper) }
 
   before do
-    create_database
+    create_database if defined?(create_database)
+
     subject.insert(Thing.new(nil, 2, 3))
     subject.insert(Thing.new(nil, 2, 4))
     subject.insert(Thing.new(nil, 5, 6))

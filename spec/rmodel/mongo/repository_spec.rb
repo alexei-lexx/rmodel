@@ -25,24 +25,5 @@ RSpec.describe 'Repository with MongoDB' do
 
   it_behaves_like 'queryable repository' do
     include_context 'definitions'
-
-    def create_database
-    end
-
-    before do
-      class ThingRepository
-        scope :a_equals_2 do
-          where(a: 2)
-        end
-
-        scope :a_equals do |n|
-          where(a: n)
-        end
-
-        scope :b_equals do |n|
-          where(b: n)
-        end
-      end
-    end
   end
 end
