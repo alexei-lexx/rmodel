@@ -2,9 +2,9 @@ require 'sinatra'
 require './lib/rmodel'
 require './examples/webapp/models/task'
 require './examples/webapp/repositories/task_repository'
-require './examples/webapp/support/dependencies'
+require './examples/webapp/support/repositories'
 
-include Dependencies
+include Repositories
 
 get '/' do
   tasks = task_repo.sorted(params[:sort_by])
