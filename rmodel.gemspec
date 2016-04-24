@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'activesupport'
   spec.add_development_dependency 'sinatra'
   spec.add_development_dependency 'activemodel'
+  spec.add_development_dependency 'lazy_injector'
 
   spec.required_ruby_version = '>= 2.0.0'
 end
