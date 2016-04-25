@@ -165,9 +165,10 @@ a query builder for mongo.
 Also it's possible to use scopes to run the multi-row operations.
 
 ```ruby
+repo.fetch.have_email.find(1) # return an object with a given id or nil
 repo.fetch.have_email.delete_all # simply run the operation against the database
 repo.fetch.have_email.destroy_all # extract users and run repo.destroy for the each one
-p repo.fetch.count # 0
+repo.fetch.count # 0
 ```
 
 If you have no scopes then just call

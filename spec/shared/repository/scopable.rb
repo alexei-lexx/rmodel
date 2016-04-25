@@ -20,13 +20,14 @@ RSpec.shared_examples 'scopable repository' do
   end
 
   let(:mapper) { mapper_klass.new(Thing).define_attributes(:a, :b) }
+  let(:one_thing) { Thing.new(nil, 2, 3) }
 
   subject { ThingRepository.new(source, mapper) }
 
   before do
     create_database if defined?(create_database)
 
-    subject.insert(Thing.new(nil, 2, 3))
+    subject.insert(one_thing)
     subject.insert(Thing.new(nil, 2, 4))
     subject.insert(Thing.new(nil, 5, 6))
   end
@@ -100,6 +101,22 @@ RSpec.shared_examples 'scopable repository' do
         it 'calls #destroy for each object' do
           expect(subject).to receive(:destroy).exactly(2).times
           subject.fetch.a_equals_2.destroy_all
+        end
+      end
+    end
+
+    describe '#find' do
+      context 'when an existent id is given' do
+        it 'returns a proper object' do
+          found = subject.fetch.find(one_thing.id)
+          expect(found.id).to eq one_thing.id
+        end
+      end
+
+      context 'when a non-existent id is given' do
+        it 'returns nil' do
+          found = subject.fetch.find('wrong-id')
+          expect(found).to be_nil
         end
       end
     end

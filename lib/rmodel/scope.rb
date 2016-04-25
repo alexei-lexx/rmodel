@@ -21,6 +21,11 @@ module Rmodel
       @repo.destroy_all(self)
     end
 
+    def find(id)
+      new_raw_query = @raw_query.find_by_id(id)
+      self.class.new(@repo, new_raw_query).first
+    end
+
     def self.define_scope(name, &block)
       define_method name do |*args|
         new_raw_query = @raw_query.instance_exec(*args, &block)

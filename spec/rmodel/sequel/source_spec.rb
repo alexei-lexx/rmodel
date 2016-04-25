@@ -85,7 +85,8 @@ RSpec.describe Rmodel::Sequel::Source do
 
   describe 'build_query' do
     it 'returns the instance of Sequel::Dataset' do
-      expect(subject.build_query).to be_a_kind_of Sequel::Dataset
+      expect(subject.build_query).to respond_to :select
+      expect(subject.build_query).to respond_to :order
     end
   end
 
