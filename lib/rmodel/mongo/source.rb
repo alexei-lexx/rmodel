@@ -1,13 +1,8 @@
-require 'origin'
 require 'mongo'
 
 module Rmodel
   module Mongo
     class Source
-      class Query
-        include Origin::Queryable
-      end
-
       def initialize(connection, collection)
         @connection = connection
         raise ArgumentError, 'Connection is not setup' unless @connection

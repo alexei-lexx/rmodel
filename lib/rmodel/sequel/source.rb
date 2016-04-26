@@ -28,7 +28,7 @@ module Rmodel
       end
 
       def build_query
-        @connection[@table]
+        Query.new(@connection[@table])
       end
 
       def exec_query(query)
