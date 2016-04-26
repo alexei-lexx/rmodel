@@ -122,13 +122,6 @@ RSpec.shared_examples 'scopable repository' do
     end
   end
 
-  describe '#all' do
-    it 'gets all objects' do
-      objects = subject.all
-      expect(objects.length).to eq 3
-    end
-  end
-
   describe '#delete_all' do
     context 'when no scope is given' do
       it 'deletes all objects' do
