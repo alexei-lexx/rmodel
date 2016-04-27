@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/alexei-lexx/rmodel.svg)](https://travis-ci.org/alexei-lexx/rmodel)
+[![Code Climate](https://codeclimate.com/github/alexei-lexx/rmodel/badges/gpa.svg)](https://codeclimate.com/github/alexei-lexx/rmodel)
 
 # Rmodel
 
