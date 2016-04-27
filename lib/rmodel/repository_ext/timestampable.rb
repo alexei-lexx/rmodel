@@ -2,7 +2,9 @@ module Rmodel
   module RepositoryExt
     module Timestampable
       def insert_one(object)
-        object.created_at = now if able_to_set_created_at?(object)
+        time = now
+        object.created_at = time if able_to_set_created_at?(object)
+        object.updated_at = time if able_to_set_updated_at?(object)
         super
       end
 

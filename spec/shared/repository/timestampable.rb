@@ -29,6 +29,10 @@ RSpec.shared_examples 'timestampable repository' do
           expect(thing.created_at).not_to be_nil
         end
 
+        it 'sets the same value to updated_at' do
+          expect(thing.updated_at).to eq thing.created_at
+        end
+
         it 'saves created_at in the database' do
           expect(subject.find(thing.id).created_at).not_to be_nil
         end
