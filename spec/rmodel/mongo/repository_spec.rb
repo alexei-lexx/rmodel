@@ -26,4 +26,8 @@ RSpec.describe 'Repository with MongoDB' do
   it_behaves_like 'scopable repository' do
     include_context 'definitions'
   end
+
+  it_behaves_like 'injectable repository' do
+    include_context 'definitions'
+  end
 end

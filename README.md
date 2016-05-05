@@ -9,9 +9,9 @@
   * [Scopes](#scopes)
   * [Timestamps](#timestamps)
   * [Sugar methods](#sugar-methods)
-  * [Advanced creation of repository](#advanced-creation-of-repository)
   * [SQL repository](#sql-repository)
   * [Embedded documents in MongoDB](#embedded-documents-in-mongodb)
+  * [Entity class as a repository](#entity-class-as-a-repository)
 
 Rmodel is an ORM library, which tends to follow the SOLID principles.
 
@@ -356,6 +356,67 @@ flat.owner = Owner.new('John', 'Doe')
 repo.insert(flat)
 p repo.find(flat.id)
 ```
+
+### Entity class as a repository
+
+Ruby on Rails lovers would like to use the entity's class to fetch, create,
+update and delete objects. For example `User.find(1)`, `User.create(john)`
+instead of addressing to the repository object `user_repository.find(1)`.
+
+Rmodel has a special feature to resemble the Active Record style - the
+repository injector. Look at the example below.
+
+```ruby
+require 'rmodel'
+
+DB = Mongo::Client.new(['localhost'], database: 'test')
+
+class UserRepository < Rmodel::Repository
+  scope :start_with do |s|
+    where(name: { '$regex' => "^#{s}", '$options' => 'i' })
+  end
+
+  def initialize
+    source = Rmodel::Mongo::Source.new(DB, :users)
+    mapper = Rmodel::Mongo::Mapper.new(User).define_attributes(:name, :email)
+
+    super(source, mapper)
+  end
+
+  def fetch_johns
+    fetch.start_with('john')
+  end
+end
+
+User = Struct.new(:id, :name, :email) do
+  include UserRepository.injector
+end
+
+User.delete_all
+
+john = User.new(nil, 'John', 'john@example.com')
+User.insert(john)
+
+john.name = 'John Smith'
+User.update(john)
+
+User.insert(User.new)
+
+p User.fetch.start_with('J').count
+p User.fetch_johns.count
+```
+
+Here is the explanation:
+
+* `UserRepository.injector` is a module that delegates method calls to the
+underlying repository. It can be included to the class (like User) or extend the
+object.
+* UserRepository must have a constructor with an empty list of arguments.
+* UserRepository is defined as usually. It can have scopes and custom instance
+methods. All of them become available as methods of User.
+  * Remember `user_repo.find(1)`. Now it's available as `User.find(1)`.
+  * The same `user.fetch.start_with('a')` becomes `User.fetch.start_with('a')`.
+  * And the custom method is available as `User.fetch_johns`.
 
 ## Contributing
 

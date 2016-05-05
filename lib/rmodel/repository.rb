@@ -1,12 +1,14 @@
 require 'rmodel/repository_ext/sugarable'
 require 'rmodel/repository_ext/timestampable'
 require 'rmodel/repository_ext/scopable'
+require 'rmodel/repository_ext/injectable'
 
 module Rmodel
   class Repository
     include RepositoryExt::Sugarable
     include RepositoryExt::Scopable
     prepend RepositoryExt::Timestampable
+    extend RepositoryExt::Injectable
 
     def initialize(source, mapper)
       @source = source or raise ArgumentError, 'Source is not set up'
