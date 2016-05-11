@@ -24,7 +24,7 @@ RSpec.describe 'Repository with Sequel' do
   end
 
   it_behaves_like 'initialization' do
-    before { create_database(true) }
+    before { create_database }
     include_context 'definitions'
   end
 
@@ -49,5 +49,10 @@ RSpec.describe 'Repository with Sequel' do
         Time :updated_at
       end
     end
+  end
+
+  it_behaves_like 'injectable repository' do
+    before { create_database }
+    include_context 'definitions'
   end
 end
