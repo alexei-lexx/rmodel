@@ -24,7 +24,7 @@ module Rmodel
       end
 
       def now
-        Time.try(:current) || Time.now
+        (Time.respond_to?(:current) && Time.current) || Time.now
       end
     end
   end
